@@ -4,7 +4,9 @@ export function getVaccinationStatus(
   if (!nextDueDate) return 'green';
 
   const now = new Date();
-  const due = new Date(nextDueDate);
+  // Parse as local date to avoid timezone mismatch with new Date()
+  const [year, month, day] = nextDueDate.split('-').map(Number);
+  const due = new Date(year, month - 1, day);
 
   // Reset time portion for date-only comparison
   now.setHours(0, 0, 0, 0);

@@ -43,7 +43,12 @@
           "backgroundColor": "#FFF8E7"
         }
       ],
-      "expo-image-picker",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Pawlife needs access to your photos to add a profile picture for your pet."
+        }
+      ],
       "@react-native-community/datetimepicker"
     ],
     "experiments": {

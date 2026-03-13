@@ -1,5 +1,6 @@
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface ScreenProps {
   children: React.ReactNode;
@@ -8,9 +9,11 @@ interface ScreenProps {
 }
 
 export function Screen({ children, scroll, className }: ScreenProps) {
+  const insets = useSafeAreaInsets();
+
   const content = scroll ? (
     <ScrollView
-      contentContainerStyle={{ flexGrow: 1 }}
+      contentContainerStyle={{ flexGrow: 1, paddingBottom: insets.bottom }}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
@@ -21,7 +24,10 @@ export function Screen({ children, scroll, className }: ScreenProps) {
   );
 
   return (
-    <SafeAreaView className={`flex-1 bg-background ${className ?? ''}`}>
+    <SafeAreaView
+      className={`flex-1 bg-background ${className ?? ''}`}
+      edges={scroll ? ['top', 'left', 'right'] : undefined}
+    >
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

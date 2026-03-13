@@ -9,7 +9,6 @@ import { Screen } from '@/components/ui/Screen';
 import { Card } from '@/components/ui/Card';
 import { TextInput } from '@/components/ui/TextInput';
 import { DateInput } from '@/components/ui/DateInput';
-import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { SearchableDropdown } from '@/components/ui/SearchableDropdown';
@@ -90,14 +89,27 @@ export default function EditPetScreen() {
   }, [petId, reset]);
 
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-    if (!result.canceled && result.assets[0]) {
-      setPhotoUri(result.assets[0].uri);
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission Required',
+          'Please allow access to your photo library to add a pet photo.',
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+      if (!result.canceled && result.assets[0]) {
+        setPhotoUri(result.assets[0].uri);
+      }
+    } catch {
+      Alert.alert('Error', 'Failed to open photo library. Please try again.');
     }
   };
 
@@ -184,14 +196,28 @@ export default function EditPetScreen() {
 
   return (
     <Screen scroll>
-      <View className="px-6 pt-4 pb-8">
-        <Pressable onPress={() => router.back()} className="mb-4" hitSlop={8}>
-          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
-        </Pressable>
-
-        <Text className="text-3xl font-bold text-text-primary mb-6">
-          Edit {petName || 'Pet'}
-        </Text>
+      <View className="px-6 pt-4 pb-16">
+        {/* Header: Back + Title + Save */}
+        <View className="flex-row items-center justify-between mb-6">
+          <Pressable onPress={() => router.back()} hitSlop={8} className="py-1">
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
+          </Pressable>
+          <Text className="text-lg font-bold text-text-primary">
+            Edit {petName || 'Pet'}
+          </Text>
+          <Pressable
+            onPress={handleSubmit(onSubmit)}
+            disabled={submitting}
+            hitSlop={8}
+            className="py-1"
+          >
+            {submitting ? (
+              <ActivityIndicator size="small" color={Colors.primary} />
+            ) : (
+              <Text className="text-primary text-base font-bold">Save</Text>
+            )}
+          </Pressable>
+        </View>
 
         {serverError && (
           <View className="bg-status-overdue/10 rounded-xl px-4 py-3 mb-4">
@@ -400,14 +426,6 @@ export default function EditPetScreen() {
         </Card>
 
         <CutenessGauge />
-
-        <View className="mt-6">
-          <Button
-            title="Save Changes"
-            onPress={handleSubmit(onSubmit)}
-            loading={submitting}
-          />
-        </View>
 
         {/* Archive Option */}
         <Pressable

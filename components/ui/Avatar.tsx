@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import { Image } from 'expo-image';
 import { Colors } from '@/constants/colors';
@@ -17,19 +18,26 @@ const sizes = {
 
 export function Avatar({ uri, name, size = 'md' }: AvatarProps) {
   const { container, text } = sizes[size];
+  const [failed, setFailed] = useState(false);
 
-  if (uri) {
+  // Reset failed state when URI changes
+  useEffect(() => {
+    setFailed(false);
+  }, [uri]);
+
+  const initial = name.charAt(0).toUpperCase() || '?';
+
+  if (uri && !failed) {
     return (
       <Image
         source={{ uri }}
         style={{ width: container, height: container, borderRadius: container / 2 }}
         contentFit="cover"
+        onError={() => setFailed(true)}
         testID="avatar-image"
       />
     );
   }
-
-  const initial = name.charAt(0).toUpperCase() || '?';
 
   return (
     <View

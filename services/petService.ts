@@ -83,16 +83,17 @@ export const petService = {
 
     const path = `${userId}/${petId}/profile.jpg`;
     const response = await fetch(compressed.uri);
-    const blob = await response.blob();
+    const arrayBuffer = await response.arrayBuffer();
 
     const { error } = await supabase.storage
       .from('pet-photos')
-      .upload(path, blob, { contentType: 'image/jpeg', upsert: true });
+      .upload(path, arrayBuffer, { contentType: 'image/jpeg', upsert: true });
     if (error) throw error;
 
     const {
       data: { publicUrl },
     } = supabase.storage.from('pet-photos').getPublicUrl(path);
-    return publicUrl;
+    // Append cache-buster so CDN/image cache serves the fresh upload
+    return `${publicUrl}?t=${Date.now()}`;
   },
 };
