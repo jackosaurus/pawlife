@@ -20,6 +20,8 @@ module.exports = {
         'status-green': '#5BA67C',
         'status-amber': '#E5A84B',
         'status-overdue': '#E8735A',
+        'status-neutral': '#9CA3AF',
+        'input-fill': '#F5F3F0',
         border: '#EDE8DF',
       },
       borderRadius: {

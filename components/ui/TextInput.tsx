@@ -26,7 +26,7 @@ export const TextInput = React.forwardRef<RNTextInput, TextInputProps>(
 
     return (
       <View className="mb-4">
-        <Text className="text-text-secondary text-sm mb-1.5 ml-1">
+        <Text className="text-text-secondary text-base mb-1.5">
           {label}
         </Text>
         <View
@@ -62,7 +62,7 @@ export const TextInput = React.forwardRef<RNTextInput, TextInputProps>(
           )}
         </View>
         {error && (
-          <Text className="text-status-overdue text-sm mt-1 ml-1">
+          <Text className="text-status-overdue text-sm mt-1">
             {error}
           </Text>
         )}

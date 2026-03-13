@@ -7,7 +7,7 @@ interface RecordCardProps {
   title: string;
   subtitle?: string;
   date: string;
-  status?: 'green' | 'amber' | 'overdue';
+  status?: 'green' | 'amber' | 'overdue' | 'neutral';
   statusLabel?: string;
   onPress: () => void;
 }

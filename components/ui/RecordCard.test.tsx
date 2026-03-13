@@ -16,7 +16,7 @@ describe('RecordCard', () => {
   it('renders title and formatted date', () => {
     const { getByText } = render(<RecordCard {...defaultProps} />);
     expect(getByText('Rabies')).toBeTruthy();
-    expect(getByText('Jan 15, 2025')).toBeTruthy();
+    expect(getByText('15 Jan 2025')).toBeTruthy();
   });
 
   it('renders subtitle when provided', () => {

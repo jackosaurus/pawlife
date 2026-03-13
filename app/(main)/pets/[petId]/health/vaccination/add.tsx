@@ -5,7 +5,9 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen } from '@/components/ui/Screen';
+import { Card } from '@/components/ui/Card';
 import { TextInput } from '@/components/ui/TextInput';
+import { DateInput } from '@/components/ui/DateInput';
 import { Button } from '@/components/ui/Button';
 import { SearchableDropdown } from '@/components/ui/SearchableDropdown';
 import {
@@ -98,66 +100,66 @@ export default function AddVaccinationScreen() {
           </View>
         )}
 
-        <Controller
-          control={control}
-          name="vaccineName"
-          render={({ field: { onChange, value } }) => (
-            <SearchableDropdown
-              label="Vaccine Name"
-              placeholder="Search or type vaccine name..."
-              options={getVaccinesForType(petType)}
-              value={value || null}
-              onSelect={(v) => {
-                onChange(v);
-                autoSuggestNextDue(v);
-              }}
-              error={errors.vaccineName?.message}
-            />
-          )}
-        />
+        <Card className="px-5 pt-4 mb-4">
+          <Controller
+            control={control}
+            name="vaccineName"
+            render={({ field: { onChange, value } }) => (
+              <SearchableDropdown
+                label="Vaccine Name"
+                placeholder="Search or type vaccine name..."
+                options={getVaccinesForType(petType)}
+                value={value || null}
+                onSelect={(v) => {
+                  onChange(v);
+                  autoSuggestNextDue(v);
+                }}
+                error={errors.vaccineName?.message}
+              />
+            )}
+          />
 
-        <Controller
-          control={control}
-          name="dateAdministered"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label="Date Administered"
-              placeholder="YYYY-MM-DD"
-              onChangeText={onChange}
-              onBlur={onBlur}
-              value={value}
-              error={errors.dateAdministered?.message}
-            />
-          )}
-        />
+          <Controller
+            control={control}
+            name="dateAdministered"
+            render={({ field: { onChange, value } }) => (
+              <DateInput
+                label="Date Administered"
+                value={value || null}
+                onChange={onChange}
+                error={errors.dateAdministered?.message}
+                maximumDate={new Date()}
+              />
+            )}
+          />
 
-        <Controller
-          control={control}
-          name="nextDueDate"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label="Next Due Date"
-              placeholder="YYYY-MM-DD (optional)"
-              onChangeText={onChange}
-              onBlur={onBlur}
-              value={value ?? ''}
-            />
-          )}
-        />
+          <Controller
+            control={control}
+            name="nextDueDate"
+            render={({ field: { onChange, value } }) => (
+              <DateInput
+                label="Next Due Date"
+                placeholder="Select date (optional)"
+                value={value || null}
+                onChange={onChange}
+              />
+            )}
+          />
 
-        <Controller
-          control={control}
-          name="clinicName"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label="Clinic Name"
-              placeholder="Optional"
-              onChangeText={onChange}
-              onBlur={onBlur}
-              value={value ?? ''}
-            />
-          )}
-        />
+          <Controller
+            control={control}
+            name="clinicName"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label="Clinic Name"
+                placeholder="Optional"
+                onChangeText={onChange}
+                onBlur={onBlur}
+                value={value ?? ''}
+              />
+            )}
+          />
+        </Card>
 
         <View className="mt-6">
           <Button

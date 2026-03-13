@@ -2,13 +2,28 @@ import React, { useState, useMemo } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { TextInput } from './TextInput';
 
+export interface DropdownOption {
+  label: string;
+  value: string;
+}
+
 interface SearchableDropdownProps {
-  options: string[];
+  options: string[] | DropdownOption[];
   value: string | null;
   onSelect: (value: string) => void;
   placeholder?: string;
   label: string;
   error?: string;
+  /** Show all options immediately when focused, before the user types anything */
+  showAllOnFocus?: boolean;
+}
+
+function normalizeOptions(options: string[] | DropdownOption[]): DropdownOption[] {
+  if (options.length === 0) return [];
+  if (typeof options[0] === 'string') {
+    return (options as string[]).map((o) => ({ label: o, value: o }));
+  }
+  return options as DropdownOption[];
 }
 
 export function SearchableDropdown({
@@ -18,19 +33,24 @@ export function SearchableDropdown({
   placeholder,
   label,
   error,
+  showAllOnFocus = false,
 }: SearchableDropdownProps) {
   const [query, setQuery] = useState(value ?? '');
   const [open, setOpen] = useState(false);
 
-  const filtered = useMemo(() => {
-    if (!query) return options;
-    const lower = query.toLowerCase();
-    return options.filter((o) => o.toLowerCase().includes(lower));
-  }, [query, options]);
+  const normalized = useMemo(() => normalizeOptions(options), [options]);
 
-  const handleSelect = (item: string) => {
-    setQuery(item);
-    onSelect(item);
+  const filtered = useMemo(() => {
+    if (!query) return normalized;
+    const lower = query.toLowerCase();
+    return normalized.filter((o) => o.value.toLowerCase().includes(lower));
+  }, [query, normalized]);
+
+  const shouldShow = open && (showAllOnFocus || query.length > 0) && filtered.length > 0;
+
+  const handleSelect = (item: DropdownOption) => {
+    setQuery(item.value);
+    onSelect(item.value);
     setOpen(false);
   };
 
@@ -42,26 +62,28 @@ export function SearchableDropdown({
         value={query}
         onChangeText={(text) => {
           setQuery(text);
+          onSelect(text);
           if (!open) setOpen(true);
         }}
         onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
         error={error}
       />
-      {open && filtered.length > 0 && (
+      {shouldShow && (
         <ScrollView
           className="bg-white border border-border rounded-xl -mt-2"
           style={{ maxHeight: 192 }}
           keyboardShouldPersistTaps="handled"
           nestedScrollEnabled
         >
-          {filtered.map((item) => (
+          {filtered.map((item, index) => (
             <Pressable
-              key={item}
+              key={`${item.value}-${index}`}
               onPress={() => handleSelect(item)}
               className="px-4 py-3 border-b border-border"
-              testID={`dropdown-item-${item}`}
+              testID={`dropdown-item-${item.value}`}
             >
-              <Text className="text-text-primary text-base">{item}</Text>
+              <Text className="text-text-primary text-base">{item.label}</Text>
             </Pressable>
           ))}
         </ScrollView>

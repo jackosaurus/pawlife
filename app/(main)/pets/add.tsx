@@ -6,7 +6,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { Screen } from '@/components/ui/Screen';
+import { Card } from '@/components/ui/Card';
 import { TextInput } from '@/components/ui/TextInput';
+import { DateInput } from '@/components/ui/DateInput';
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
@@ -15,6 +17,7 @@ import { addPetSchema, AddPetFormData } from '@/types/pet';
 import { petService } from '@/services/petService';
 import { useAuthStore } from '@/stores/authStore';
 import { getBreedsForType } from '@/constants/breeds';
+import { CutenessGauge } from '@/components/pets/CutenessGauge';
 import { Colors } from '@/constants/colors';
 
 export default function AddPetScreen() {
@@ -124,7 +127,7 @@ export default function AddPetScreen() {
         )}
 
         {/* Pet Type */}
-        <Text className="text-text-secondary text-sm mb-2 ml-1">
+        <Text className="text-text-secondary text-base mb-2">
           What kind of pet?
         </Text>
         <Controller
@@ -182,145 +185,148 @@ export default function AddPetScreen() {
           </Text>
         </Pressable>
 
-        {/* Name */}
-        <Controller
-          control={control}
-          name="name"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label="Name"
-              placeholder="What's your pet's name?"
-              onChangeText={onChange}
-              onBlur={onBlur}
-              value={value}
-              error={errors.name?.message}
-            />
-          )}
-        />
-
-        {/* Breed */}
-        <Controller
-          control={control}
-          name="breed"
-          render={({ field: { onChange, value } }) => (
-            <SearchableDropdown
-              label="Breed"
-              placeholder="Search breeds..."
-              options={getBreedsForType(petType)}
-              value={value ?? null}
-              onSelect={onChange}
-              error={errors.breed?.message}
-            />
-          )}
-        />
-
-        {/* Sex */}
-        <Text className="text-text-secondary text-sm mb-2 ml-1">Sex</Text>
-        <Controller
-          control={control}
-          name="sex"
-          render={({ field: { onChange, value } }) => (
-            <View className="mb-4">
-              <SegmentedControl
-                options={[
-                  { label: 'Male', value: 'male' },
-                  { label: 'Female', value: 'female' },
-                  { label: 'Unknown', value: 'unknown' },
-                ]}
-                selected={value ?? 'unknown'}
-                onSelect={onChange}
-              />
-            </View>
-          )}
-        />
-
-        {/* Age Toggle */}
-        <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-text-secondary text-sm ml-1">
-            I don't know the exact date of birth
-          </Text>
-          <Switch
-            value={useApproxAge}
-            onValueChange={(val) => {
-              setUseApproxAge(val);
-              if (val) {
-                setValue('dateOfBirth', null);
-              } else {
-                setValue('approximateAgeMonths', null);
-              }
-            }}
-            trackColor={{ true: Colors.primary }}
-          />
-        </View>
-
-        {useApproxAge ? (
+        <Card className="px-5 pt-4 mb-4">
+          {/* Name */}
           <Controller
             control={control}
-            name="approximateAgeMonths"
+            name="name"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                label="Approximate Age (months)"
-                placeholder="e.g. 18"
-                keyboardType="number-pad"
+                label="Name"
+                placeholder="What's your pet's name?"
+                onChangeText={onChange}
+                onBlur={onBlur}
+                value={value}
+                error={errors.name?.message}
+              />
+            )}
+          />
+
+          {/* Breed */}
+          <Controller
+            control={control}
+            name="breed"
+            render={({ field: { onChange, value } }) => (
+              <SearchableDropdown
+                label="Breed"
+                placeholder="Search breeds..."
+                options={getBreedsForType(petType)}
+                value={value ?? null}
+                onSelect={onChange}
+                error={errors.breed?.message}
+              />
+            )}
+          />
+
+          {/* Sex */}
+          <Text className="text-text-secondary text-base mb-2">Sex</Text>
+          <Controller
+            control={control}
+            name="sex"
+            render={({ field: { onChange, value } }) => (
+              <View className="mb-4">
+                <SegmentedControl
+                  options={[
+                    { label: 'Male', value: 'male' },
+                    { label: 'Female', value: 'female' },
+                    { label: 'Unknown', value: 'unknown' },
+                  ]}
+                  selected={value ?? 'unknown'}
+                  onSelect={onChange}
+                />
+              </View>
+            )}
+          />
+
+          {/* Age Toggle */}
+          <View className="flex-row items-center justify-between mb-4">
+            <Text className="text-text-secondary text-base">
+              I don't know the exact date of birth
+            </Text>
+            <Switch
+              value={useApproxAge}
+              onValueChange={(val) => {
+                setUseApproxAge(val);
+                if (val) {
+                  setValue('dateOfBirth', null);
+                } else {
+                  setValue('approximateAgeMonths', null);
+                }
+              }}
+              trackColor={{ true: Colors.primary }}
+            />
+          </View>
+
+          {useApproxAge ? (
+            <Controller
+              control={control}
+              name="approximateAgeMonths"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  label="Approximate Age (months)"
+                  placeholder="e.g. 18"
+                  keyboardType="number-pad"
+                  onChangeText={(text) => {
+                    const num = parseInt(text, 10);
+                    onChange(isNaN(num) ? null : num);
+                  }}
+                  onBlur={onBlur}
+                  value={value != null ? String(value) : ''}
+                />
+              )}
+            />
+          ) : (
+            <Controller
+              control={control}
+              name="dateOfBirth"
+              render={({ field: { onChange, value } }) => (
+                <DateInput
+                  label="Date of Birth"
+                  value={value || null}
+                  onChange={onChange}
+                  maximumDate={new Date()}
+                />
+              )}
+            />
+          )}
+
+          {/* Weight */}
+          <Controller
+            control={control}
+            name="weight"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label="Weight (kg)"
+                placeholder="e.g. 12.5"
+                keyboardType="decimal-pad"
                 onChangeText={(text) => {
-                  const num = parseInt(text, 10);
+                  const num = parseFloat(text);
                   onChange(isNaN(num) ? null : num);
                 }}
                 onBlur={onBlur}
                 value={value != null ? String(value) : ''}
+                error={errors.weight?.message}
               />
             )}
           />
-        ) : (
+
+          {/* Microchip */}
           <Controller
             control={control}
-            name="dateOfBirth"
+            name="microchipNumber"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                label="Date of Birth"
-                placeholder="YYYY-MM-DD"
+                label="Microchip Number"
+                placeholder="Optional"
                 onChangeText={onChange}
                 onBlur={onBlur}
                 value={value ?? ''}
               />
             )}
           />
-        )}
+        </Card>
 
-        {/* Weight */}
-        <Controller
-          control={control}
-          name="weight"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label="Weight (kg)"
-              placeholder="e.g. 12.5"
-              keyboardType="decimal-pad"
-              onChangeText={(text) => {
-                const num = parseFloat(text);
-                onChange(isNaN(num) ? null : num);
-              }}
-              onBlur={onBlur}
-              value={value != null ? String(value) : ''}
-              error={errors.weight?.message}
-            />
-          )}
-        />
-
-        {/* Microchip */}
-        <Controller
-          control={control}
-          name="microchipNumber"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label="Microchip Number"
-              placeholder="Optional"
-              onChangeText={onChange}
-              onBlur={onBlur}
-              value={value ?? ''}
-            />
-          )}
-        />
+        <CutenessGauge />
 
         <View className="mt-6">
           <Button

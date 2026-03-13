@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Screen } from '@/components/ui/Screen';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { DetailRow } from '@/components/ui/DetailRow';
 import { foodService } from '@/services/foodService';
 import { Colors } from '@/constants/colors';
 import { formatDate } from '@/utils/dates';
@@ -117,7 +118,7 @@ export default function FoodDetailScreen() {
             color={Colors.textPrimary}
             onPress={() => router.back()}
           />
-          <Text className="text-xl font-bold text-text-primary ml-3">
+          <Text className="text-3xl font-bold text-text-primary ml-3">
             Food Details
           </Text>
         </View>
@@ -130,39 +131,34 @@ export default function FoodDetailScreen() {
           </View>
         )}
 
-        <Card className="p-5 mb-4">
-          <DetailRow label="Brand" value={entry.brand} />
-          {entry.product_name ? (
-            <DetailRow label="Product Name" value={entry.product_name} />
-          ) : null}
-          {entry.food_type ? (
-            <DetailRow
-              label="Food Type"
-              value={FOOD_TYPE_LABELS[entry.food_type] ?? entry.food_type}
-            />
-          ) : null}
-          {entry.amount_per_meal ? (
-            <DetailRow label="Amount Per Meal" value={entry.amount_per_meal} />
-          ) : null}
-          {entry.meals_per_day ? (
-            <DetailRow
-              label="Meals Per Day"
-              value={String(entry.meals_per_day)}
-            />
-          ) : null}
+        <Card className="px-5 mb-4">
+          {(() => {
+            const rows: { label: string; value: string }[] = [
+              { label: 'Brand', value: entry.brand },
+            ];
+            if (entry.product_name) rows.push({ label: 'Product', value: entry.product_name });
+            if (entry.food_type) rows.push({ label: 'Type', value: FOOD_TYPE_LABELS[entry.food_type] ?? entry.food_type });
+            if (entry.amount_per_meal) rows.push({ label: 'Per Meal', value: entry.amount_per_meal });
+            if (entry.meals_per_day) rows.push({ label: 'Meals/Day', value: String(entry.meals_per_day) });
+            if (entry.notes) rows.push({ label: 'Notes', value: entry.notes });
+            return rows.map((row, i) => (
+              <DetailRow key={row.label} label={row.label} value={row.value} isLast={i === rows.length - 1} />
+            ));
+          })()}
+        </Card>
+
+        <Text className="text-sm font-medium text-text-secondary uppercase tracking-wide ml-1 mb-2">
+          Timeline
+        </Text>
+        <Card className="px-5 mb-4">
           <DetailRow label="Started" value={formatDate(entry.start_date)} />
           <DetailRow
             label="Ended"
             value={entry.end_date ? formatDate(entry.end_date) : 'Current'}
+            isLast={!entry.reason_for_change}
           />
           {entry.reason_for_change ? (
-            <DetailRow
-              label="Reason for Change"
-              value={entry.reason_for_change}
-            />
-          ) : null}
-          {entry.notes ? (
-            <DetailRow label="Notes" value={entry.notes} />
+            <DetailRow label="Reason" value={entry.reason_for_change} isLast />
           ) : null}
         </Card>
 
@@ -186,14 +182,5 @@ export default function FoodDetailScreen() {
         </View>
       </View>
     </Screen>
-  );
-}
-
-function DetailRow({ label, value }: { label: string; value: string }) {
-  return (
-    <View className="mb-3">
-      <Text className="text-xs text-text-secondary mb-0.5">{label}</Text>
-      <Text className="text-base text-text-primary">{value}</Text>
-    </View>
   );
 }

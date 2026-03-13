@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, screen } from '@testing-library/react-native';
 import { DeleteConfirmation } from './DeleteConfirmation';
 
 describe('DeleteConfirmation', () => {
@@ -16,40 +16,46 @@ describe('DeleteConfirmation', () => {
   });
 
   it('renders title and message when visible', () => {
-    const { getByText } = render(<DeleteConfirmation {...defaultProps} />);
-    expect(getByText('Delete Record')).toBeTruthy();
-    expect(getByText('Are you sure?')).toBeTruthy();
+    render(<DeleteConfirmation {...defaultProps} />);
+    expect(screen.getByText('Delete Record')).toBeTruthy();
+    expect(screen.getByText('Are you sure?')).toBeTruthy();
+  });
+
+  it('renders delete and cancel buttons', () => {
+    render(<DeleteConfirmation {...defaultProps} />);
+    expect(screen.getByText('Delete')).toBeTruthy();
+    expect(screen.getByText('Cancel')).toBeTruthy();
   });
 
   it('calls onCancel when cancel is pressed', () => {
     const onCancel = jest.fn();
-    const { getByTestId } = render(
-      <DeleteConfirmation {...defaultProps} onCancel={onCancel} />,
-    );
-    fireEvent.press(getByTestId('cancel-button'));
+    render(<DeleteConfirmation {...defaultProps} onCancel={onCancel} />);
+    fireEvent.press(screen.getByTestId('cancel-button'));
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
   it('calls onConfirm when delete is pressed', () => {
     const onConfirm = jest.fn();
-    const { getByTestId } = render(
-      <DeleteConfirmation {...defaultProps} onConfirm={onConfirm} />,
-    );
-    fireEvent.press(getByTestId('confirm-delete-button'));
+    render(<DeleteConfirmation {...defaultProps} onConfirm={onConfirm} />);
+    fireEvent.press(screen.getByTestId('confirm-delete-button'));
     expect(onConfirm).toHaveBeenCalledTimes(1);
   });
 
   it('shows loading indicator when loading', () => {
-    const { getByTestId } = render(
-      <DeleteConfirmation {...defaultProps} loading />,
-    );
-    expect(getByTestId('delete-loading')).toBeTruthy();
+    render(<DeleteConfirmation {...defaultProps} loading />);
+    expect(screen.getByTestId('delete-loading')).toBeTruthy();
+    expect(screen.queryByText('Delete')).toBeNull();
   });
 
-  it('does not render when not visible', () => {
-    const { queryByText } = render(
-      <DeleteConfirmation {...defaultProps} visible={false} />,
-    );
-    expect(queryByText('Delete Record')).toBeNull();
+  it('calls onCancel when backdrop is pressed', () => {
+    const onCancel = jest.fn();
+    render(<DeleteConfirmation {...defaultProps} onCancel={onCancel} />);
+    fireEvent.press(screen.getByTestId('backdrop'));
+    expect(onCancel).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not render content when not visible', () => {
+    render(<DeleteConfirmation {...defaultProps} visible={false} />);
+    expect(screen.queryByText('Delete Record')).toBeNull();
   });
 });

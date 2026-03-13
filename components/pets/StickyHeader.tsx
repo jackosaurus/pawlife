@@ -1,6 +1,7 @@
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Avatar } from '@/components/ui/Avatar';
+import { MetadataPill } from '@/components/pets/MetadataPill';
 import { calculateAge } from '@/utils/dates';
 import { Colors } from '@/constants/colors';
 import { Pet } from '@/types';
@@ -8,16 +9,22 @@ import { Pet } from '@/types';
 interface StickyHeaderProps {
   pet: Pet;
   onBack: () => void;
+  onEdit?: () => void;
 }
 
-export function StickyHeader({ pet, onBack }: StickyHeaderProps) {
+export function StickyHeader({ pet, onBack, onEdit }: StickyHeaderProps) {
   const age = calculateAge(pet.date_of_birth, pet.approximate_age_months);
+
+  const sexLabel =
+    pet.sex === 'male' ? '♂ Male' : pet.sex === 'female' ? '♀ Female' : null;
 
   return (
     <View className="px-6 pt-4 pb-6">
-      <Pressable onPress={onBack} hitSlop={8} className="mb-4" testID="back-button">
-        <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
-      </Pressable>
+      <View className="flex-row items-center mb-4">
+        <Pressable onPress={onBack} hitSlop={8} testID="back-button">
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
+        </Pressable>
+      </View>
 
       <View className="flex-row items-center">
         <Avatar
@@ -27,31 +34,43 @@ export function StickyHeader({ pet, onBack }: StickyHeaderProps) {
           petType={pet.pet_type}
         />
         <View className="ml-4 flex-1">
-          <View className="flex-row items-center">
-            <Text className="text-2xl font-bold text-text-primary">
-              {pet.name}
-            </Text>
-            <Text className="text-xl ml-2">
-              {pet.pet_type === 'dog' ? '🐕' : '🐈'}
-            </Text>
-          </View>
+          <Text className="text-3xl font-bold text-text-primary">
+            {pet.name}
+          </Text>
           <Text className="text-base text-text-secondary mt-0.5">
             {pet.breed ?? 'Mixed / Unknown'}
           </Text>
-          <View className="flex-row items-center mt-1">
-            <Text className="text-sm text-text-secondary">{age}</Text>
-            {pet.sex && pet.sex !== 'unknown' && (
-              <Text className="text-sm text-text-secondary ml-3">
-                {pet.sex === 'male' ? '♂ Male' : '♀ Female'}
-              </Text>
-            )}
-            {pet.weight != null && (
-              <Text className="text-sm text-text-secondary ml-3">
-                {pet.weight} kg
-              </Text>
-            )}
-          </View>
         </View>
+      </View>
+
+      <View className="flex-row flex-wrap gap-2 mt-3">
+        <MetadataPill label={age} />
+        {sexLabel ? <MetadataPill label={sexLabel} /> : null}
+        {pet.weight != null ? (
+          <MetadataPill label={`${pet.weight} kg`} />
+        ) : null}
+        {onEdit ? (
+          <Pressable
+            onPress={onEdit}
+            testID="edit-button"
+            className="bg-white rounded-full px-4 py-2 flex-row items-center"
+            style={{
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.06,
+              shadowRadius: 2,
+              elevation: 1,
+            }}
+          >
+            <Ionicons
+              name="create-outline"
+              size={16}
+              color={Colors.primary}
+              style={{ marginRight: 4 }}
+            />
+            <Text className="text-base font-medium text-primary">Edit</Text>
+          </Pressable>
+        ) : null}
       </View>
     </View>
   );

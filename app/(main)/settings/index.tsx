@@ -14,10 +14,12 @@ import { Screen } from '@/components/ui/Screen';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { TextInput } from '@/components/ui/TextInput';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { useAuthStore } from '@/stores/authStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { petService } from '@/services/petService';
+import { authService } from '@/services/authService';
 import { Colors } from '@/constants/colors';
 import { Pet } from '@/types';
 
@@ -33,6 +35,11 @@ export default function SettingsScreen() {
   const [archivedPets, setArchivedPets] = useState<Pet[]>([]);
   const [loadingPets, setLoadingPets] = useState(true);
   const [restoringId, setRestoringId] = useState<string | null>(null);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [changingPassword, setChangingPassword] = useState(false);
 
   const userId = session?.user.id;
   const email = session?.user.email ?? '';
@@ -83,6 +90,32 @@ export default function SettingsScreen() {
         },
       ],
     );
+  };
+
+  const handleChangePassword = async () => {
+    setPasswordError(null);
+    if (newPassword.length < 6) {
+      setPasswordError('Password must be at least 6 characters');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match');
+      return;
+    }
+    setChangingPassword(true);
+    try {
+      await authService.changePassword(newPassword);
+      setShowChangePassword(false);
+      setNewPassword('');
+      setConfirmPassword('');
+      Alert.alert('Success', 'Your password has been updated.');
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Failed to change password';
+      setPasswordError(message);
+    } finally {
+      setChangingPassword(false);
+    }
   };
 
   const handleSignOut = () => {
@@ -136,6 +169,66 @@ export default function SettingsScreen() {
             />
           </View>
         </Card>
+        {/* Change Password */}
+        {showChangePassword ? (
+          <Card className="p-4 mt-3">
+            <Text className="text-text-primary text-base font-medium mb-3">
+              Change Password
+            </Text>
+            {passwordError && (
+              <View className="bg-status-overdue/10 rounded-xl px-4 py-2 mb-3">
+                <Text className="text-status-overdue text-sm">{passwordError}</Text>
+              </View>
+            )}
+            <TextInput
+              label="New Password"
+              placeholder="At least 6 characters"
+              secureTextEntry
+              onChangeText={setNewPassword}
+              value={newPassword}
+            />
+            <TextInput
+              label="Confirm Password"
+              placeholder="Re-enter new password"
+              secureTextEntry
+              onChangeText={setConfirmPassword}
+              value={confirmPassword}
+            />
+            <View className="flex-row gap-3 mt-2">
+              <View className="flex-1">
+                <Button
+                  title="Cancel"
+                  variant="secondary"
+                  onPress={() => {
+                    setShowChangePassword(false);
+                    setNewPassword('');
+                    setConfirmPassword('');
+                    setPasswordError(null);
+                  }}
+                />
+              </View>
+              <View className="flex-1">
+                <Button
+                  title="Update"
+                  onPress={handleChangePassword}
+                  loading={changingPassword}
+                />
+              </View>
+            </View>
+          </Card>
+        ) : (
+          <Pressable
+            onPress={() => setShowChangePassword(true)}
+            className="mt-3"
+            testID="change-password-button"
+          >
+            <Card className="p-4 flex-row items-center justify-between">
+              <Text className="text-text-primary text-base">Change Password</Text>
+              <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+            </Card>
+          </Pressable>
+        )}
+
         <View className="mt-3">
           <Button
             title="Sign Out"

@@ -20,6 +20,10 @@ export const Colors = {
   statusGreen: '#5BA67C',
   statusAmber: '#E5A84B',
   statusOverdue: '#E8735A',
+  statusNeutral: '#9CA3AF',
+
+  // Input
+  inputFill: '#F5F3F0',
 
   // Borders
   border: '#EDE8DF',

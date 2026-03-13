@@ -128,125 +128,127 @@ export default function AddFoodScreen() {
           </Card>
         )}
 
-        {/* Brand */}
-        <Controller
-          control={control}
-          name="brand"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label="Brand"
-              placeholder="e.g. Blue Buffalo, Royal Canin"
-              onChangeText={onChange}
-              onBlur={onBlur}
-              value={value}
-              error={errors.brand?.message}
-            />
-          )}
-        />
-
-        {/* Product Name */}
-        <Controller
-          control={control}
-          name="productName"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label="Product Name"
-              placeholder="e.g. Life Protection Formula (optional)"
-              onChangeText={onChange}
-              onBlur={onBlur}
-              value={value ?? ''}
-            />
-          )}
-        />
-
-        {/* Food Type */}
-        <Text className="text-text-secondary text-sm mb-2 ml-1">
-          Food Type
-        </Text>
-        <Controller
-          control={control}
-          name="foodType"
-          render={({ field: { onChange, value } }) => (
-            <View className="mb-4">
-              <SegmentedControl
-                options={FOOD_TYPE_OPTIONS}
-                selected={value ?? ''}
-                onSelect={(val) =>
-                  onChange(val === value ? null : val)
-                }
-              />
-            </View>
-          )}
-        />
-
-        {/* Amount Per Meal */}
-        <Controller
-          control={control}
-          name="amountPerMeal"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label="Amount Per Meal"
-              placeholder="e.g. 1 cup, 200g (optional)"
-              onChangeText={onChange}
-              onBlur={onBlur}
-              value={value ?? ''}
-            />
-          )}
-        />
-
-        {/* Meals Per Day */}
-        <Controller
-          control={control}
-          name="mealsPerDay"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label="Meals Per Day"
-              placeholder="e.g. 2 (optional)"
-              keyboardType="number-pad"
-              onChangeText={(text) => {
-                const num = parseInt(text, 10);
-                onChange(isNaN(num) ? null : num);
-              }}
-              onBlur={onBlur}
-              value={value != null ? String(value) : ''}
-              error={errors.mealsPerDay?.message}
-            />
-          )}
-        />
-
-        {/* Reason for Change (only shown for food changes) */}
-        {isChange && (
+        <Card className="px-5 pt-4 mb-4">
+          {/* Brand */}
           <Controller
             control={control}
-            name="reasonForChange"
+            name="brand"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                label="Reason for Change"
-                placeholder="e.g. Allergies, vet recommended (optional)"
+                label="Brand"
+                placeholder="e.g. Blue Buffalo, Royal Canin"
+                onChangeText={onChange}
+                onBlur={onBlur}
+                value={value}
+                error={errors.brand?.message}
+              />
+            )}
+          />
+
+          {/* Product Name */}
+          <Controller
+            control={control}
+            name="productName"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label="Product Name"
+                placeholder="e.g. Life Protection Formula (optional)"
                 onChangeText={onChange}
                 onBlur={onBlur}
                 value={value ?? ''}
               />
             )}
           />
-        )}
 
-        {/* Notes */}
-        <Controller
-          control={control}
-          name="notes"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label="Notes"
-              placeholder="Any additional notes (optional)"
-              onChangeText={onChange}
-              onBlur={onBlur}
-              value={value ?? ''}
-              multiline
-              numberOfLines={3}
+          {/* Food Type */}
+          <Text className="text-text-secondary text-base mb-2">
+            Food Type
+          </Text>
+          <Controller
+            control={control}
+            name="foodType"
+            render={({ field: { onChange, value } }) => (
+              <View className="mb-4">
+                <SegmentedControl
+                  options={FOOD_TYPE_OPTIONS}
+                  selected={value ?? ''}
+                  onSelect={(val) =>
+                    onChange(val === value ? null : val)
+                  }
+                />
+              </View>
+            )}
+          />
+
+          {/* Amount Per Meal */}
+          <Controller
+            control={control}
+            name="amountPerMeal"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label="Amount Per Meal"
+                placeholder="e.g. 1 cup, 200g (optional)"
+                onChangeText={onChange}
+                onBlur={onBlur}
+                value={value ?? ''}
+              />
+            )}
+          />
+
+          {/* Meals Per Day */}
+          <Controller
+            control={control}
+            name="mealsPerDay"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label="Meals Per Day"
+                placeholder="e.g. 2 (optional)"
+                keyboardType="number-pad"
+                onChangeText={(text) => {
+                  const num = parseInt(text, 10);
+                  onChange(isNaN(num) ? null : num);
+                }}
+                onBlur={onBlur}
+                value={value != null ? String(value) : ''}
+                error={errors.mealsPerDay?.message}
+              />
+            )}
+          />
+
+          {/* Reason for Change (only shown for food changes) */}
+          {isChange && (
+            <Controller
+              control={control}
+              name="reasonForChange"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  label="Reason for Change"
+                  placeholder="e.g. Allergies, vet recommended (optional)"
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  value={value ?? ''}
+                />
+              )}
             />
           )}
-        />
+
+          {/* Notes */}
+          <Controller
+            control={control}
+            name="notes"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label="Notes"
+                placeholder="Any additional notes (optional)"
+                onChangeText={onChange}
+                onBlur={onBlur}
+                value={value ?? ''}
+                multiline
+                numberOfLines={3}
+              />
+            )}
+          />
+        </Card>
 
         <View className="mt-6">
           <Button

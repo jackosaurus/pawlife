@@ -17,3 +17,9 @@ export function getVaccinationStatus(
   if (diffDays <= 30) return 'amber';
   return 'green';
 }
+
+export function getMedicationStatus(
+  isCompleted: boolean,
+): 'green' | 'amber' {
+  return isCompleted ? 'amber' : 'green';
+}

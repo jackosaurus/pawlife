@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen } from '@/components/ui/Screen';
 import { Card } from '@/components/ui/Card';
+import { DetailRow } from '@/components/ui/DetailRow';
 import { StatusPill } from '@/components/ui/StatusPill';
 import { Button } from '@/components/ui/Button';
 import { DeleteConfirmation } from '@/components/ui/DeleteConfirmation';
@@ -100,7 +101,7 @@ export default function VaccinationDetailScreen() {
           <StatusPill label={STATUS_LABELS[status]} status={status} />
         </View>
 
-        <Card className="p-5 mb-4">
+        <Card className="px-5 mb-4">
           <DetailRow label="Date Administered" value={formatDate(vaccination.date_administered)} />
           <DetailRow
             label="Next Due Date"
@@ -139,22 +140,5 @@ export default function VaccinationDetailScreen() {
         />
       </View>
     </Screen>
-  );
-}
-
-function DetailRow({
-  label,
-  value,
-  isLast,
-}: {
-  label: string;
-  value: string;
-  isLast?: boolean;
-}) {
-  return (
-    <View className={`py-3 ${isLast ? '' : 'border-b border-border'}`}>
-      <Text className="text-xs text-text-secondary mb-1">{label}</Text>
-      <Text className="text-base text-text-primary">{value}</Text>
-    </View>
   );
 }

@@ -50,9 +50,20 @@ utils/                  # Pure utility functions
 - **Cards:** `#FFFFFF` with rounded corners (16px) and subtle shadow
 - **Text primary:** `#2D2A26` (dark warm charcoal)
 - **Text secondary:** `#7A756E` (warm gray)
-- **Status green:** `#5BA67C`, **amber:** `#E5A84B`, **overdue:** `#E8735A`
+- **Status green:** `#5BA67C`, **amber:** `#E5A84B`, **overdue:** `#E8735A`, **neutral:** `#9CA3AF`
+- **Input fill:** `#F5F3F0` (warm light gray for form input backgrounds inside cards)
+- **Borders:** `#EDE8DF` (warm border)
 
 All colors are defined in `constants/colors.ts`. Always reference the constant, never hardcode hex values in components.
+
+### UI Patterns
+
+- **Detail screens** use `DetailRow` (horizontal label/value) inside white `Card` wrappers. Group related fields into separate cards with a small uppercase section label (e.g. "TIMELINE" for date fields).
+- **Form screens** wrap all input fields inside a white `Card` with `px-5 pt-4`. Submit buttons and special controls (pet type selector, photo picker) stay outside the card.
+- **Form inputs** use white background with subtle `1px` border (`Colors.border`), highlighting to `Colors.primary` on focus.
+- **Delete confirmations** use a bottom-sheet-style Modal with `animationType="fade"`, rounded top corners, and a dark overlay.
+- **Date fields** use native date pickers (`@react-native-community/datetimepicker`) via the `DateInput` component — never raw text input.
+- **Date format** is day-first: "15 Jan 2025" (en-GB locale).
 
 ## Styling
 
@@ -97,19 +108,19 @@ npx expo install [package]        # Install Expo-compatible package version
 
 ## Current Build Phase
 
-Refer to `docs/build-plan.md` for the full sequenced build plan. Update this section as you complete units.
+Refer to `docs/pawlife-build-plan.md` for the full sequenced build plan.
 
-**Status:** Unit 1 complete. Starting Unit 2 — Authentication
+**Status:** Units 1–10 complete. Currently in Unit 11 — Polish & QA.
 
 ## Reference Documents
 
 These are in the `docs/` directory:
-- `roadmap.md` — Product vision, MVP scope, phased backlog
-- `screen-inventory.md` — Design system, voice & tone, 28 screens, user flows
-- `tech-stack.md` — Full tech stack with architecture and migration path
-- `data-model.md` — Schema, RLS policies, storage, data flows, service layer examples
-- `build-plan.md` — 11 sequenced units of work
-- `stitch-prompts.md` — Design mockup prompts (for reference, not code)
+- `pawlife-roadmap.md` — Product vision, MVP scope, phased backlog
+- `pawlife-screen-inventory.md` — Design system, voice & tone, 28 screens, user flows
+- `pawlife-tech-stack.md` — Full tech stack with architecture and migration path
+- `pawlife-data-model.md` — Schema, RLS policies, storage, data flows, service layer examples
+- `pawlife-build-plan.md` — 11 sequenced units of work
+- `pawlife-stitch-prompts.md` — Design mockup prompts (for reference, not code)
 
 ## Things to Avoid
 

@@ -42,6 +42,12 @@ describe('StickyHeader', () => {
     expect(screen.getByText('12.5 kg')).toBeTruthy();
   });
 
+  it('does not show weight pill when weight is null', () => {
+    const pet = { ...mockPet, weight: null };
+    render(<StickyHeader pet={pet} onBack={jest.fn()} />);
+    expect(screen.queryByText(/kg/)).toBeNull();
+  });
+
   it('shows age', () => {
     render(<StickyHeader pet={mockPet} onBack={jest.fn()} />);
     expect(screen.getByText('2 years')).toBeTruthy();
@@ -52,5 +58,38 @@ describe('StickyHeader', () => {
     render(<StickyHeader pet={mockPet} onBack={onBack} />);
     fireEvent.press(screen.getByTestId('back-button'));
     expect(onBack).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders edit button as pill and calls onEdit when pressed', () => {
+    const onEdit = jest.fn();
+    render(<StickyHeader pet={mockPet} onBack={jest.fn()} onEdit={onEdit} />);
+    const editButton = screen.getByTestId('edit-button');
+    expect(screen.getByText('Edit')).toBeTruthy();
+    fireEvent.press(editButton);
+    expect(onEdit).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not render edit button when onEdit not provided', () => {
+    render(<StickyHeader pet={mockPet} onBack={jest.fn()} />);
+    expect(screen.queryByTestId('edit-button')).toBeNull();
+    expect(screen.queryByText('Edit')).toBeNull();
+  });
+
+  it('renders male sex as metadata pill', () => {
+    render(<StickyHeader pet={mockPet} onBack={jest.fn()} />);
+    expect(screen.getByText('♂ Male')).toBeTruthy();
+  });
+
+  it('renders female sex as metadata pill', () => {
+    const pet = { ...mockPet, sex: 'female' as const };
+    render(<StickyHeader pet={pet} onBack={jest.fn()} />);
+    expect(screen.getByText('♀ Female')).toBeTruthy();
+  });
+
+  it('does not show sex pill when sex is null', () => {
+    const pet = { ...mockPet, sex: null };
+    render(<StickyHeader pet={pet} onBack={jest.fn()} />);
+    expect(screen.queryByText(/Male/)).toBeNull();
+    expect(screen.queryByText(/Female/)).toBeNull();
   });
 });
