@@ -59,7 +59,9 @@ All colors are defined in `constants/colors.ts`. Always reference the constant, 
 ### UI Patterns
 
 - **Detail screens** use `DetailRow` (horizontal label/value) inside white `Card` wrappers. Group related fields into separate cards with a small uppercase section label (e.g. "TIMELINE" for date fields).
-- **Form screens** wrap all input fields inside a white `Card` with `px-5 pt-4`. Submit buttons and special controls (pet type selector, photo picker) stay outside the card.
+- **Form screens** wrap all input fields inside a white `Card` with `px-5 pt-4`. Special controls (pet type selector, photo picker) stay outside the card.
+  - **Add screens** use a bottom `Button` for the primary submit action.
+  - **Edit screens** use a header bar with back arrow (left), title (center), and a "Save" text button (right, primary color). No bottom submit button.
 - **Form inputs** use white background with subtle `1px` border (`Colors.border`), highlighting to `Colors.primary` on focus.
 - **Delete confirmations** use a bottom-sheet-style Modal with `animationType="fade"`, rounded top corners, and a dark overlay.
 - **Date fields** use native date pickers (`@react-native-community/datetimepicker`) via the `DateInput` component — never raw text input.
