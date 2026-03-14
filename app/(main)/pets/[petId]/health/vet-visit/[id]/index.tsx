@@ -107,7 +107,7 @@ export default function VetVisitDetailScreen() {
 
         <View className="mt-4 gap-3">
           <Button
-            title="Edit Vet Visit"
+            title="Edit"
             onPress={() =>
               router.push(
                 `/(main)/pets/${petId}/health/vet-visit/${id}/edit`,
@@ -115,7 +115,7 @@ export default function VetVisitDetailScreen() {
             }
           />
           <Button
-            title="Delete Vet Visit"
+            title="Delete"
             variant="secondary"
             onPress={() => setShowDelete(true)}
           />

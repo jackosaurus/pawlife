@@ -23,19 +23,13 @@ const FILTER_OPTIONS = [
   { label: 'Weight', value: 'weight' },
 ];
 
-const STATUS_LABELS: Record<'green' | 'amber' | 'overdue', string> = {
-  green: 'Up to date',
-  amber: 'Due soon',
-  overdue: 'Overdue',
-};
-
 type UnifiedRecord = {
   id: string;
   type: 'vaccination' | 'vet-visit' | 'medication' | 'weight';
   title: string;
   subtitle?: string;
   date: string;
-  status?: 'green' | 'amber' | 'overdue';
+  status?: 'green' | 'amber' | 'overdue' | 'neutral';
   statusLabel?: string;
 };
 
@@ -75,7 +69,7 @@ export default function HealthRecordsScreen() {
           subtitle: v.clinic_name ?? undefined,
           date: v.date_administered,
           status,
-          statusLabel: STATUS_LABELS[status],
+          statusLabel: status === 'green' ? 'Up to date' : status === 'amber' ? 'Due soon' : 'Overdue',
         });
       });
     }

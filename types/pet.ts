@@ -7,11 +7,6 @@ export const addPetSchema = z.object({
   sex: z.enum(['male', 'female', 'unknown']).nullable().optional(),
   dateOfBirth: z.string().nullable().optional(),
   approximateAgeMonths: z.number().int().min(0).nullable().optional(),
-  weight: z
-    .number()
-    .positive('Weight must be positive')
-    .nullable()
-    .optional(),
   microchipNumber: z.string().nullable().optional(),
 });
 

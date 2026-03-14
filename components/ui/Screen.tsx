@@ -6,9 +6,10 @@ interface ScreenProps {
   children: React.ReactNode;
   scroll?: boolean;
   className?: string;
+  edges?: ('top' | 'bottom' | 'left' | 'right')[];
 }
 
-export function Screen({ children, scroll, className }: ScreenProps) {
+export function Screen({ children, scroll, className, edges }: ScreenProps) {
   const insets = useSafeAreaInsets();
 
   const content = scroll ? (
@@ -26,7 +27,7 @@ export function Screen({ children, scroll, className }: ScreenProps) {
   return (
     <SafeAreaView
       className={`flex-1 bg-background ${className ?? ''}`}
-      edges={scroll ? ['top', 'left', 'right'] : undefined}
+      edges={edges ?? (scroll ? ['top', 'left', 'right'] : undefined)}
     >
       <KeyboardAvoidingView
         className="flex-1"

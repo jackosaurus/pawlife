@@ -13,7 +13,6 @@ describe('addPetSchema', () => {
       breed: 'Siamese',
       sex: 'female',
       dateOfBirth: '2022-06-15',
-      weight: 4.2,
       microchipNumber: '123456789',
     });
     expect(result.success).toBe(true);
@@ -29,22 +28,12 @@ describe('addPetSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  it('rejects negative weight', () => {
-    const result = addPetSchema.safeParse({
-      petType: 'dog',
-      name: 'Max',
-      weight: -5,
-    });
-    expect(result.success).toBe(false);
-  });
-
   it('accepts null optional fields', () => {
     const result = addPetSchema.safeParse({
       petType: 'dog',
       name: 'Rex',
       breed: null,
       sex: null,
-      weight: null,
     });
     expect(result.success).toBe(true);
   });

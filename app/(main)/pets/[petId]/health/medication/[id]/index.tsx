@@ -122,10 +122,6 @@ export default function MedicationDetailScreen() {
           <DetailRow
             label="Frequency"
             value={medication.frequency ?? 'Not specified'}
-          />
-          <DetailRow
-            label="Prescribing Vet"
-            value={medication.prescribing_vet ?? 'Not specified'}
             isLast={!medication.notes}
           />
           {medication.notes ? (
@@ -163,7 +159,7 @@ export default function MedicationDetailScreen() {
             />
           )}
           <Button
-            title="Edit Medication"
+            title="Edit"
             variant={isActive ? 'secondary' : undefined}
             onPress={() =>
               router.push(
@@ -172,7 +168,7 @@ export default function MedicationDetailScreen() {
             }
           />
           <Button
-            title="Delete Medication"
+            title="Delete"
             variant="secondary"
             onPress={() => setShowDelete(true)}
           />

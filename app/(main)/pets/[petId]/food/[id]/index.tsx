@@ -57,10 +57,6 @@ export default function FoodDetailScreen() {
     router.push(`/pets/${petId}/food/${id}/edit`);
   };
 
-  const handleChangeFood = () => {
-    router.push(`/pets/${petId}/food/add?change=true`);
-  };
-
   const handleDelete = () => {
     Alert.alert(
       'Delete Food Entry',
@@ -163,20 +159,13 @@ export default function FoodDetailScreen() {
         </Card>
 
         <View className="gap-3 mt-4">
-          {isCurrent ? (
-            <Button
-              title="Change Food"
-              onPress={handleChangeFood}
-            />
-          ) : null}
           <Button
             title="Edit"
-            variant="secondary"
             onPress={handleEdit}
           />
           <Button
             title="Delete"
-            variant="text"
+            variant="secondary"
             onPress={handleDelete}
           />
         </View>

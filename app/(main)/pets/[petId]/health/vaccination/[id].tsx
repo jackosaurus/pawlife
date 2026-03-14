@@ -116,7 +116,7 @@ export default function VaccinationDetailScreen() {
 
         <View className="mt-4 gap-3">
           <Button
-            title="Edit Vaccination"
+            title="Edit"
             onPress={() =>
               router.push(
                 `/(main)/pets/${petId}/health/vaccination/${id}/edit`,
@@ -124,7 +124,7 @@ export default function VaccinationDetailScreen() {
             }
           />
           <Button
-            title="Delete Vaccination"
+            title="Delete"
             variant="secondary"
             onPress={() => setShowDelete(true)}
           />

@@ -13,10 +13,12 @@ describe('RecordCard', () => {
     jest.clearAllMocks();
   });
 
-  it('renders title and formatted date', () => {
+  it('renders title and date parts', () => {
     const { getByText } = render(<RecordCard {...defaultProps} />);
     expect(getByText('Rabies')).toBeTruthy();
-    expect(getByText('15 Jan 2025')).toBeTruthy();
+    expect(getByText('15')).toBeTruthy();
+    expect(getByText('Jan')).toBeTruthy();
+    expect(getByText('2025')).toBeTruthy();
   });
 
   it('renders subtitle when provided', () => {
@@ -24,6 +26,14 @@ describe('RecordCard', () => {
       <RecordCard {...defaultProps} subtitle="Happy Paws Vet" />,
     );
     expect(getByText('Happy Paws Vet')).toBeTruthy();
+  });
+
+  it('renders detail when provided', () => {
+    const { getByText } = render(
+      <RecordCard {...defaultProps} subtitle="Line 2" detail="Line 3" />,
+    );
+    expect(getByText('Line 2')).toBeTruthy();
+    expect(getByText('Line 3')).toBeTruthy();
   });
 
   it('does not render subtitle when not provided', () => {

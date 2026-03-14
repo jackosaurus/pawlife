@@ -40,7 +40,6 @@ export default function EditMedicationScreen() {
       frequency: null,
       startDate: '',
       endDate: null,
-      prescribingVet: null,
       notes: null,
     },
   });
@@ -56,7 +55,6 @@ export default function EditMedicationScreen() {
         frequency: data.frequency ?? null,
         startDate: data.start_date,
         endDate: data.end_date ?? null,
-        prescribingVet: data.prescribing_vet ?? null,
         notes: data.notes ?? null,
       });
     } catch {
@@ -89,7 +87,6 @@ export default function EditMedicationScreen() {
         frequency: data.frequency || null,
         start_date: data.startDate,
         end_date: isOngoing ? null : (data.endDate || null),
-        prescribing_vet: data.prescribingVet || null,
         notes: data.notes || null,
       });
       router.back();
@@ -169,6 +166,7 @@ export default function EditMedicationScreen() {
                 options={[...MEDICATION_FREQUENCIES]}
                 value={value || null}
                 onSelect={onChange}
+                showAllOnFocus
               />
             )}
           />
@@ -211,20 +209,6 @@ export default function EditMedicationScreen() {
               )}
             />
           )}
-
-          <Controller
-            control={control}
-            name="prescribingVet"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                label="Prescribing Vet"
-                placeholder="Optional"
-                onChangeText={onChange}
-                onBlur={onBlur}
-                value={value ?? ''}
-              />
-            )}
-          />
 
           <Controller
             control={control}

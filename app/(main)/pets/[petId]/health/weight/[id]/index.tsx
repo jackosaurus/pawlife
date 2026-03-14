@@ -100,7 +100,7 @@ export default function WeightEntryDetailScreen() {
 
         <View className="mt-4 gap-3">
           <Button
-            title="Edit Weight Entry"
+            title="Edit"
             onPress={() =>
               router.push(
                 `/(main)/pets/${petId}/health/weight/${id}/edit`,
@@ -108,7 +108,7 @@ export default function WeightEntryDetailScreen() {
             }
           />
           <Button
-            title="Delete Weight Entry"
+            title="Delete"
             variant="secondary"
             onPress={() => setShowDelete(true)}
           />

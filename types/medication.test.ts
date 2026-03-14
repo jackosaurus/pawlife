@@ -8,7 +8,6 @@ describe('addMedicationSchema', () => {
       frequency: 'Twice daily',
       startDate: '2025-01-01',
       endDate: '2025-02-01',
-      prescribingVet: 'Dr. Smith',
       notes: 'Take with food',
     });
     expect(result.success).toBe(true);
@@ -37,7 +36,6 @@ describe('addMedicationSchema', () => {
       frequency: null,
       startDate: '2025-01-01',
       endDate: null,
-      prescribingVet: null,
       notes: null,
     });
     expect(result.success).toBe(true);

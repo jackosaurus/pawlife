@@ -26,12 +26,6 @@ const TABS: Tab[] = [
   { key: 'weight', label: 'Weight' },
 ];
 
-const VAX_STATUS_LABELS: Record<string, string> = {
-  green: 'Up to date',
-  amber: 'Due soon',
-  overdue: 'Overdue',
-};
-
 const FOOD_TYPE_LABELS: Record<string, string> = {
   dry: 'Dry',
   wet: 'Wet',
@@ -160,7 +154,8 @@ export default function PetDetailScreen() {
             <View key={entry.id} className="px-6 mb-3">
               <RecordCard
                 title={entry.brand}
-                subtitle={entry.product_name ? `${entry.product_name} · ${buildFoodSubtitle(entry)}` : buildFoodSubtitle(entry)}
+                subtitle={entry.product_name ?? undefined}
+                detail={buildFoodSubtitle(entry) || undefined}
                 date={entry.start_date}
                 status={entry.end_date === null ? 'green' : 'neutral'}
                 statusLabel={entry.end_date === null ? 'Current' : 'Past'}
@@ -194,7 +189,8 @@ export default function PetDetailScreen() {
             <View key={m.id} className="px-6 mb-3">
               <RecordCard
                 title={m.name}
-                subtitle={m.dosage ? `${m.dosage}${m.frequency ? ` · ${m.frequency}` : ''}` : undefined}
+                subtitle={m.dosage ?? undefined}
+                detail={m.frequency ?? undefined}
                 date={m.start_date}
                 status={m.is_completed ? 'neutral' : 'green'}
                 statusLabel={m.is_completed ? 'Completed' : 'Active'}
@@ -217,7 +213,7 @@ export default function PetDetailScreen() {
                   subtitle={v.clinic_name ?? undefined}
                   date={v.date_administered}
                   status={status}
-                  statusLabel={VAX_STATUS_LABELS[status]}
+                  statusLabel={status === 'green' ? 'Up to date' : status === 'amber' ? 'Due soon' : 'Overdue'}
                   onPress={() => router.push(`/(main)/pets/${petId}/health/vaccination/${v.id}`)}
                 />
               </View>
@@ -247,12 +243,13 @@ export default function PetDetailScreen() {
   };
 
   return (
-    <Screen>
+    <Screen edges={['top', 'left', 'right']}>
       <View className="flex-1">
         <StickyHeader
           pet={pet}
           onBack={() => router.back()}
           onEdit={() => router.push(`/(main)/pets/${petId}/edit`)}
+          latestWeight={weightEntries.length > 0 ? weightEntries[0].weight : null}
         />
         <TabBar tabs={TABS} activeTab={activeTab} onTabPress={setActiveTab} />
         <View className="flex-1 bg-white">

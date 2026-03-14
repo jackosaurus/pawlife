@@ -63,9 +63,12 @@ All colors are defined in `constants/colors.ts`. Always reference the constant, 
   - **Add screens** use a bottom `Button` for the primary submit action.
   - **Edit screens** use a header bar with back arrow (left), title (center), and a "Save" text button (right, primary color). No bottom submit button.
 - **Form inputs** use white background with subtle `1px` border (`Colors.border`), highlighting to `Colors.primary` on focus.
+- **Record cards** use a date-left layout: large day number, 3-letter month, and year stacked on the left; title, subtitle, and optional detail line on the right. Status pill (when applicable) sits top-right. The `RecordCard` component supports `title`, `subtitle`, `detail`, `status`, and `statusLabel` props.
+- **Record detail action buttons** use consistent labels: "Edit" (primary) and "Delete" (secondary). Never include the record type in the button label (e.g., "Edit" not "Edit Vaccination").
 - **Delete confirmations** use a bottom-sheet-style Modal with `animationType="fade"`, rounded top corners, and a dark overlay.
 - **Date fields** use native date pickers (`@react-native-community/datetimepicker`) via the `DateInput` component — never raw text input.
 - **Date format** is day-first: "15 Jan 2025" (en-GB locale).
+- **Screen component** accepts an optional `edges` prop to control SafeAreaView edges. Screens with their own white content area extending to the bottom should use `edges={['top', 'left', 'right']}` to avoid yellow background showing at the bottom.
 
 ## Styling
 

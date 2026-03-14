@@ -6,7 +6,6 @@ export const addMedicationSchema = z.object({
   frequency: z.string().nullable().optional(),
   startDate: z.string().min(1, 'Start date is required'),
   endDate: z.string().nullable().optional(),
-  prescribingVet: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
 });
 

@@ -10,9 +10,10 @@ interface StickyHeaderProps {
   pet: Pet;
   onBack: () => void;
   onEdit?: () => void;
+  latestWeight?: number | null;
 }
 
-export function StickyHeader({ pet, onBack, onEdit }: StickyHeaderProps) {
+export function StickyHeader({ pet, onBack, onEdit, latestWeight }: StickyHeaderProps) {
   const age = calculateAge(pet.date_of_birth, pet.approximate_age_months);
 
   const sexLabel =
@@ -46,8 +47,8 @@ export function StickyHeader({ pet, onBack, onEdit }: StickyHeaderProps) {
       <View className="flex-row flex-wrap gap-2 mt-3">
         <MetadataPill label={age} />
         {sexLabel ? <MetadataPill label={sexLabel} /> : null}
-        {pet.weight != null ? (
-          <MetadataPill label={`${pet.weight} kg`} />
+        {latestWeight != null ? (
+          <MetadataPill label={`${latestWeight} kg`} />
         ) : null}
         {onEdit ? (
           <Pressable

@@ -43,7 +43,6 @@ export default function AddPetScreen() {
       sex: null,
       dateOfBirth: null,
       approximateAgeMonths: null,
-      weight: null,
       microchipNumber: null,
     },
   });
@@ -92,7 +91,6 @@ export default function AddPetScreen() {
         approximate_age_months: useApproxAge
           ? (data.approximateAgeMonths ?? null)
           : null,
-        weight: data.weight ?? null,
         microchip_number: data.microchipNumber ?? null,
       });
 
@@ -302,26 +300,6 @@ export default function AddPetScreen() {
               )}
             />
           )}
-
-          {/* Weight */}
-          <Controller
-            control={control}
-            name="weight"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                label="Weight (kg)"
-                placeholder="e.g. 12.5"
-                keyboardType="decimal-pad"
-                onChangeText={(text) => {
-                  const num = parseFloat(text);
-                  onChange(isNaN(num) ? null : num);
-                }}
-                onBlur={onBlur}
-                value={value != null ? String(value) : ''}
-                error={errors.weight?.message}
-              />
-            )}
-          />
 
           {/* Microchip */}
           <Controller

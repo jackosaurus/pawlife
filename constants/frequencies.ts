@@ -1,8 +1,8 @@
 export const MEDICATION_FREQUENCIES = [
   'Once daily',
   'Twice daily',
-  'Three times daily',
   'Every other day',
+  'Every 3 days',
   'Once weekly',
   'Twice weekly',
   'Once monthly',

@@ -37,14 +37,13 @@ describe('StickyHeader', () => {
     expect(screen.getByText('Mixed / Unknown')).toBeTruthy();
   });
 
-  it('shows weight when present', () => {
-    render(<StickyHeader pet={mockPet} onBack={jest.fn()} />);
+  it('shows weight when latestWeight is provided', () => {
+    render(<StickyHeader pet={mockPet} onBack={jest.fn()} latestWeight={12.5} />);
     expect(screen.getByText('12.5 kg')).toBeTruthy();
   });
 
-  it('does not show weight pill when weight is null', () => {
-    const pet = { ...mockPet, weight: null };
-    render(<StickyHeader pet={pet} onBack={jest.fn()} />);
+  it('does not show weight pill when latestWeight is null', () => {
+    render(<StickyHeader pet={mockPet} onBack={jest.fn()} latestWeight={null} />);
     expect(screen.queryByText(/kg/)).toBeNull();
   });
 
