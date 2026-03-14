@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Screen } from '@/components/ui/Screen';
 import { Button } from '@/components/ui/Button';
 import { RecordCard } from '@/components/ui/RecordCard';
+import { MedicationCard } from '@/components/health/MedicationCard';
 import { StickyHeader } from '@/components/pets/StickyHeader';
 import { TabBar, Tab } from '@/components/pets/TabBar';
 import { AddRecordCard } from '@/components/pets/AddRecordCard';
@@ -12,15 +13,13 @@ import { usePet } from '@/hooks/usePet';
 import { useFoodEntries } from '@/hooks/useFoodEntries';
 import { useVaccinations } from '@/hooks/useVaccinations';
 import { useMedications } from '@/hooks/useMedications';
-import { useVetVisits } from '@/hooks/useVetVisits';
 import { useWeightEntries } from '@/hooks/useWeightEntries';
 import { getVaccinationStatus } from '@/utils/status';
-import { formatDate } from '@/utils/dates';
+import { healthService } from '@/services/healthService';
 import { Colors } from '@/constants/colors';
 
 const TABS: Tab[] = [
   { key: 'food', label: 'Food' },
-  { key: 'vet-visits', label: 'Vet Visits' },
   { key: 'medications', label: 'Medicines' },
   { key: 'vaccinations', label: 'Vaccinations' },
   { key: 'weight', label: 'Weight' },
@@ -38,11 +37,11 @@ export default function PetDetailScreen() {
   const router = useRouter();
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('food');
+  const [loggingDoseId, setLoggingDoseId] = useState<string | null>(null);
   const { pet, loading, error, refresh } = usePet(petId!);
   const { currentFood, history: foodHistory, refresh: refreshFood } = useFoodEntries(petId!);
   const { vaccinations, refresh: refreshVaccinations } = useVaccinations(petId!);
   const { medications, refresh: refreshMedications } = useMedications(petId!);
-  const { vetVisits, refresh: refreshVetVisits } = useVetVisits(petId!);
   const { weightEntries, refresh: refreshWeight } = useWeightEntries(petId!);
 
   useEffect(() => {
@@ -51,11 +50,10 @@ export default function PetDetailScreen() {
       refreshFood();
       refreshVaccinations();
       refreshMedications();
-      refreshVetVisits();
       refreshWeight();
     });
     return unsubscribe;
-  }, [navigation, refresh, refreshFood, refreshVaccinations, refreshMedications, refreshVetVisits, refreshWeight]);
+  }, [navigation, refresh, refreshFood, refreshVaccinations, refreshMedications, refreshWeight]);
 
   if (loading) {
     return (
@@ -111,13 +109,6 @@ export default function PetDetailScreen() {
             }
           />
         );
-      case 'vet-visits':
-        return (
-          <AddRecordCard
-            label="Add vet visit"
-            onPress={() => router.push(`/(main)/pets/${petId}/health/vet-visit/add`)}
-          />
-        );
       case 'medications':
         return (
           <AddRecordCard
@@ -165,36 +156,25 @@ export default function PetDetailScreen() {
           ))
         );
 
-      case 'vet-visits':
-        return vetVisits.length === 0 ? (
-          <EmptyState message="No vet visits recorded yet." />
-        ) : (
-          vetVisits.map((v) => (
-            <View key={v.id} className="px-6 mb-3">
-              <RecordCard
-                title={v.reason || 'Vet Visit'}
-                subtitle={v.clinic_name ?? undefined}
-                date={v.date}
-                onPress={() => router.push(`/(main)/pets/${petId}/health/vet-visit/${v.id}`)}
-              />
-            </View>
-          ))
-        );
-
       case 'medications':
         return medications.length === 0 ? (
           <EmptyState message="No medications recorded yet." />
         ) : (
           medications.map((m) => (
             <View key={m.id} className="px-6 mb-3">
-              <RecordCard
-                title={m.name}
-                subtitle={m.dosage ?? undefined}
-                detail={m.frequency ?? undefined}
-                date={m.start_date}
-                status={m.is_completed ? 'neutral' : 'green'}
-                statusLabel={m.is_completed ? 'Completed' : 'Active'}
+              <MedicationCard
+                medication={m}
                 onPress={() => router.push(`/(main)/pets/${petId}/health/medication/${m.id}`)}
+                onLogDose={async () => {
+                  setLoggingDoseId(m.id);
+                  try {
+                    await healthService.logMedicationDose({ medication_id: m.id });
+                    refreshMedications();
+                  } finally {
+                    setLoggingDoseId(null);
+                  }
+                }}
+                logDoseLoading={loggingDoseId === m.id}
               />
             </View>
           ))

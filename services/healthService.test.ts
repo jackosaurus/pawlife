@@ -360,17 +360,102 @@ describe('healthService', () => {
     });
   });
 
-  describe('markMedicationCompleted', () => {
-    it('marks medication as completed', async () => {
-      const med = { id: '1', is_completed: true };
-      mockFrom.mockReturnValue(chainMock({ data: med, error: null }));
-      const result = await healthService.markMedicationCompleted('1');
-      expect(result).toEqual(med);
+  // ── Medication Doses ─────────────────────────────────────────
+
+  describe('getMedicationDoses', () => {
+    it('returns doses array for a medication', async () => {
+      const doses = [{ id: 'd1', medication_id: 'm1', given_at: '2025-01-15T10:00:00Z' }];
+      mockFrom.mockReturnValue(chainMock({ data: doses, error: null }));
+      const result = await healthService.getMedicationDoses('m1');
+      expect(result).toEqual(doses);
+      expect(mockFrom).toHaveBeenCalledWith('medication_doses');
     });
 
     it('throws on error', async () => {
-      mockFrom.mockReturnValue(chainMock({ data: null, error: new Error('Failed') }));
-      await expect(healthService.markMedicationCompleted('1')).rejects.toThrow('Failed');
+      mockFrom.mockReturnValue(chainMock({ data: null, error: new Error('DB error') }));
+      await expect(healthService.getMedicationDoses('m1')).rejects.toThrow('DB error');
+    });
+  });
+
+  describe('logMedicationDose', () => {
+    it('inserts and returns dose', async () => {
+      const dose = { id: 'd1', medication_id: 'm1', given_at: '2025-01-15T10:00:00Z' };
+      mockFrom.mockReturnValue(chainMock({ data: dose, error: null }));
+      const result = await healthService.logMedicationDose({ medication_id: 'm1' });
+      expect(result).toEqual(dose);
+    });
+
+    it('throws on error', async () => {
+      mockFrom.mockReturnValue(chainMock({ data: null, error: new Error('Insert failed') }));
+      await expect(
+        healthService.logMedicationDose({ medication_id: 'm1' }),
+      ).rejects.toThrow('Insert failed');
+    });
+  });
+
+  describe('deleteMedicationDose', () => {
+    it('deletes without error', async () => {
+      mockFrom.mockReturnValue(chainMock({ data: null, error: null }));
+      await expect(healthService.deleteMedicationDose('d1')).resolves.toBeUndefined();
+    });
+
+    it('throws on error', async () => {
+      mockFrom.mockReturnValue(chainMock({ data: null, error: new Error('Delete failed') }));
+      await expect(healthService.deleteMedicationDose('d1')).rejects.toThrow('Delete failed');
+    });
+  });
+
+  describe('getTodayDoseCounts', () => {
+    it('returns dose counts grouped by medication', async () => {
+      const rows = [
+        { medication_id: 'm1' },
+        { medication_id: 'm1' },
+        { medication_id: 'm2' },
+      ];
+      mockFrom.mockReturnValue(chainMock({ data: rows, error: null }));
+      const result = await healthService.getTodayDoseCounts(['m1', 'm2']);
+      expect(result).toEqual({ m1: 2, m2: 1 });
+      expect(mockFrom).toHaveBeenCalledWith('medication_doses');
+    });
+
+    it('returns empty object for empty input', async () => {
+      const result = await healthService.getTodayDoseCounts([]);
+      expect(result).toEqual({});
+    });
+
+    it('throws on error', async () => {
+      mockFrom.mockReturnValue(chainMock({ data: null, error: new Error('DB error') }));
+      await expect(
+        healthService.getTodayDoseCounts(['m1']),
+      ).rejects.toThrow('DB error');
+    });
+  });
+
+  describe('getLatestDoseForMedications', () => {
+    it('returns latest dose date per medication', async () => {
+      const rows = [
+        { medication_id: 'm1', given_at: '2025-01-15T10:00:00Z' },
+        { medication_id: 'm1', given_at: '2025-01-10T10:00:00Z' },
+        { medication_id: 'm2', given_at: '2025-01-12T10:00:00Z' },
+      ];
+      mockFrom.mockReturnValue(chainMock({ data: rows, error: null }));
+      const result = await healthService.getLatestDoseForMedications(['m1', 'm2']);
+      expect(result).toEqual({
+        m1: '2025-01-15T10:00:00Z',
+        m2: '2025-01-12T10:00:00Z',
+      });
+    });
+
+    it('returns empty object for empty input', async () => {
+      const result = await healthService.getLatestDoseForMedications([]);
+      expect(result).toEqual({});
+    });
+
+    it('throws on error', async () => {
+      mockFrom.mockReturnValue(chainMock({ data: null, error: new Error('DB error') }));
+      await expect(
+        healthService.getLatestDoseForMedications(['m1']),
+      ).rejects.toThrow('DB error');
     });
   });
 

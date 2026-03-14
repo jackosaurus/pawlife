@@ -23,6 +23,9 @@ export type Medication = Tables['medications']['Row'];
 export type MedicationInsert = Tables['medications']['Insert'];
 export type MedicationUpdate = Tables['medications']['Update'];
 
+export type MedicationDose = Tables['medication_doses']['Row'];
+export type MedicationDoseInsert = Tables['medication_doses']['Insert'];
+
 export type WeightEntry = Tables['weight_entries']['Row'];
 export type WeightEntryInsert = Tables['weight_entries']['Insert'];
 export type WeightEntryUpdate = Tables['weight_entries']['Update'];

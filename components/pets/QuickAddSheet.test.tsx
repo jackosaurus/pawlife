@@ -14,11 +14,10 @@ jest.mock('@gorhom/bottom-sheet', () => {
 describe('QuickAddSheet', () => {
   const mockRef = { current: { close: jest.fn(), snapToIndex: jest.fn() } };
 
-  it('renders all 5 options', () => {
+  it('renders all 4 options', () => {
     render(
       <QuickAddSheet bottomSheetRef={mockRef as any} onSelect={jest.fn()} />,
     );
-    expect(screen.getByText('Vet Visit')).toBeTruthy();
     expect(screen.getByText('Vaccination')).toBeTruthy();
     expect(screen.getByText('Medication')).toBeTruthy();
     expect(screen.getByText('Weight')).toBeTruthy();

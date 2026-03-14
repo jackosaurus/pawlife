@@ -11,6 +11,8 @@ import {
   Medication,
   MedicationInsert,
   MedicationUpdate,
+  MedicationDose,
+  MedicationDoseInsert,
   WeightEntry,
   WeightEntryInsert,
   WeightEntryUpdate,
@@ -267,19 +269,75 @@ export const healthService = {
     if (error) throw error;
   },
 
-  async markMedicationCompleted(id: string): Promise<Medication> {
+  // ── Medication Doses ─────────────────────────────────────────
+
+  async getMedicationDoses(medicationId: string): Promise<MedicationDose[]> {
     const { data, error } = await supabase
-      .from('medications')
-      .update({
-        is_completed: true,
-        end_date: new Date().toISOString().split('T')[0],
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', id)
+      .from('medication_doses')
+      .select('*')
+      .eq('medication_id', medicationId)
+      .order('given_at', { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
+  async logMedicationDose(dose: MedicationDoseInsert): Promise<MedicationDose> {
+    const { data, error } = await supabase
+      .from('medication_doses')
+      .insert(dose)
       .select()
       .single();
     if (error) throw error;
     return data;
+  },
+
+  async deleteMedicationDose(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('medication_doses')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  },
+
+  async getTodayDoseCounts(
+    medicationIds: string[],
+  ): Promise<Record<string, number>> {
+    if (medicationIds.length === 0) return {};
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const { data, error } = await supabase
+      .from('medication_doses')
+      .select('medication_id')
+      .in('medication_id', medicationIds)
+      .gte('given_at', startOfDay.toISOString());
+    if (error) throw error;
+
+    const counts: Record<string, number> = {};
+    for (const row of data) {
+      counts[row.medication_id] = (counts[row.medication_id] ?? 0) + 1;
+    }
+    return counts;
+  },
+
+  async getLatestDoseForMedications(
+    medicationIds: string[],
+  ): Promise<Record<string, string>> {
+    if (medicationIds.length === 0) return {};
+    const { data, error } = await supabase
+      .from('medication_doses')
+      .select('medication_id, given_at')
+      .in('medication_id', medicationIds)
+      .order('given_at', { ascending: false });
+    if (error) throw error;
+
+    // Client-side dedup: keep only the latest dose per medication
+    const latest: Record<string, string> = {};
+    for (const row of data) {
+      if (!latest[row.medication_id]) {
+        latest[row.medication_id] = row.given_at;
+      }
+    }
+    return latest;
   },
 
   // ── Weight Entries ────────────────────────────────────────────

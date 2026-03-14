@@ -138,4 +138,103 @@ describe('SearchableDropdown', () => {
     ).toBeTruthy();
     expect(screen.queryByText(/Happy Paws/)).toBeNull();
   });
+
+  describe('strictMode', () => {
+    it('does not call onSelect on free text input', () => {
+      const onSelect = jest.fn();
+      render(
+        <SearchableDropdown
+          label="Frequency"
+          placeholder="Select..."
+          options={['Once daily', 'Twice daily']}
+          value={null}
+          onSelect={onSelect}
+          showAllOnFocus
+          strictMode
+        />,
+      );
+      fireEvent.changeText(screen.getByPlaceholderText('Select...'), 'custom');
+      expect(onSelect).not.toHaveBeenCalled();
+    });
+
+    it('calls onSelect when item is tapped', () => {
+      const onSelect = jest.fn();
+      render(
+        <SearchableDropdown
+          label="Frequency"
+          placeholder="Select..."
+          options={['Once daily', 'Twice daily']}
+          value={null}
+          onSelect={onSelect}
+          showAllOnFocus
+          strictMode
+        />,
+      );
+      fireEvent(screen.getByPlaceholderText('Select...'), 'focus');
+      fireEvent.press(screen.getByText('Once daily'));
+      expect(onSelect).toHaveBeenCalledWith('Once daily');
+    });
+
+    it('shows clear button when value is selected', () => {
+      render(
+        <SearchableDropdown
+          label="Frequency"
+          placeholder="Select..."
+          options={['Once daily', 'Twice daily']}
+          value="Once daily"
+          onSelect={jest.fn()}
+          strictMode
+        />,
+      );
+      expect(screen.getByTestId('dropdown-clear')).toBeTruthy();
+    });
+
+    it('does not show clear button when no value', () => {
+      render(
+        <SearchableDropdown
+          label="Frequency"
+          placeholder="Select..."
+          options={['Once daily', 'Twice daily']}
+          value={null}
+          onSelect={jest.fn()}
+          strictMode
+        />,
+      );
+      expect(screen.queryByTestId('dropdown-clear')).toBeNull();
+    });
+
+    it('calls onSelect with null when clear is pressed', () => {
+      const onSelect = jest.fn();
+      render(
+        <SearchableDropdown
+          label="Frequency"
+          placeholder="Select..."
+          options={['Once daily', 'Twice daily']}
+          value="Once daily"
+          onSelect={onSelect}
+          strictMode
+          showAllOnFocus
+        />,
+      );
+      fireEvent.press(screen.getByTestId('dropdown-clear'));
+      expect(onSelect).toHaveBeenCalledWith(null);
+    });
+
+    it('reopens dropdown after clearing', () => {
+      render(
+        <SearchableDropdown
+          label="Frequency"
+          placeholder="Select..."
+          options={['Once daily', 'Twice daily']}
+          value="Once daily"
+          onSelect={jest.fn()}
+          strictMode
+          showAllOnFocus
+        />,
+      );
+      fireEvent.press(screen.getByTestId('dropdown-clear'));
+      expect(screen.getByText('Once daily')).toBeTruthy();
+      expect(screen.getByText('Twice daily')).toBeTruthy();
+    });
+  });
 });

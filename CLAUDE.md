@@ -63,7 +63,8 @@ All colors are defined in `constants/colors.ts`. Always reference the constant, 
   - **Add screens** use a bottom `Button` for the primary submit action.
   - **Edit screens** use a header bar with back arrow (left), title (center), and a "Save" text button (right, primary color). No bottom submit button.
 - **Form inputs** use white background with subtle `1px` border (`Colors.border`), highlighting to `Colors.primary` on focus.
-- **Record cards** use a date-left layout: large day number, 3-letter month, and year stacked on the left; title, subtitle, and optional detail line on the right. Status pill (when applicable) sits top-right. The `RecordCard` component supports `title`, `subtitle`, `detail`, `status`, and `statusLabel` props.
+- **Record cards** use a date-left layout: large day number, 3-letter month, and year stacked on the left; title, subtitle, and optional detail line on the right. Status pill (when applicable) sits top-right. The `RecordCard` component supports `title`, `subtitle`, `detail`, `status`, and `statusLabel` props. Used for vaccinations, weight, and food.
+- **Medication cards** use a purpose-built `MedicationCard` component (`components/health/MedicationCard.tsx`) with no date column. Med info (name, dosage · frequency) on the left, status indicator + context text + "Log Dose" link on the right. Status indicators: green checkmark (done), amber/red fraction (partial/overdue), gray dot (new/finished). Context is time-aware ("Given 5m ago", "Due today").
 - **Record detail action buttons** use consistent labels: "Edit" (primary) and "Delete" (secondary). Never include the record type in the button label (e.g., "Edit" not "Edit Vaccination").
 - **Delete confirmations** use a bottom-sheet-style Modal with `animationType="fade"`, rounded top corners, and a dark overlay.
 - **Date fields** use native date pickers (`@react-native-community/datetimepicker`) via the `DateInput` component — never raw text input.

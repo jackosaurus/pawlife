@@ -5,7 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
 
 export type QuickAddAction =
-  | 'vet-visit'
   | 'vaccination'
   | 'medication'
   | 'weight'
@@ -17,7 +16,6 @@ interface QuickAddSheetProps {
 }
 
 const actions: { action: QuickAddAction; label: string; icon: string }[] = [
-  { action: 'vet-visit', label: 'Vet Visit', icon: 'medical-outline' },
   { action: 'vaccination', label: 'Vaccination', icon: 'shield-checkmark-outline' },
   { action: 'medication', label: 'Medication', icon: 'medkit-outline' },
   { action: 'weight', label: 'Weight', icon: 'fitness-outline' },

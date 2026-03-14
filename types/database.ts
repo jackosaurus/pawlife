@@ -219,6 +219,29 @@ export interface Database {
           updated_at?: string;
         };
       };
+      medication_doses: {
+        Row: {
+          id: string;
+          medication_id: string;
+          given_at: string;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          medication_id: string;
+          given_at?: string;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          medication_id?: string;
+          given_at?: string;
+          notes?: string | null;
+          created_at?: string;
+        };
+      };
       weight_entries: {
         Row: {
           id: string;

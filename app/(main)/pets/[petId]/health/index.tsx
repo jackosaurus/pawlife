@@ -6,18 +6,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { Screen } from '@/components/ui/Screen';
 import { SegmentedFilter } from '@/components/ui/SegmentedFilter';
 import { RecordCard } from '@/components/ui/RecordCard';
+import { MedicationCard } from '@/components/health/MedicationCard';
 import { FAB } from '@/components/ui/FAB';
 import { useVaccinations } from '@/hooks/useVaccinations';
-import { useVetVisits } from '@/hooks/useVetVisits';
-import { useMedications } from '@/hooks/useMedications';
+import { useMedications, MedicationWithDoseInfo } from '@/hooks/useMedications';
 import { useWeightEntries } from '@/hooks/useWeightEntries';
 import { getVaccinationStatus } from '@/utils/status';
+import { healthService } from '@/services/healthService';
 import { Colors } from '@/constants/colors';
 import { useState } from 'react';
 
 const FILTER_OPTIONS = [
   { label: 'All', value: 'all' },
-  { label: 'Vet Visits', value: 'vet-visits' },
   { label: 'Vaccinations', value: 'vaccinations' },
   { label: 'Medications', value: 'medications' },
   { label: 'Weight', value: 'weight' },
@@ -25,12 +25,13 @@ const FILTER_OPTIONS = [
 
 type UnifiedRecord = {
   id: string;
-  type: 'vaccination' | 'vet-visit' | 'medication' | 'weight';
+  type: 'vaccination' | 'medication' | 'weight';
   title: string;
   subtitle?: string;
   date: string;
   status?: 'green' | 'amber' | 'overdue' | 'neutral';
   statusLabel?: string;
+  medication?: MedicationWithDoseInfo;
 };
 
 export default function HealthRecordsScreen() {
@@ -38,23 +39,22 @@ export default function HealthRecordsScreen() {
   const router = useRouter();
   const navigation = useNavigation();
   const [filter, setFilter] = useState(initialFilter ?? 'all');
+  const [loggingDoseId, setLoggingDoseId] = useState<string | null>(null);
 
   const { vaccinations, loading: loadingVax, refresh: refreshVax } = useVaccinations(petId!);
-  const { vetVisits, loading: loadingVet, refresh: refreshVet } = useVetVisits(petId!);
   const { medications, loading: loadingMed, refresh: refreshMed } = useMedications(petId!);
   const { weightEntries, loading: loadingWeight, refresh: refreshWeight } = useWeightEntries(petId!);
 
-  const loading = loadingVax || loadingVet || loadingMed || loadingWeight;
+  const loading = loadingVax || loadingMed || loadingWeight;
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       refreshVax();
-      refreshVet();
       refreshMed();
       refreshWeight();
     });
     return unsubscribe;
-  }, [navigation, refreshVax, refreshVet, refreshMed, refreshWeight]);
+  }, [navigation, refreshVax, refreshMed, refreshWeight]);
 
   const records = useMemo(() => {
     const items: UnifiedRecord[] = [];
@@ -74,28 +74,14 @@ export default function HealthRecordsScreen() {
       });
     }
 
-    if (filter === 'all' || filter === 'vet-visits') {
-      vetVisits.forEach((v) => {
-        items.push({
-          id: v.id,
-          type: 'vet-visit',
-          title: v.reason || 'Vet Visit',
-          subtitle: v.clinic_name ?? undefined,
-          date: v.date,
-        });
-      });
-    }
-
     if (filter === 'all' || filter === 'medications') {
       medications.forEach((m) => {
         items.push({
           id: m.id,
           type: 'medication',
           title: m.name,
-          subtitle: m.dosage ? `${m.dosage}${m.frequency ? ` · ${m.frequency}` : ''}` : undefined,
           date: m.start_date,
-          status: m.is_completed ? 'neutral' : 'green',
-          statusLabel: m.is_completed ? 'Completed' : 'Active',
+          medication: m,
         });
       });
     }
@@ -114,15 +100,12 @@ export default function HealthRecordsScreen() {
 
     items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     return items;
-  }, [filter, vaccinations, vetVisits, medications, weightEntries]);
+  }, [filter, vaccinations, medications, weightEntries]);
 
   const handleRecordPress = (record: UnifiedRecord) => {
     switch (record.type) {
       case 'vaccination':
         router.push(`/(main)/pets/${petId}/health/vaccination/${record.id}`);
-        break;
-      case 'vet-visit':
-        router.push(`/(main)/pets/${petId}/health/vet-visit/${record.id}`);
         break;
       case 'medication':
         router.push(`/(main)/pets/${petId}/health/medication/${record.id}`);
@@ -137,9 +120,6 @@ export default function HealthRecordsScreen() {
     switch (filter) {
       case 'vaccinations':
         router.push(`/(main)/pets/${petId}/health/vaccination/add`);
-        break;
-      case 'vet-visits':
-        router.push(`/(main)/pets/${petId}/health/vet-visit/add`);
         break;
       case 'medications':
         router.push(`/(main)/pets/${petId}/health/medication/add`);
@@ -199,16 +179,35 @@ export default function HealthRecordsScreen() {
             data={records}
             keyExtractor={(item) => `${item.type}-${item.id}`}
             contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 80 }}
-            renderItem={({ item }) => (
-              <RecordCard
-                title={item.title}
-                subtitle={item.subtitle}
-                date={item.date}
-                status={item.status}
-                statusLabel={item.statusLabel}
-                onPress={() => handleRecordPress(item)}
-              />
-            )}
+            renderItem={({ item }) =>
+              item.type === 'medication' && item.medication ? (
+                <View className="mb-3">
+                  <MedicationCard
+                    medication={item.medication}
+                    onPress={() => handleRecordPress(item)}
+                    onLogDose={async () => {
+                      setLoggingDoseId(item.id);
+                      try {
+                        await healthService.logMedicationDose({ medication_id: item.id });
+                        refreshMed();
+                      } finally {
+                        setLoggingDoseId(null);
+                      }
+                    }}
+                    logDoseLoading={loggingDoseId === item.id}
+                  />
+                </View>
+              ) : (
+                <RecordCard
+                  title={item.title}
+                  subtitle={item.subtitle}
+                  date={item.date}
+                  status={item.status}
+                  statusLabel={item.statusLabel}
+                  onPress={() => handleRecordPress(item)}
+                />
+              )
+            }
           />
         ) : (
           renderEmpty()

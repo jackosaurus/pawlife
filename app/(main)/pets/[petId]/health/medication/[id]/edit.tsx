@@ -37,7 +37,7 @@ export default function EditMedicationScreen() {
     defaultValues: {
       name: '',
       dosage: null,
-      frequency: null,
+      frequency: null as unknown as string,
       startDate: '',
       endDate: null,
       notes: null,
@@ -48,11 +48,11 @@ export default function EditMedicationScreen() {
     try {
       setLoading(true);
       const data = await healthService.getMedicationById(id!);
-      setIsOngoing(!data.end_date && !data.is_completed);
+      setIsOngoing(!data.end_date);
       reset({
         name: data.name,
         dosage: data.dosage ?? null,
-        frequency: data.frequency ?? null,
+        frequency: data.frequency ?? (null as unknown as string),
         startDate: data.start_date,
         endDate: data.end_date ?? null,
         notes: data.notes ?? null,
@@ -84,7 +84,7 @@ export default function EditMedicationScreen() {
       await healthService.updateMedication(id, {
         name: data.name,
         dosage: data.dosage || null,
-        frequency: data.frequency || null,
+        frequency: data.frequency,
         start_date: data.startDate,
         end_date: isOngoing ? null : (data.endDate || null),
         notes: data.notes || null,
@@ -165,8 +165,25 @@ export default function EditMedicationScreen() {
                 placeholder="Select frequency..."
                 options={[...MEDICATION_FREQUENCIES]}
                 value={value || null}
-                onSelect={onChange}
+                onSelect={(val) => onChange(val ?? null)}
                 showAllOnFocus
+                strictMode
+                error={errors.frequency?.message}
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="notes"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label="Notes"
+                placeholder="Optional notes..."
+                onChangeText={onChange}
+                onBlur={onBlur}
+                value={value ?? ''}
+                multiline
               />
             )}
           />
@@ -209,21 +226,6 @@ export default function EditMedicationScreen() {
               )}
             />
           )}
-
-          <Controller
-            control={control}
-            name="notes"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                label="Notes"
-                placeholder="Optional notes..."
-                onChangeText={onChange}
-                onBlur={onBlur}
-                value={value ?? ''}
-                multiline
-              />
-            )}
-          />
         </Card>
 
         <View className="mt-6">

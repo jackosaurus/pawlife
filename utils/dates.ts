@@ -41,3 +41,18 @@ export function formatDate(dateString: string): string {
     year: 'numeric',
   });
 }
+
+export function formatDateTime(isoString: string): string {
+  const date = new Date(isoString);
+  const datePart = date.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+  const timePart = date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+  return `${datePart}, ${timePart}`;
+}

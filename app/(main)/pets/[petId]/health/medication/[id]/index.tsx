@@ -9,7 +9,10 @@ import { StatusPill } from '@/components/ui/StatusPill';
 import { Button } from '@/components/ui/Button';
 import { DeleteConfirmation } from '@/components/ui/DeleteConfirmation';
 import { healthService } from '@/services/healthService';
-import { formatDate } from '@/utils/dates';
+import { useMedicationDoses } from '@/hooks/useMedicationDoses';
+import { isRecurringFrequency, getDosesPerDay } from '@/constants/frequencies';
+import { getRecurringMedicationStatus, getOneOffMedicationStatus } from '@/utils/status';
+import { formatDate, formatDateTime } from '@/utils/dates';
 import { Colors } from '@/constants/colors';
 import { Medication } from '@/types';
 
@@ -21,7 +24,22 @@ export default function MedicationDetailScreen() {
   const [error, setError] = useState<string | null>(null);
   const [showDelete, setShowDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [completing, setCompleting] = useState(false);
+  const [loggingDose, setLoggingDose] = useState(false);
+  const [deletingDoseId, setDeletingDoseId] = useState<string | null>(null);
+
+  const isRecurring = isRecurringFrequency(medication?.frequency);
+  const { doses, refresh: refreshDoses } = useMedicationDoses(id!);
+
+  // Check if med is finished (past end date)
+  const isFinished = (() => {
+    if (!medication?.end_date) return false;
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const [y, m, d] = medication.end_date.split('-').map(Number);
+    const end = new Date(y, m - 1, d);
+    end.setHours(0, 0, 0, 0);
+    return end.getTime() < now.getTime();
+  })();
 
   const loadMedication = useCallback(async () => {
     try {
@@ -54,16 +72,28 @@ export default function MedicationDetailScreen() {
     }
   };
 
-  const handleMarkCompleted = async () => {
-    if (!id) return;
-    setCompleting(true);
+  const handleDeleteDose = async (doseId: string) => {
+    setDeletingDoseId(doseId);
     try {
-      const updated = await healthService.markMedicationCompleted(id);
-      setMedication(updated);
+      await healthService.deleteMedicationDose(doseId);
+      await refreshDoses();
     } catch {
-      setError('Failed to mark as completed');
+      setError('Failed to delete dose');
     } finally {
-      setCompleting(false);
+      setDeletingDoseId(null);
+    }
+  };
+
+  const handleLogDose = async () => {
+    if (!id) return;
+    setLoggingDose(true);
+    try {
+      await healthService.logMedicationDose({ medication_id: id });
+      await refreshDoses();
+    } catch {
+      setError('Failed to log dose');
+    } finally {
+      setLoggingDose(false);
     }
   };
 
@@ -92,7 +122,26 @@ export default function MedicationDetailScreen() {
     );
   }
 
-  const isActive = !medication.is_completed;
+  // Compute status
+  const latestDoseDate = doses.length > 0 ? doses[0].given_at : null;
+  const dosesPerDay = getDosesPerDay(medication.frequency);
+
+  // Count today's doses
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const todayDoseCount = doses.filter(
+    (d) => new Date(d.given_at).getTime() >= startOfToday.getTime(),
+  ).length;
+
+  const status = isRecurring
+    ? getRecurringMedicationStatus(latestDoseDate, medication.frequency!, todayDoseCount, dosesPerDay)
+    : getOneOffMedicationStatus(medication.end_date);
+
+  const statusLabel = isRecurring
+    ? (dosesPerDay != null && dosesPerDay > 1 && status === 'amber'
+        ? `${todayDoseCount}/${dosesPerDay} today`
+        : status === 'green' ? 'Up to date' : status === 'amber' ? 'Due soon' : status === 'overdue' ? 'Overdue' : 'New')
+    : (status === 'green' ? 'Current' : 'Finished med');
 
   return (
     <Screen scroll>
@@ -102,22 +151,13 @@ export default function MedicationDetailScreen() {
         </Pressable>
 
         <View className="flex-row items-center justify-between mb-6">
-          <Text
-            className={`text-3xl font-bold flex-1 mr-3 ${
-              isActive ? 'text-text-primary' : 'text-text-secondary'
-            }`}
-          >
+          <Text className="text-3xl font-bold text-text-primary flex-1 mr-3">
             {medication.name}
           </Text>
-          <StatusPill
-            label={isActive ? 'Active' : 'Completed'}
-            status={isActive ? 'green' : 'neutral'}
-          />
+          <StatusPill label={statusLabel} status={status} />
         </View>
 
-        <Card
-          className={`px-5 mb-4 ${!isActive ? 'opacity-70' : ''}`}
-        >
+        <Card className="px-5 mb-4">
           <DetailRow label="Dosage" value={medication.dosage ?? 'Not specified'} />
           <DetailRow
             label="Frequency"
@@ -125,42 +165,73 @@ export default function MedicationDetailScreen() {
             isLast={!medication.notes}
           />
           {medication.notes ? (
+            <DetailRow label="Notes" value={medication.notes} isLast />
+          ) : null}
+        </Card>
+
+        <Text className="text-sm font-medium text-text-secondary uppercase tracking-wide ml-1 mb-2">
+          Timeline
+        </Text>
+        <Card className="px-5 mb-4">
+          <DetailRow
+            label="Start Date"
+            value={formatDate(medication.start_date)}
+            isLast={!medication.end_date}
+          />
+          {medication.end_date ? (
             <DetailRow
-              label="Notes"
-              value={medication.notes}
+              label="End Date"
+              value={formatDate(medication.end_date)}
               isLast
             />
           ) : null}
         </Card>
 
-        <Text className={`text-sm font-medium text-text-secondary uppercase tracking-wide ml-1 mb-2 ${!isActive ? 'opacity-70' : ''}`}>
-          Timeline
-        </Text>
-        <Card
-          className={`px-5 mb-4 ${!isActive ? 'opacity-70' : ''}`}
-        >
-          <DetailRow
-            label="Start Date"
-            value={formatDate(medication.start_date)}
-          />
-          <DetailRow
-            label="End Date"
-            value={medication.end_date ? formatDate(medication.end_date) : 'Ongoing'}
-            isLast
-          />
-        </Card>
+        {doses.length > 0 ? (
+          <>
+            <Text className="text-sm font-medium text-text-secondary uppercase tracking-wide ml-1 mb-2">
+              Dose History
+            </Text>
+            <Card className="px-5 mb-4">
+              {doses.map((dose, idx) => (
+                <View
+                  key={dose.id}
+                  className={`flex-row items-center justify-between py-3.5 ${
+                    idx === doses.length - 1 ? '' : 'border-b border-border'
+                  }`}
+                >
+                  <Text className="text-base text-text-primary flex-1 mr-3">
+                    {formatDateTime(dose.given_at)}
+                  </Text>
+                  <Pressable
+                    onPress={() => handleDeleteDose(dose.id)}
+                    disabled={deletingDoseId === dose.id}
+                    hitSlop={8}
+                    testID={`delete-dose-${dose.id}`}
+                  >
+                    {deletingDoseId === dose.id ? (
+                      <ActivityIndicator size="small" color={Colors.statusOverdue} />
+                    ) : (
+                      <Ionicons name="trash-outline" size={18} color={Colors.textSecondary} />
+                    )}
+                  </Pressable>
+                </View>
+              ))}
+            </Card>
+          </>
+        ) : null}
 
         <View className="mt-4 gap-3">
-          {isActive && (
+          {!isFinished ? (
             <Button
-              title="Mark as Completed"
-              onPress={handleMarkCompleted}
-              loading={completing}
+              title="Log Dose"
+              onPress={handleLogDose}
+              loading={loggingDose}
             />
-          )}
+          ) : null}
           <Button
             title="Edit"
-            variant={isActive ? 'secondary' : undefined}
+            variant={!isFinished ? 'secondary' : undefined}
             onPress={() =>
               router.push(
                 `/(main)/pets/${petId}/health/medication/${id}/edit`,
