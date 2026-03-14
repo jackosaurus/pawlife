@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { View, Text, FlatList, ActivityIndicator, Pressable } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, Pressable, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,6 +9,9 @@ import { Card } from '@/components/ui/Card';
 import { PetCard } from '@/components/pets/PetCard';
 import { usePets } from '@/hooks/usePets';
 import { Colors } from '@/constants/colors';
+
+const welcomeHero = require('@/assets/illustrations/welcome-hero.png');
+const emptyPets = require('@/assets/illustrations/empty-pets.png');
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -52,8 +55,12 @@ export default function DashboardScreen() {
           </View>
         ) : pets.length === 0 ? (
           <View className="flex-1 items-center justify-center px-8">
-            <Text className="text-3xl mb-4">🐾</Text>
-            <Text className="text-xl font-semibold text-text-primary mb-2">
+            <Image
+              source={emptyPets}
+              style={{ width: 180, height: 180 }}
+              resizeMode="contain"
+            />
+            <Text className="text-xl font-semibold text-text-primary mb-2 mt-4">
               Welcome to Pawlife!
             </Text>
             <Text className="text-base text-text-secondary text-center mb-8">
@@ -77,6 +84,15 @@ export default function DashboardScreen() {
               />
             )}
             showsVerticalScrollIndicator={false}
+            ListHeaderComponent={
+              <View className="items-center mb-4">
+                <Image
+                  source={welcomeHero}
+                  style={{ width: 200, height: 130 }}
+                  resizeMode="contain"
+                />
+              </View>
+            }
             ListFooterComponent={
               <Card
                 onPress={() => router.push('/(main)/pets/add')}

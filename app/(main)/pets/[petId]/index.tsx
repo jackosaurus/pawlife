@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, Image, ImageSourcePropType } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
 import { Screen } from '@/components/ui/Screen';
@@ -17,6 +17,11 @@ import { useWeightEntries } from '@/hooks/useWeightEntries';
 import { getVaccinationStatus } from '@/utils/status';
 import { healthService } from '@/services/healthService';
 import { Colors } from '@/constants/colors';
+
+const emptyFood = require('@/assets/illustrations/empty-food.png');
+const emptyMedications = require('@/assets/illustrations/empty-medications.png');
+const emptyVaccinations = require('@/assets/illustrations/empty-vaccinations.png');
+const emptyWeight = require('@/assets/illustrations/empty-weight.png');
 
 const TABS: Tab[] = [
   { key: 'food', label: 'Food' },
@@ -139,7 +144,7 @@ export default function PetDetailScreen() {
     switch (activeTab) {
       case 'food':
         return allFoodEntries.length === 0 ? (
-          <EmptyState message={`What's ${pet.name} eating? Add their current food.`} />
+          <EmptyState message={`What's ${pet.name} eating? Add their current food.`} illustration={emptyFood} />
         ) : (
           allFoodEntries.map((entry) => (
             <View key={entry.id} className="px-6 mb-3">
@@ -158,7 +163,7 @@ export default function PetDetailScreen() {
 
       case 'medications':
         return medications.length === 0 ? (
-          <EmptyState message="No medications recorded yet." />
+          <EmptyState message="No medications recorded yet." illustration={emptyMedications} />
         ) : (
           medications.map((m) => (
             <View key={m.id} className="px-6 mb-3">
@@ -182,7 +187,7 @@ export default function PetDetailScreen() {
 
       case 'vaccinations':
         return vaccinations.length === 0 ? (
-          <EmptyState message="No vaccinations recorded yet." />
+          <EmptyState message="No vaccinations recorded yet." illustration={emptyVaccinations} />
         ) : (
           vaccinations.map((v) => {
             const status = getVaccinationStatus(v.next_due_date);
@@ -203,7 +208,7 @@ export default function PetDetailScreen() {
 
       case 'weight':
         return weightEntries.length === 0 ? (
-          <EmptyState message="No weight entries recorded yet." />
+          <EmptyState message="No weight entries recorded yet." illustration={emptyWeight} />
         ) : (
           weightEntries.map((w) => (
             <View key={w.id} className="px-6 mb-3">
@@ -246,10 +251,17 @@ export default function PetDetailScreen() {
   );
 }
 
-function EmptyState({ message }: { message: string }) {
+function EmptyState({ message, illustration }: { message: string; illustration?: ImageSourcePropType }) {
   return (
     <View className="items-center py-12 px-8">
-      <Text className="text-base text-text-secondary text-center">{message}</Text>
+      {illustration && (
+        <Image
+          source={illustration}
+          style={{ width: 140, height: 140 }}
+          resizeMode="contain"
+        />
+      )}
+      <Text className="text-base text-text-secondary text-center mt-4">{message}</Text>
     </View>
   );
 }
