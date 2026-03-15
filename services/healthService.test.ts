@@ -464,6 +464,57 @@ describe('healthService', () => {
     });
   });
 
+  // ── Cross-Pet Queries (Dashboard Action Items) ──────────────
+
+  describe('getActiveMedicationsForPets', () => {
+    it('returns active recurring medications for given pet IDs', async () => {
+      const meds = [
+        { id: 'm1', pet_id: 'p1', name: 'Amoxicillin', frequency: 'Once daily', is_completed: false },
+        { id: 'm2', pet_id: 'p2', name: 'Heartgard', frequency: 'Once monthly', is_completed: false },
+      ];
+      mockFrom.mockReturnValue(chainMock({ data: meds, error: null }));
+      const result = await healthService.getActiveMedicationsForPets(['p1', 'p2']);
+      expect(result).toEqual(meds);
+      expect(mockFrom).toHaveBeenCalledWith('medications');
+    });
+
+    it('returns empty array for empty petIds', async () => {
+      const result = await healthService.getActiveMedicationsForPets([]);
+      expect(result).toEqual([]);
+    });
+
+    it('throws on error', async () => {
+      mockFrom.mockReturnValue(chainMock({ data: null, error: new Error('DB error') }));
+      await expect(
+        healthService.getActiveMedicationsForPets(['p1']),
+      ).rejects.toThrow('DB error');
+    });
+  });
+
+  describe('getActionableVaccinations', () => {
+    it('returns vaccinations due within advance window', async () => {
+      const vaccinations = [
+        { id: 'v1', pet_id: 'p1', vaccine_name: 'Rabies', next_due_date: '2025-02-01' },
+      ];
+      mockFrom.mockReturnValue(chainMock({ data: vaccinations, error: null }));
+      const result = await healthService.getActionableVaccinations(['p1'], 14);
+      expect(result).toEqual(vaccinations);
+      expect(mockFrom).toHaveBeenCalledWith('vaccinations');
+    });
+
+    it('returns empty array for empty petIds', async () => {
+      const result = await healthService.getActionableVaccinations([], 14);
+      expect(result).toEqual([]);
+    });
+
+    it('throws on error', async () => {
+      mockFrom.mockReturnValue(chainMock({ data: null, error: new Error('DB error') }));
+      await expect(
+        healthService.getActionableVaccinations(['p1'], 14),
+      ).rejects.toThrow('DB error');
+    });
+  });
+
   // ── Weight Entries ────────────────────────────────────────────
 
   describe('getWeightEntries', () => {

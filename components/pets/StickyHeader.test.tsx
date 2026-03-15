@@ -59,7 +59,7 @@ describe('StickyHeader', () => {
     expect(onBack).toHaveBeenCalledTimes(1);
   });
 
-  it('renders edit button as pill and calls onEdit when pressed', () => {
+  it('renders edit button in header and calls onEdit when pressed', () => {
     const onEdit = jest.fn();
     render(<StickyHeader pet={mockPet} onBack={jest.fn()} onEdit={onEdit} />);
     const editButton = screen.getByTestId('edit-button');
@@ -72,6 +72,17 @@ describe('StickyHeader', () => {
     render(<StickyHeader pet={mockPet} onBack={jest.fn()} />);
     expect(screen.queryByTestId('edit-button')).toBeNull();
     expect(screen.queryByText('Edit')).toBeNull();
+  });
+
+  it('truncates weight to 1 decimal place', () => {
+    render(<StickyHeader pet={mockPet} onBack={jest.fn()} latestWeight={12.222222222111111} />);
+    expect(screen.getByText('12.2 kg')).toBeTruthy();
+    expect(screen.queryByText(/12\.222/)).toBeNull();
+  });
+
+  it('strips trailing zero from whole weight values', () => {
+    render(<StickyHeader pet={mockPet} onBack={jest.fn()} latestWeight={10.0} />);
+    expect(screen.getByText('10 kg')).toBeTruthy();
   });
 
   it('renders male sex as metadata pill', () => {

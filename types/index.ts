@@ -52,3 +52,20 @@ export type WeightEntryUpdate = Tables['weight_entries']['Update'];
 export type FoodEntry = Tables['food_entries']['Row'];
 export type FoodEntryInsert = Tables['food_entries']['Insert'];
 export type FoodEntryUpdate = Tables['food_entries']['Update'];
+
+// ── Action Items (Dashboard "Needs Attention") ──────────────────
+
+export type ActionItemType = 'medication' | 'vaccination';
+export type ActionItemUrgency = 'overdue' | 'due_today' | 'upcoming';
+
+export interface ActionItem {
+  id: string;
+  type: ActionItemType;
+  urgency: ActionItemUrgency;
+  petId: string;
+  petName: string;
+  title: string;
+  subtitle: string;
+  recordId: string;
+  medicationId?: string;
+}

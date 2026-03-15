@@ -371,6 +371,45 @@ export const healthService = {
     return latest;
   },
 
+  // ── Cross-Pet Queries (Dashboard Action Items) ──────────────
+
+  async getActiveMedicationsForPets(petIds: string[]): Promise<Medication[]> {
+    if (petIds.length === 0) return [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split('T')[0];
+
+    const { data, error } = await supabase
+      .from('medications')
+      .select('*')
+      .in('pet_id', petIds)
+      .eq('is_completed', false)
+      .or(`end_date.is.null,end_date.gte.${todayStr}`)
+      .neq('frequency', 'As needed');
+    if (error) throw error;
+    return data;
+  },
+
+  async getActionableVaccinations(
+    petIds: string[],
+    advanceDays: number,
+  ): Promise<Vaccination[]> {
+    if (petIds.length === 0) return [];
+    const futureDate = new Date();
+    futureDate.setHours(0, 0, 0, 0);
+    futureDate.setDate(futureDate.getDate() + advanceDays);
+    const futureDateStr = futureDate.toISOString().split('T')[0];
+
+    const { data, error } = await supabase
+      .from('vaccinations')
+      .select('*')
+      .in('pet_id', petIds)
+      .not('next_due_date', 'is', null)
+      .lte('next_due_date', futureDateStr);
+    if (error) throw error;
+    return data;
+  },
+
   // ── Weight Entries ────────────────────────────────────────────
 
   async getWeightEntries(petId: string): Promise<WeightEntry[]> {

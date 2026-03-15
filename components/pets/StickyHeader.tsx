@@ -21,10 +21,26 @@ export function StickyHeader({ pet, onBack, onEdit, latestWeight }: StickyHeader
 
   return (
     <View className="px-6 pt-4 pb-6">
-      <View className="flex-row items-center mb-4">
+      <View className="flex-row items-center justify-between mb-4">
         <Pressable onPress={onBack} hitSlop={8} testID="back-button">
           <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </Pressable>
+        {onEdit ? (
+          <Pressable
+            onPress={onEdit}
+            testID="edit-button"
+            className="flex-row items-center"
+            hitSlop={8}
+          >
+            <Ionicons
+              name="create-outline"
+              size={18}
+              color={Colors.primary}
+              style={{ marginRight: 4 }}
+            />
+            <Text className="text-base font-medium text-primary">Edit</Text>
+          </Pressable>
+        ) : null}
       </View>
 
       <View className="flex-row items-center">
@@ -48,29 +64,7 @@ export function StickyHeader({ pet, onBack, onEdit, latestWeight }: StickyHeader
         <MetadataPill label={age} />
         {sexLabel ? <MetadataPill label={sexLabel} /> : null}
         {latestWeight != null ? (
-          <MetadataPill label={`${latestWeight} kg`} />
-        ) : null}
-        {onEdit ? (
-          <Pressable
-            onPress={onEdit}
-            testID="edit-button"
-            className="bg-white rounded-full px-4 py-2 flex-row items-center"
-            style={{
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 1 },
-              shadowOpacity: 0.06,
-              shadowRadius: 2,
-              elevation: 1,
-            }}
-          >
-            <Ionicons
-              name="create-outline"
-              size={16}
-              color={Colors.primary}
-              style={{ marginRight: 4 }}
-            />
-            <Text className="text-base font-medium text-primary">Edit</Text>
-          </Pressable>
+          <MetadataPill label={`${Number(latestWeight.toFixed(1))} kg`} />
         ) : null}
       </View>
     </View>

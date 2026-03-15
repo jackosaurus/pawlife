@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator, Pressable, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
@@ -7,7 +7,10 @@ import { Screen } from '@/components/ui/Screen';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { PetCard } from '@/components/pets/PetCard';
+import { NeedsAttentionSection } from '@/components/dashboard/NeedsAttentionSection';
 import { usePets } from '@/hooks/usePets';
+import { useActionItems } from '@/hooks/useActionItems';
+import { healthService } from '@/services/healthService';
 import { Colors } from '@/constants/colors';
 
 const welcomeHero = require('@/assets/illustrations/welcome-hero.png');
@@ -17,12 +20,40 @@ export default function DashboardScreen() {
   const router = useRouter();
   const navigation = useNavigation();
   const { pets, loading, error, refresh } = usePets();
+  const { actionItems, refresh: refreshActions } = useActionItems(pets);
+  const [loggingDose, setLoggingDose] = useState<string | null>(null);
+
+  const refreshAll = useCallback(() => {
+    refresh();
+    refreshActions();
+  }, [refresh, refreshActions]);
+
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      refresh();
+      refreshAll();
     });
     return unsubscribe;
-  }, [navigation, refresh]);
+  }, [navigation, refreshAll]);
+
+  const handleLogDose = useCallback(async (medicationId: string) => {
+    if (loggingDose) return;
+    try {
+      setLoggingDose(medicationId);
+      await healthService.logMedicationDose({
+        medication_id: medicationId,
+        given_at: new Date().toISOString(),
+      });
+      refreshActions();
+    } catch {
+      // Silently fail — user can retry
+    } finally {
+      setLoggingDose(null);
+    }
+  }, [loggingDose, refreshActions]);
+
+  const handleViewVaccination = useCallback((petId: string, vaccinationId: string) => {
+    router.push(`/(main)/pets/${petId}/health/vaccination/${vaccinationId}`);
+  }, [router]);
 
   return (
     <Screen>
@@ -85,13 +116,20 @@ export default function DashboardScreen() {
             )}
             showsVerticalScrollIndicator={false}
             ListHeaderComponent={
-              <View className="items-center mb-4">
-                <Image
-                  source={welcomeHero}
-                  style={{ width: 200, height: 130 }}
-                  resizeMode="contain"
+              <>
+                <View className="items-center mb-4">
+                  <Image
+                    source={welcomeHero}
+                    style={{ width: 200, height: 130 }}
+                    resizeMode="contain"
+                  />
+                </View>
+                <NeedsAttentionSection
+                  items={actionItems}
+                  onLogDose={handleLogDose}
+                  onViewVaccination={handleViewVaccination}
                 />
-              </View>
+              </>
             }
             ListFooterComponent={
               <Card
