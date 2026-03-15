@@ -6,7 +6,7 @@ import { ActionItem } from '@/types';
 interface ActionItemCardProps {
   item: ActionItem;
   onLogDose: (medicationId: string) => void;
-  onViewVaccination: (petId: string, vaccinationId: string) => void;
+  onLogVaccination: (vaccinationId: string, intervalMonths: number) => void;
 }
 
 const urgencyColors: Record<string, string> = {
@@ -29,7 +29,7 @@ const iconByType: Record<string, keyof typeof Ionicons.glyphMap> = {
 export function ActionItemCard({
   item,
   onLogDose,
-  onViewVaccination,
+  onLogVaccination,
 }: ActionItemCardProps) {
   const borderColor = urgencyColors[item.urgency];
   const iconColor = urgencyIconColors[item.urgency];
@@ -38,8 +38,8 @@ export function ActionItemCard({
   const handleAction = () => {
     if (item.type === 'medication' && item.medicationId) {
       onLogDose(item.medicationId);
-    } else if (item.type === 'vaccination') {
-      onViewVaccination(item.petId, item.recordId);
+    } else if (item.type === 'vaccination' && item.vaccinationId) {
+      onLogVaccination(item.vaccinationId, item.intervalMonths ?? 12);
     }
   };
 
@@ -69,7 +69,7 @@ export function ActionItemCard({
       {/* Action button */}
       <Pressable onPress={handleAction} hitSlop={8} testID="action-button">
         <Text className="text-sm font-medium text-primary">
-          {item.type === 'medication' ? 'Log Dose' : 'View'}
+          {item.type === 'medication' ? 'Log Dose' : 'Log'}
         </Text>
       </Pressable>
     </View>

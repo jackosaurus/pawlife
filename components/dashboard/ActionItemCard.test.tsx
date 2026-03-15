@@ -26,7 +26,7 @@ function makeItem(overrides: Partial<ActionItem> = {}): ActionItem {
 describe('ActionItemCard', () => {
   const defaultProps = {
     onLogDose: jest.fn(),
-    onViewVaccination: jest.fn(),
+    onLogVaccination: jest.fn(),
   };
 
   beforeEach(() => {
@@ -64,11 +64,11 @@ describe('ActionItemCard', () => {
     expect(screen.getByText('Log Dose')).toBeTruthy();
   });
 
-  it('shows "View" action for vaccination items', () => {
-    const item = makeItem({ type: 'vaccination', medicationId: undefined });
+  it('shows "Log" action for vaccination items', () => {
+    const item = makeItem({ type: 'vaccination', medicationId: undefined, vaccinationId: 'vax-1', intervalMonths: 12 });
     render(<ActionItemCard item={item} {...defaultProps} />);
 
-    expect(screen.getByText('View')).toBeTruthy();
+    expect(screen.getByText('Log')).toBeTruthy();
   });
 
   it('calls onLogDose with medicationId when Log Dose pressed', () => {
@@ -78,7 +78,7 @@ describe('ActionItemCard', () => {
       <ActionItemCard
         item={item}
         onLogDose={onLogDose}
-        onViewVaccination={jest.fn()}
+        onLogVaccination={jest.fn()}
       />,
     );
 
@@ -87,25 +87,27 @@ describe('ActionItemCard', () => {
     expect(onLogDose).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onViewVaccination with petId and recordId when View pressed', () => {
-    const onViewVaccination = jest.fn();
+  it('calls onLogVaccination with vaccinationId and intervalMonths when Log pressed', () => {
+    const onLogVaccination = jest.fn();
     const item = makeItem({
       type: 'vaccination',
       petId: 'pet-7',
       recordId: 'vax-99',
       medicationId: undefined,
+      vaccinationId: 'vax-99',
+      intervalMonths: 12,
     });
     render(
       <ActionItemCard
         item={item}
         onLogDose={jest.fn()}
-        onViewVaccination={onViewVaccination}
+        onLogVaccination={onLogVaccination}
       />,
     );
 
     fireEvent.press(screen.getByTestId('action-button'));
-    expect(onViewVaccination).toHaveBeenCalledWith('pet-7', 'vax-99');
-    expect(onViewVaccination).toHaveBeenCalledTimes(1);
+    expect(onLogVaccination).toHaveBeenCalledWith('vax-99', 12);
+    expect(onLogVaccination).toHaveBeenCalledTimes(1);
   });
 
   it('shows overdue styling (left border color) for overdue items', () => {

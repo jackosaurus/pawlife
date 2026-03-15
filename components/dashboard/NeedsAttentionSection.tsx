@@ -10,13 +10,13 @@ const MAX_COLLAPSED = 5;
 interface NeedsAttentionSectionProps {
   items: ActionItem[];
   onLogDose: (medicationId: string) => void;
-  onViewVaccination: (petId: string, vaccinationId: string) => void;
+  onLogVaccination: (vaccinationId: string, intervalMonths: number) => void;
 }
 
 export function NeedsAttentionSection({
   items,
   onLogDose,
-  onViewVaccination,
+  onLogVaccination,
 }: NeedsAttentionSectionProps) {
   const [expanded, setExpanded] = useState(false);
 
@@ -57,7 +57,7 @@ export function NeedsAttentionSection({
             <ActionItemCard
               item={item}
               onLogDose={onLogDose}
-              onViewVaccination={onViewVaccination}
+              onLogVaccination={onLogVaccination}
             />
           </View>
         ))}

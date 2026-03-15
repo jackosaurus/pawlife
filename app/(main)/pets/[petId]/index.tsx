@@ -6,6 +6,7 @@ import { Screen } from '@/components/ui/Screen';
 import { Button } from '@/components/ui/Button';
 import { RecordCard } from '@/components/ui/RecordCard';
 import { MedicationCard } from '@/components/health/MedicationCard';
+import { VaccinationCard } from '@/components/health/VaccinationCard';
 import { StickyHeader } from '@/components/pets/StickyHeader';
 import { TabBar, Tab } from '@/components/pets/TabBar';
 import { AddRecordCard } from '@/components/pets/AddRecordCard';
@@ -14,7 +15,6 @@ import { useFoodEntries } from '@/hooks/useFoodEntries';
 import { useVaccinations } from '@/hooks/useVaccinations';
 import { useMedications } from '@/hooks/useMedications';
 import { useWeightEntries } from '@/hooks/useWeightEntries';
-import { getVaccinationStatus } from '@/utils/status';
 import { healthService } from '@/services/healthService';
 import { Colors } from '@/constants/colors';
 
@@ -189,21 +189,28 @@ export default function PetDetailScreen() {
         return vaccinations.length === 0 ? (
           <EmptyState message="No vaccinations recorded yet." illustration={emptyVaccinations} />
         ) : (
-          vaccinations.map((v) => {
-            const status = getVaccinationStatus(v.next_due_date);
-            return (
-              <View key={v.id} className="px-6 mb-3">
-                <RecordCard
-                  title={v.vaccine_name}
-                  subtitle={v.clinic_name ?? undefined}
-                  date={v.date_administered}
-                  status={status}
-                  statusLabel={status === 'green' ? 'Up to date' : status === 'amber' ? 'Due soon' : 'Overdue'}
-                  onPress={() => router.push(`/(main)/pets/${petId}/health/vaccination/${v.id}`)}
-                />
-              </View>
-            );
-          })
+          vaccinations.map((v) => (
+            <View key={v.id} className="px-6">
+              <VaccinationCard
+                vaccination={v}
+                onPress={() => router.push(`/(main)/pets/${petId}/health/vaccination/${v.id}`)}
+                onLog={async () => {
+                  setLoggingDoseId(v.id);
+                  try {
+                    const today = new Date().toISOString().split('T')[0];
+                    await healthService.logVaccinationDose(
+                      { vaccination_id: v.id, date_administered: today },
+                      v.interval_months ?? 12,
+                    );
+                    refreshVaccinations();
+                  } finally {
+                    setLoggingDoseId(null);
+                  }
+                }}
+                logLoading={loggingDoseId === v.id}
+              />
+            </View>
+          ))
         );
 
       case 'weight':

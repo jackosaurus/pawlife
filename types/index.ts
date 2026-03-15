@@ -34,9 +34,31 @@ export type VetVisitUpdate = Tables['vet_visits']['Update'];
 export type VetVisitAttachment = Tables['vet_visit_attachments']['Row'];
 export type VetVisitAttachmentInsert = Tables['vet_visit_attachments']['Insert'];
 
-export type Vaccination = Tables['vaccinations']['Row'];
-export type VaccinationInsert = Tables['vaccinations']['Insert'];
-export type VaccinationUpdate = Tables['vaccinations']['Update'];
+export type Vaccination = Tables['vaccinations']['Row'] & {
+  interval_months: number | null;
+};
+export type VaccinationInsert = Tables['vaccinations']['Insert'] & {
+  interval_months?: number | null;
+};
+export type VaccinationUpdate = Tables['vaccinations']['Update'] & {
+  interval_months?: number | null;
+};
+
+export type VaccinationDose = {
+  id: string;
+  vaccination_id: string;
+  date_administered: string;
+  clinic_name: string | null;
+  notes: string | null;
+  created_by: string | null;
+  created_at: string;
+};
+export type VaccinationDoseInsert = {
+  vaccination_id: string;
+  date_administered: string;
+  clinic_name?: string | null;
+  notes?: string | null;
+};
 
 export type Medication = Tables['medications']['Row'];
 export type MedicationInsert = Tables['medications']['Insert'];
@@ -68,4 +90,6 @@ export interface ActionItem {
   subtitle: string;
   recordId: string;
   medicationId?: string;
+  vaccinationId?: string;
+  intervalMonths?: number;
 }

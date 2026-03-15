@@ -51,9 +51,25 @@ export default function DashboardScreen() {
     }
   }, [loggingDose, refreshActions]);
 
-  const handleViewVaccination = useCallback((petId: string, vaccinationId: string) => {
-    router.push(`/(main)/pets/${petId}/health/vaccination/${vaccinationId}`);
-  }, [router]);
+  const handleLogVaccination = useCallback(async (vaccinationId: string, intervalMonths: number) => {
+    if (loggingDose) return;
+    try {
+      setLoggingDose(vaccinationId);
+      const today = new Date();
+      await healthService.logVaccinationDose(
+        {
+          vaccination_id: vaccinationId,
+          date_administered: today.toISOString().split('T')[0],
+        },
+        intervalMonths,
+      );
+      refreshActions();
+    } catch {
+      // Silently fail — user can retry
+    } finally {
+      setLoggingDose(null);
+    }
+  }, [loggingDose, refreshActions]);
 
   return (
     <Screen>
@@ -127,7 +143,7 @@ export default function DashboardScreen() {
                 <NeedsAttentionSection
                   items={actionItems}
                   onLogDose={handleLogDose}
-                  onViewVaccination={handleViewVaccination}
+                  onLogVaccination={handleLogVaccination}
                 />
               </>
             }

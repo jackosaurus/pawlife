@@ -10,9 +10,10 @@ import { Button } from '@/components/ui/Button';
 import { DeleteConfirmation } from '@/components/ui/DeleteConfirmation';
 import { healthService } from '@/services/healthService';
 import { getVaccinationStatus } from '@/utils/status';
+import { getIntervalLabel } from '@/constants/vaccines';
 import { formatDate } from '@/utils/dates';
 import { Colors } from '@/constants/colors';
-import { Vaccination } from '@/types';
+import { Vaccination, VaccinationDose } from '@/types';
 
 const STATUS_LABELS: Record<'green' | 'amber' | 'overdue', string> = {
   green: 'Up to date',
@@ -24,17 +25,23 @@ export default function VaccinationDetailScreen() {
   const { petId, id } = useLocalSearchParams<{ petId: string; id: string }>();
   const router = useRouter();
   const [vaccination, setVaccination] = useState<Vaccination | null>(null);
+  const [doses, setDoses] = useState<VaccinationDose[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showDelete, setShowDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [logging, setLogging] = useState(false);
 
-  const loadVaccination = useCallback(async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await healthService.getVaccinationById(id!);
-      setVaccination(data);
+      const [vaxData, doseData] = await Promise.all([
+        healthService.getVaccinationById(id!),
+        healthService.getVaccinationDoses(id!),
+      ]);
+      setVaccination(vaxData);
+      setDoses(doseData);
     } catch {
       setError('Failed to load vaccination');
     } finally {
@@ -43,8 +50,8 @@ export default function VaccinationDetailScreen() {
   }, [id]);
 
   useEffect(() => {
-    loadVaccination();
-  }, [loadVaccination]);
+    loadData();
+  }, [loadData]);
 
   const handleDelete = async () => {
     if (!id) return;
@@ -57,6 +64,27 @@ export default function VaccinationDetailScreen() {
     } finally {
       setDeleting(false);
       setShowDelete(false);
+    }
+  };
+
+  const handleLog = async () => {
+    if (!vaccination || logging) return;
+    setLogging(true);
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      await healthService.logVaccinationDose(
+        {
+          vaccination_id: vaccination.id,
+          date_administered: today,
+          clinic_name: vaccination.clinic_name,
+        },
+        vaccination.interval_months ?? 12,
+      );
+      await loadData();
+    } catch {
+      setError('Failed to log vaccination');
+    } finally {
+      setLogging(false);
     }
   };
 
@@ -86,6 +114,7 @@ export default function VaccinationDetailScreen() {
   }
 
   const status = getVaccinationStatus(vaccination.next_due_date);
+  const showLogButton = status !== 'green' || !vaccination.date_administered;
 
   return (
     <Screen scroll>
@@ -102,7 +131,14 @@ export default function VaccinationDetailScreen() {
         </View>
 
         <Card className="px-5 mb-4">
-          <DetailRow label="Date Administered" value={formatDate(vaccination.date_administered)} />
+          <DetailRow
+            label="Schedule"
+            value={getIntervalLabel(vaccination.interval_months)}
+          />
+          <DetailRow
+            label="Last Administered"
+            value={vaccination.date_administered ? formatDate(vaccination.date_administered) : 'Not yet given'}
+          />
           <DetailRow
             label="Next Due Date"
             value={vaccination.next_due_date ? formatDate(vaccination.next_due_date) : 'Not set'}
@@ -114,9 +150,36 @@ export default function VaccinationDetailScreen() {
           />
         </Card>
 
+        {/* Dose History */}
+        {doses.length > 0 && (
+          <>
+            <Text className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2 px-1">
+              Dose History
+            </Text>
+            <Card className="px-5 mb-4">
+              {doses.map((dose, index) => (
+                <DetailRow
+                  key={dose.id}
+                  label={formatDate(dose.date_administered)}
+                  value={dose.clinic_name ?? ''}
+                  isLast={index === doses.length - 1}
+                />
+              ))}
+            </Card>
+          </>
+        )}
+
         <View className="mt-4 gap-3">
+          {showLogButton && (
+            <Button
+              title={logging ? 'Logging...' : 'Log Vaccination'}
+              onPress={handleLog}
+              loading={logging}
+            />
+          )}
           <Button
             title="Edit"
+            variant={showLogButton ? 'secondary' : undefined}
             onPress={() =>
               router.push(
                 `/(main)/pets/${petId}/health/vaccination/${id}/edit`,

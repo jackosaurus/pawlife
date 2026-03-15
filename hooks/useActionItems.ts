@@ -127,13 +127,15 @@ export function useActionItems(pets: Pet[]) {
 
         return {
           id: `vax-${vax.id}`,
-          type: 'vaccination',
-          urgency: isOverdue ? 'overdue' : 'upcoming',
+          type: 'vaccination' as const,
+          urgency: isOverdue ? 'overdue' as const : 'upcoming' as const,
           petId: vax.pet_id,
           petName: petNameMap.get(vax.pet_id) ?? '',
           title: vax.vaccine_name,
           subtitle,
           recordId: vax.id,
+          vaccinationId: vax.id,
+          intervalMonths: vax.interval_months ?? 12,
         };
       });
 

@@ -3,6 +3,8 @@ import {
   Vaccination,
   VaccinationInsert,
   VaccinationUpdate,
+  VaccinationDose,
+  VaccinationDoseInsert,
   VetVisit,
   VetVisitInsert,
   VetVisitUpdate,
@@ -77,6 +79,64 @@ export const healthService = {
   async deleteVaccination(id: string): Promise<void> {
     const { error } = await supabase
       .from('vaccinations')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  },
+
+  // ── Vaccination Doses ───────────────────────────────────────────
+
+  async logVaccinationDose(
+    dose: VaccinationDoseInsert,
+    intervalMonths: number,
+  ): Promise<VaccinationDose> {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // 1. Insert the dose
+    const { data, error } = await supabase
+      .from('vaccination_doses')
+      .insert({
+        ...dose,
+        created_by: user?.id ?? null,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+
+    // 2. Calculate next due date
+    const doseDate = new Date(dose.date_administered);
+    doseDate.setMonth(doseDate.getMonth() + intervalMonths);
+    const nextDueDate = doseDate.toISOString().split('T')[0];
+
+    // 3. Update the parent vaccination record
+    const { error: updateError } = await supabase
+      .from('vaccinations')
+      .update({
+        date_administered: dose.date_administered,
+        next_due_date: nextDueDate,
+        ...(dose.clinic_name ? { clinic_name: dose.clinic_name } : {}),
+        modified_by: user?.id ?? null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', dose.vaccination_id);
+    if (updateError) throw updateError;
+
+    return data;
+  },
+
+  async getVaccinationDoses(vaccinationId: string): Promise<VaccinationDose[]> {
+    const { data, error } = await supabase
+      .from('vaccination_doses')
+      .select('*')
+      .eq('vaccination_id', vaccinationId)
+      .order('date_administered', { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteVaccinationDose(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('vaccination_doses')
       .delete()
       .eq('id', id);
     if (error) throw error;

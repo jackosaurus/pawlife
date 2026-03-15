@@ -15,7 +15,7 @@ import {
   AddVaccinationFormData,
 } from '@/types/vaccination';
 import { healthService } from '@/services/healthService';
-import { getVaccinesForType, getIntervalForVaccine } from '@/constants/vaccines';
+import { getVaccinesForType, getIntervalForVaccine, VACCINATION_INTERVALS } from '@/constants/vaccines';
 import { Colors } from '@/constants/colors';
 
 export default function AddVaccinationScreen() {
@@ -31,34 +31,16 @@ export default function AddVaccinationScreen() {
     control,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<AddVaccinationFormData>({
     resolver: zodResolver(addVaccinationSchema),
     defaultValues: {
       vaccineName: '',
+      intervalMonths: 12,
       dateAdministered: '',
-      nextDueDate: null,
       clinicName: null,
     },
   });
-
-  const dateAdministered = watch('dateAdministered');
-
-  const autoSuggestNextDue = (vaccineName: string) => {
-    const interval = getIntervalForVaccine(vaccineName);
-    if (interval && dateAdministered) {
-      try {
-        const date = new Date(dateAdministered);
-        if (!isNaN(date.getTime())) {
-          date.setMonth(date.getMonth() + interval);
-          setValue('nextDueDate', date.toISOString().split('T')[0]);
-        }
-      } catch {
-        // Invalid date, skip auto-suggest
-      }
-    }
-  };
 
   const onSubmit = async (data: AddVaccinationFormData) => {
     if (!petId) return;
@@ -66,13 +48,29 @@ export default function AddVaccinationScreen() {
     setServerError(null);
 
     try {
-      await healthService.createVaccination({
+      const doseDate = new Date(data.dateAdministered);
+      doseDate.setMonth(doseDate.getMonth() + data.intervalMonths);
+      const nextDueDate = doseDate.toISOString().split('T')[0];
+
+      const vaccination = await healthService.createVaccination({
         pet_id: petId,
         vaccine_name: data.vaccineName,
         date_administered: data.dateAdministered,
-        next_due_date: data.nextDueDate || null,
+        next_due_date: nextDueDate,
+        interval_months: data.intervalMonths,
         clinic_name: data.clinicName || null,
       });
+
+      // Create initial dose record
+      await healthService.logVaccinationDose(
+        {
+          vaccination_id: vaccination.id,
+          date_administered: data.dateAdministered,
+          clinic_name: data.clinicName || null,
+        },
+        data.intervalMonths,
+      );
+
       router.back();
     } catch (err) {
       const message =
@@ -112,7 +110,10 @@ export default function AddVaccinationScreen() {
                 value={value || null}
                 onSelect={(v) => {
                   onChange(v);
-                  autoSuggestNextDue(v);
+                  if (v) {
+                    const interval = getIntervalForVaccine(v);
+                    setValue('intervalMonths', interval ?? 12);
+                  }
                 }}
                 error={errors.vaccineName?.message}
               />
@@ -135,14 +136,33 @@ export default function AddVaccinationScreen() {
 
           <Controller
             control={control}
-            name="nextDueDate"
-            render={({ field: { onChange, value } }) => (
-              <DateInput
-                label="Next Due Date"
-                placeholder="Select date (optional)"
-                value={value || null}
-                onChange={onChange}
-              />
+            name="intervalMonths"
+            render={({ field: { onChange, value }, fieldState: { error } }) => (
+              <View className="mb-4">
+                <Text className="text-sm font-medium text-text-primary mb-2">Schedule</Text>
+                <View className="flex-row flex-wrap gap-2">
+                  {VACCINATION_INTERVALS.map((interval) => (
+                    <Pressable
+                      key={interval.value}
+                      onPress={() => onChange(interval.value)}
+                      className={`px-4 py-2 rounded-full border ${
+                        value === interval.value
+                          ? 'bg-primary border-primary'
+                          : 'bg-white border-border'
+                      }`}
+                    >
+                      <Text
+                        className={`text-sm font-medium ${
+                          value === interval.value ? 'text-white' : 'text-text-primary'
+                        }`}
+                      >
+                        {interval.label}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+                {error && <Text className="text-status-overdue text-xs mt-1">{error.message}</Text>}
+              </View>
             )}
           />
 

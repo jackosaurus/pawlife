@@ -8,6 +8,10 @@ jest.mock('@/services/healthService', () => ({
   },
 }));
 
+jest.mock('@/utils/status', () => ({
+  getVaccinationStatus: jest.fn(() => 'green'),
+}));
+
 const mockGetVaccinations = healthService.getVaccinations as jest.Mock;
 
 beforeEach(() => {
@@ -29,7 +33,9 @@ describe('useVaccinations', () => {
       expect(result.current.loading).toBe(false);
     });
 
-    expect(result.current.vaccinations).toEqual(vaccinations);
+    expect(result.current.vaccinations).toEqual(
+      vaccinations.map((v) => ({ ...v, status: 'green' })),
+    );
     expect(result.current.error).toBeNull();
     expect(mockGetVaccinations).toHaveBeenCalledWith('p1');
   });

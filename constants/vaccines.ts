@@ -28,3 +28,18 @@ export function getIntervalForVaccine(vaccineName: string): number | null {
   const vaccine = VACCINES.find((v) => v.name === vaccineName);
   return vaccine ? vaccine.intervalMonths : null;
 }
+
+export const VACCINATION_INTERVALS = [
+  { label: 'Every month', value: 1 },
+  { label: 'Every 6 months', value: 6 },
+  { label: 'Every year', value: 12 },
+  { label: 'Every 2 years', value: 24 },
+  { label: 'Every 3 years', value: 36 },
+] as const;
+
+export function getIntervalLabel(months: number | null): string {
+  if (months == null) return 'No schedule';
+  const match = VACCINATION_INTERVALS.find((i) => i.value === months);
+  if (match) return match.label;
+  return months === 1 ? 'Every month' : `Every ${months} months`;
+}

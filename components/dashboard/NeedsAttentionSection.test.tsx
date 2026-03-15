@@ -32,7 +32,7 @@ function makeItems(count: number): ActionItem[] {
 describe('NeedsAttentionSection', () => {
   const defaultProps = {
     onLogDose: jest.fn(),
-    onViewVaccination: jest.fn(),
+    onLogVaccination: jest.fn(),
   };
 
   beforeEach(() => {

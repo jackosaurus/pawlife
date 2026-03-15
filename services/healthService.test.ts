@@ -174,6 +174,85 @@ describe('healthService', () => {
     });
   });
 
+  // ── Vaccination Doses ───────────────────────────────────────────
+
+  describe('logVaccinationDose', () => {
+    it('returns dose on success', async () => {
+      const dose = {
+        id: 'vd1',
+        vaccination_id: 'v1',
+        date_administered: '2025-06-01',
+        clinic_name: 'Happy Paws',
+      };
+      mockFrom.mockReturnValue(chainMock({ data: dose, error: null }));
+      const result = await healthService.logVaccinationDose(
+        {
+          vaccination_id: 'v1',
+          date_administered: '2025-06-01',
+          clinic_name: 'Happy Paws',
+        },
+        12,
+      );
+      expect(result).toEqual(dose);
+      expect(mockFrom).toHaveBeenCalledWith('vaccination_doses');
+    });
+
+    it('throws on error', async () => {
+      mockFrom.mockReturnValue(
+        chainMock({ data: null, error: new Error('Insert failed') }),
+      );
+      await expect(
+        healthService.logVaccinationDose(
+          {
+            vaccination_id: 'v1',
+            date_administered: '2025-06-01',
+          },
+          12,
+        ),
+      ).rejects.toThrow('Insert failed');
+    });
+  });
+
+  describe('getVaccinationDoses', () => {
+    it('returns doses array', async () => {
+      const doses = [
+        { id: 'vd1', vaccination_id: 'v1', date_administered: '2025-06-01' },
+        { id: 'vd2', vaccination_id: 'v1', date_administered: '2024-06-01' },
+      ];
+      mockFrom.mockReturnValue(chainMock({ data: doses, error: null }));
+      const result = await healthService.getVaccinationDoses('v1');
+      expect(result).toEqual(doses);
+      expect(mockFrom).toHaveBeenCalledWith('vaccination_doses');
+    });
+
+    it('throws on error', async () => {
+      mockFrom.mockReturnValue(
+        chainMock({ data: null, error: new Error('DB error') }),
+      );
+      await expect(
+        healthService.getVaccinationDoses('v1'),
+      ).rejects.toThrow('DB error');
+    });
+  });
+
+  describe('deleteVaccinationDose', () => {
+    it('deletes without error', async () => {
+      mockFrom.mockReturnValue(chainMock({ data: null, error: null }));
+      await expect(
+        healthService.deleteVaccinationDose('vd1'),
+      ).resolves.toBeUndefined();
+    });
+
+    it('throws on error', async () => {
+      mockFrom.mockReturnValue(
+        chainMock({ data: null, error: new Error('Delete failed') }),
+      );
+      await expect(
+        healthService.deleteVaccinationDose('vd1'),
+      ).rejects.toThrow('Delete failed');
+    });
+  });
+
   // ── Vet Visits ────────────────────────────────────────────────
 
   describe('getVetVisits', () => {
