@@ -34,7 +34,7 @@ export const familyService = {
       .from('family_members')
       .select('family_id')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
     if (memberError) throw memberError;
     if (!membership) return null;
 

@@ -3,9 +3,12 @@ import {
   View,
   Text,
   Pressable,
+  Switch,
   ActivityIndicator,
   Alert,
+  Platform,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
@@ -32,6 +35,20 @@ export default function SettingsScreen() {
   const signOut = useAuthStore((s) => s.signOut);
   const weightUnit = useSettingsStore((s) => s.weightUnit);
   const setWeightUnit = useSettingsStore((s) => s.setWeightUnit);
+  const remindersEnabled = useSettingsStore((s) => s.remindersEnabled);
+  const setRemindersEnabled = useSettingsStore((s) => s.setRemindersEnabled);
+  const medicationReminderTime = useSettingsStore(
+    (s) => s.medicationReminderTime,
+  );
+  const setMedicationReminderTime = useSettingsStore(
+    (s) => s.setMedicationReminderTime,
+  );
+  const vaccinationAdvanceDays = useSettingsStore(
+    (s) => s.vaccinationAdvanceDays,
+  );
+  const setVaccinationAdvanceDays = useSettingsStore(
+    (s) => s.setVaccinationAdvanceDays,
+  );
   const initializeSettings = useSettingsStore((s) => s.initialize);
 
   const [activePets, setActivePets] = useState<Pet[]>([]);
@@ -43,6 +60,9 @@ export default function SettingsScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [changingPassword, setChangingPassword] = useState(false);
+
+  // Reminder time picker state
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   // Display name state
   const [displayName, setDisplayName] = useState('');
@@ -292,6 +312,47 @@ export default function SettingsScreen() {
     }
   };
 
+  const handleRemindersToggle = (value: boolean) => {
+    if (userId) {
+      setRemindersEnabled(userId, value);
+    }
+  };
+
+  const handleTimeChange = (_event: unknown, selectedDate?: Date) => {
+    if (Platform.OS === 'android') {
+      setShowTimePicker(false);
+    }
+    if (selectedDate && userId) {
+      const hours = selectedDate.getHours().toString().padStart(2, '0');
+      const minutes = selectedDate.getMinutes().toString().padStart(2, '0');
+      setMedicationReminderTime(userId, `${hours}:${minutes}`);
+    }
+  };
+
+  const handleAdvanceDaysToggle = (value: string) => {
+    if (userId) {
+      setVaccinationAdvanceDays(userId, parseInt(value, 10));
+    }
+  };
+
+  const reminderTimeDate = (() => {
+    const [h, m] = medicationReminderTime.split(':').map(Number);
+    const d = new Date();
+    d.setHours(h, m, 0, 0);
+    return d;
+  })();
+
+  const formatTime = (time: string) => {
+    const [h, m] = time.split(':').map(Number);
+    const d = new Date();
+    d.setHours(h, m);
+    return d.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  };
+
   const renderSection = (title: string) => (
     <Text className="text-text-secondary text-xs font-semibold uppercase tracking-wider mb-2 ml-1 mt-6">
       {title}
@@ -462,6 +523,95 @@ export default function SettingsScreen() {
             selected={weightUnit}
             onSelect={handleWeightToggle}
           />
+        </Card>
+
+        {/* Reminders Section */}
+        {renderSection('Reminders')}
+        <Card className="p-4">
+          {/* Master toggle */}
+          <View className="flex-row items-center justify-between mb-4">
+            <View className="flex-1 mr-3">
+              <Text className="text-text-primary text-base font-medium">
+                Push Reminders
+              </Text>
+              <Text className="text-text-secondary text-sm">
+                Get notified about medications and vaccinations
+              </Text>
+            </View>
+            <Switch
+              value={remindersEnabled}
+              onValueChange={handleRemindersToggle}
+              trackColor={{ false: Colors.border, true: Colors.primary }}
+              thumbColor="#FFFFFF"
+              testID="reminders-toggle"
+            />
+          </View>
+
+          {remindersEnabled && (
+            <>
+              {/* Medication reminder time */}
+              <View className="border-t border-border pt-4 mb-4 flex-row items-center justify-between">
+                <View className="flex-1 mr-3">
+                  <Text className="text-text-primary text-base font-medium">
+                    Medication Reminder Time
+                  </Text>
+                  <Text className="text-text-secondary text-sm">
+                    Daily reminder to log medications
+                  </Text>
+                </View>
+                {Platform.OS === 'ios' ? (
+                  <DateTimePicker
+                    value={reminderTimeDate}
+                    mode="time"
+                    display="compact"
+                    onChange={handleTimeChange}
+                    testID="reminder-time-picker"
+                  />
+                ) : (
+                  <>
+                    <Pressable
+                      onPress={() => setShowTimePicker(true)}
+                      testID="reminder-time-button"
+                    >
+                      <View className="bg-input-fill rounded-xl px-4 py-3">
+                        <Text className="text-text-primary text-base">
+                          {formatTime(medicationReminderTime)}
+                        </Text>
+                      </View>
+                    </Pressable>
+                    {showTimePicker && (
+                      <DateTimePicker
+                        value={reminderTimeDate}
+                        mode="time"
+                        display="default"
+                        onChange={handleTimeChange}
+                        testID="reminder-time-picker"
+                      />
+                    )}
+                  </>
+                )}
+              </View>
+
+              {/* Vaccination advance notice */}
+              <View className="border-t border-border pt-4">
+                <Text className="text-text-primary text-base font-medium mb-1">
+                  Vaccination Advance Notice
+                </Text>
+                <Text className="text-text-secondary text-sm mb-2">
+                  How early to remind about upcoming vaccinations
+                </Text>
+                <SegmentedControl
+                  options={[
+                    { label: '1 week', value: '7' },
+                    { label: '2 weeks', value: '14' },
+                    { label: '1 month', value: '30' },
+                  ]}
+                  selected={String(vaccinationAdvanceDays)}
+                  onSelect={handleAdvanceDaysToggle}
+                />
+              </View>
+            </>
+          )}
         </Card>
 
         {/* Family Section */}

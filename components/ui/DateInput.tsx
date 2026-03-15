@@ -28,8 +28,16 @@ export function DateInput({
 }: DateInputProps) {
   const [show, setShow] = useState(false);
 
-  const parsedDate = value ? new Date(value + 'T00:00:00') : new Date();
-  const isValidDate = value ? !isNaN(parsedDate.getTime()) : false;
+  const { parsedDate, isValidDate } = (() => {
+    if (!value) return { parsedDate: new Date(), isValidDate: false };
+    const parts = value.split('-').map(Number);
+    const [y, m, d] = parts;
+    if (!y || !m || !d || parts.length !== 3) {
+      return { parsedDate: new Date(), isValidDate: false };
+    }
+    const date = new Date(y, m - 1, d);
+    return { parsedDate: date, isValidDate: !isNaN(date.getTime()) };
+  })();
 
   const handleChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
     if (Platform.OS === 'android') {

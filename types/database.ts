@@ -21,6 +21,10 @@ export interface Database {
           email: string;
           display_name: string | null;
           weight_unit: 'kg' | 'lbs';
+          push_tokens: Json;
+          reminders_enabled: boolean;
+          medication_reminder_time: string;
+          vaccination_advance_days: number;
           created_at: string;
         };
         Insert: {
@@ -28,6 +32,10 @@ export interface Database {
           email: string;
           display_name?: string | null;
           weight_unit?: 'kg' | 'lbs';
+          push_tokens?: Json;
+          reminders_enabled?: boolean;
+          medication_reminder_time?: string;
+          vaccination_advance_days?: number;
           created_at?: string;
         };
         Update: {
@@ -35,6 +43,10 @@ export interface Database {
           email?: string;
           display_name?: string | null;
           weight_unit?: 'kg' | 'lbs';
+          push_tokens?: Json;
+          reminders_enabled?: boolean;
+          medication_reminder_time?: string;
+          vaccination_advance_days?: number;
           created_at?: string;
         };
       };
@@ -430,6 +442,32 @@ export interface Database {
           modified_by?: string | null;
           created_at?: string;
           updated_at?: string;
+        };
+      };
+      notification_log: {
+        Row: {
+          id: string;
+          user_id: string;
+          notification_type: string;
+          reference_id: string;
+          reminder_key: string;
+          sent_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          notification_type: string;
+          reference_id: string;
+          reminder_key: string;
+          sent_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          notification_type?: string;
+          reference_id?: string;
+          reminder_key?: string;
+          sent_at?: string;
         };
       };
     };

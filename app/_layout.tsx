@@ -3,6 +3,7 @@ import { Slot, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useAuthStore } from '@/stores/authStore';
+import { useNotificationSetup } from '@/hooks/useNotificationSetup';
 import '../global.css';
 
 SplashScreen.preventAutoHideAsync();
@@ -11,6 +12,8 @@ export default function RootLayout() {
   const { session, initialized, initialize } = useAuthStore();
   const segments = useSegments();
   const router = useRouter();
+
+  useNotificationSetup(session?.user.id ?? null);
 
   useEffect(() => {
     initialize();

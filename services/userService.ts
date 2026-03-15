@@ -14,7 +14,13 @@ export const userService = {
 
   async updateProfile(
     userId: string,
-    updates: { weight_unit?: 'kg' | 'lbs'; display_name?: string | null },
+    updates: {
+      weight_unit?: 'kg' | 'lbs';
+      display_name?: string | null;
+      reminders_enabled?: boolean;
+      medication_reminder_time?: string;
+      vaccination_advance_days?: number;
+    },
   ): Promise<User> {
     const { data, error } = await supabase
       .from('users')

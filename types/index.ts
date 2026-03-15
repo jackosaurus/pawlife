@@ -75,6 +75,23 @@ export type FoodEntry = Tables['food_entries']['Row'];
 export type FoodEntryInsert = Tables['food_entries']['Insert'];
 export type FoodEntryUpdate = Tables['food_entries']['Update'];
 
+// ── Push Notifications ──────────────────────────────────────────
+
+export interface PushTokenEntry {
+  token: string;
+  platform: 'ios' | 'android';
+  updated_at: string;
+}
+
+export type NotificationLog = Tables['notification_log']['Row'];
+export type NotificationLogInsert = Tables['notification_log']['Insert'];
+
+export interface NotificationPreferences {
+  reminders_enabled: boolean;
+  medication_reminder_time: string;
+  vaccination_advance_days: number;
+}
+
 // ── Action Items (Dashboard "Needs Attention") ──────────────────
 
 export type ActionItemType = 'medication' | 'vaccination';

@@ -40,6 +40,8 @@ utils/                  # Pure utility functions
 3. **Types are generated from Supabase.** Run `npx supabase gen types typescript --project-id $PROJECT_ID > types/database.ts` to regenerate after schema changes. App-level types in `types/index.ts` can extend these.
 4. **Zod schemas validate forms.** Every form has a corresponding Zod schema. Schemas live alongside the types in `types/`.
 5. **Zustand for global state only.** Auth session, user preferences, active pet selection. Don't put server data in Zustand — fetch it in the component via the service layer.
+6. **Database changes require senior review.** Every migration or schema change (new tables, altered columns, indexes, RLS policies, functions) must be reviewed by a senior database engineer agent before being finalized. Write the migration first, then spawn the review agent. Do not skip this step.
+7. **Post-migration review required.** After the senior DB engineer review is complete and any fixes are applied, spawn a second experienced engineer agent to review all code changes that resulted from the DB review (updated migration, modified types, services, stores, etc.) to catch any inconsistencies or ripple effects. Only after both reviews pass is the work considered done.
 
 ## Design System
 
