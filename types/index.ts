@@ -75,6 +75,11 @@ export type FoodEntry = Tables['food_entries']['Row'];
 export type FoodEntryInsert = Tables['food_entries']['Insert'];
 export type FoodEntryUpdate = Tables['food_entries']['Update'];
 
+// ── Feedback ────────────────────────────────────────────────────
+
+export type Feedback = Tables['feedback']['Row'];
+export type FeedbackInsert = Tables['feedback']['Insert'];
+
 // ── Push Notifications ──────────────────────────────────────────
 
 export interface PushTokenEntry {

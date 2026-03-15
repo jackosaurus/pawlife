@@ -903,6 +903,31 @@ export default function SettingsScreen() {
           </>
         )}
 
+        {/* Support Section */}
+        {renderSection('Support')}
+        <Pressable
+          onPress={() => router.push('/(main)/feedback')}
+          testID="send-feedback-button"
+        >
+          <Card className="p-4 flex-row items-center justify-between">
+            <View className="flex-row items-center">
+              <Ionicons
+                name="chatbubble-outline"
+                size={20}
+                color={Colors.textSecondary}
+              />
+              <Text className="text-text-primary text-base ml-3">
+                Send Feedback
+              </Text>
+            </View>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={Colors.textSecondary}
+            />
+          </Card>
+        </Pressable>
+
         {/* App Version */}
         <View className="mt-8 items-center">
           <Text className="text-text-secondary text-xs">

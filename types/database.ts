@@ -444,6 +444,47 @@ export interface Database {
           updated_at?: string;
         };
       };
+      feedback: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          user_email: string | null;
+          category: 'bug' | 'idea' | null;
+          description: string;
+          app_version: string | null;
+          device_model: string | null;
+          os_name: string | null;
+          os_version: string | null;
+          screen_name: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          user_email?: string | null;
+          category?: 'bug' | 'idea' | null;
+          description: string;
+          app_version?: string | null;
+          device_model?: string | null;
+          os_name?: string | null;
+          os_version?: string | null;
+          screen_name?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          user_email?: string | null;
+          category?: 'bug' | 'idea' | null;
+          description?: string;
+          app_version?: string | null;
+          device_model?: string | null;
+          os_name?: string | null;
+          os_version?: string | null;
+          screen_name?: string | null;
+          created_at?: string;
+        };
+      };
       notification_log: {
         Row: {
           id: string;
