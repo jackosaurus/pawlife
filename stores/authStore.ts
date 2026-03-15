@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/services/supabase';
 import { authService } from '@/services/authService';
+import { useFamilyStore } from '@/stores/familyStore';
 
 interface AuthState {
   session: Session | null;
@@ -65,6 +66,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ loading: true, error: null });
     try {
       await authService.signOut();
+      useFamilyStore.getState().clearFamily();
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'An unexpected error occurred';

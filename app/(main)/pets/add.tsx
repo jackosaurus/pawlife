@@ -16,6 +16,7 @@ import { SearchableDropdown } from '@/components/ui/SearchableDropdown';
 import { addPetSchema, AddPetFormData } from '@/types/pet';
 import { petService } from '@/services/petService';
 import { useAuthStore } from '@/stores/authStore';
+import { useFamilyStore } from '@/stores/familyStore';
 import { getBreedsForType } from '@/constants/breeds';
 import { CutenessGauge } from '@/components/pets/CutenessGauge';
 import { Colors } from '@/constants/colors';
@@ -23,6 +24,7 @@ import { Colors } from '@/constants/colors';
 export default function AddPetScreen() {
   const router = useRouter();
   const session = useAuthStore((s) => s.session);
+  const family = useFamilyStore((s) => s.family);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [useApproxAge, setUseApproxAge] = useState(false);
@@ -76,13 +78,13 @@ export default function AddPetScreen() {
   };
 
   const onSubmit = async (data: AddPetFormData) => {
-    if (!session) return;
+    if (!session || !family) return;
     setSubmitting(true);
     setServerError(null);
 
     try {
       const pet = await petService.create({
-        user_id: session.user.id,
+        family_id: family.id,
         pet_type: data.petType,
         name: data.name,
         breed: data.breed ?? null,

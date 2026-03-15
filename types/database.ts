@@ -35,10 +35,89 @@ export interface Database {
           created_at?: string;
         };
       };
+      families: {
+        Row: {
+          id: string;
+          name: string;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name?: string;
+          created_by: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          created_by?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      family_members: {
+        Row: {
+          id: string;
+          family_id: string;
+          user_id: string;
+          role: 'admin' | 'member';
+          joined_at: string;
+        };
+        Insert: {
+          id?: string;
+          family_id: string;
+          user_id: string;
+          role: 'admin' | 'member';
+          joined_at?: string;
+        };
+        Update: {
+          id?: string;
+          family_id?: string;
+          user_id?: string;
+          role?: 'admin' | 'member';
+          joined_at?: string;
+        };
+      };
+      family_invites: {
+        Row: {
+          id: string;
+          family_id: string;
+          invite_code: string;
+          invited_by: string;
+          expires_at: string;
+          accepted_by: string | null;
+          accepted_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          family_id: string;
+          invite_code: string;
+          invited_by: string;
+          expires_at: string;
+          accepted_by?: string | null;
+          accepted_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          family_id?: string;
+          invite_code?: string;
+          invited_by?: string;
+          expires_at?: string;
+          accepted_by?: string | null;
+          accepted_at?: string | null;
+          created_at?: string;
+        };
+      };
       pets: {
         Row: {
           id: string;
-          user_id: string;
+          family_id: string;
+          created_by: string | null;
           pet_type: 'dog' | 'cat';
           name: string;
           breed: string | null;
@@ -54,7 +133,8 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          user_id: string;
+          family_id: string;
+          created_by?: string | null;
           pet_type: 'dog' | 'cat';
           name: string;
           breed?: string | null;
@@ -70,7 +150,8 @@ export interface Database {
         };
         Update: {
           id?: string;
-          user_id?: string;
+          family_id?: string;
+          created_by?: string | null;
           pet_type?: 'dog' | 'cat';
           name?: string;
           breed?: string | null;
@@ -93,6 +174,8 @@ export interface Database {
           clinic_name: string | null;
           reason: string | null;
           notes: string | null;
+          created_by: string | null;
+          modified_by: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -103,6 +186,8 @@ export interface Database {
           clinic_name?: string | null;
           reason?: string | null;
           notes?: string | null;
+          created_by?: string | null;
+          modified_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -113,6 +198,8 @@ export interface Database {
           clinic_name?: string | null;
           reason?: string | null;
           notes?: string | null;
+          created_by?: string | null;
+          modified_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -151,6 +238,8 @@ export interface Database {
           date_administered: string;
           next_due_date: string | null;
           clinic_name: string | null;
+          created_by: string | null;
+          modified_by: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -161,6 +250,8 @@ export interface Database {
           date_administered: string;
           next_due_date?: string | null;
           clinic_name?: string | null;
+          created_by?: string | null;
+          modified_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -171,6 +262,8 @@ export interface Database {
           date_administered?: string;
           next_due_date?: string | null;
           clinic_name?: string | null;
+          created_by?: string | null;
+          modified_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -187,6 +280,8 @@ export interface Database {
           prescribing_vet: string | null;
           notes: string | null;
           is_completed: boolean;
+          created_by: string | null;
+          modified_by: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -201,6 +296,8 @@ export interface Database {
           prescribing_vet?: string | null;
           notes?: string | null;
           is_completed?: boolean;
+          created_by?: string | null;
+          modified_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -215,6 +312,8 @@ export interface Database {
           prescribing_vet?: string | null;
           notes?: string | null;
           is_completed?: boolean;
+          created_by?: string | null;
+          modified_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -225,6 +324,7 @@ export interface Database {
           medication_id: string;
           given_at: string;
           notes: string | null;
+          created_by: string | null;
           created_at: string;
         };
         Insert: {
@@ -232,6 +332,7 @@ export interface Database {
           medication_id: string;
           given_at?: string;
           notes?: string | null;
+          created_by?: string | null;
           created_at?: string;
         };
         Update: {
@@ -239,6 +340,7 @@ export interface Database {
           medication_id?: string;
           given_at?: string;
           notes?: string | null;
+          created_by?: string | null;
           created_at?: string;
         };
       };
@@ -249,6 +351,8 @@ export interface Database {
           weight: number;
           date: string;
           note: string | null;
+          created_by: string | null;
+          modified_by: string | null;
           created_at: string;
         };
         Insert: {
@@ -257,6 +361,8 @@ export interface Database {
           weight: number;
           date: string;
           note?: string | null;
+          created_by?: string | null;
+          modified_by?: string | null;
           created_at?: string;
         };
         Update: {
@@ -265,6 +371,8 @@ export interface Database {
           weight?: number;
           date?: string;
           note?: string | null;
+          created_by?: string | null;
+          modified_by?: string | null;
           created_at?: string;
         };
       };
@@ -281,6 +389,8 @@ export interface Database {
           end_date: string | null;
           reason_for_change: string | null;
           notes: string | null;
+          created_by: string | null;
+          modified_by: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -296,6 +406,8 @@ export interface Database {
           end_date?: string | null;
           reason_for_change?: string | null;
           notes?: string | null;
+          created_by?: string | null;
+          modified_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -311,13 +423,24 @@ export interface Database {
           end_date?: string | null;
           reason_for_change?: string | null;
           notes?: string | null;
+          created_by?: string | null;
+          modified_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      accept_invite: {
+        Args: { invite_code: string };
+        Returns: void;
+      };
+      leave_family: {
+        Args: Record<string, never>;
+        Returns: void;
+      };
+    };
     Enums: Record<string, never>;
   };
 }

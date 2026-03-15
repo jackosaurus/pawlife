@@ -4,6 +4,24 @@ import { Database } from './database';
 export type Tables = Database['public']['Tables'];
 
 export type User = Tables['users']['Row'];
+
+export type Family = Tables['families']['Row'];
+export type FamilyInsert = Tables['families']['Insert'];
+export type FamilyUpdate = Tables['families']['Update'];
+
+export type FamilyMember = Tables['family_members']['Row'] & {
+  email?: string;
+};
+export type FamilyMemberInsert = Tables['family_members']['Insert'];
+
+export type FamilyInvite = Tables['family_invites']['Row'];
+export type FamilyInviteInsert = Tables['family_invites']['Insert'];
+
+export interface InvitePreview {
+  family_name: string;
+  expires_at: string;
+}
+
 export type Pet = Tables['pets']['Row'];
 export type PetInsert = Tables['pets']['Insert'];
 export type PetUpdate = Tables['pets']['Update'];

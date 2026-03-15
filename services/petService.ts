@@ -24,9 +24,13 @@ export const petService = {
   },
 
   async create(pet: PetInsert): Promise<Pet> {
+    const { data: { user } } = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from('pets')
-      .insert(pet)
+      .insert({
+        ...pet,
+        created_by: user?.id ?? null,
+      })
       .select()
       .single();
     if (error) throw error;

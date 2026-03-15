@@ -15,6 +15,11 @@ jest.mock('./supabase', () => {
     supabase: {
       from: mockFrom,
       storage: mockStorage,
+      auth: {
+        getUser: jest.fn().mockResolvedValue({
+          data: { user: { id: 'user-1' } },
+        }),
+      },
     },
   };
 });
@@ -86,13 +91,13 @@ describe('petService', () => {
   });
 
   describe('create', () => {
-    it('inserts and returns pet', async () => {
-      const pet = { id: '1', name: 'Luna', pet_type: 'cat' };
+    it('inserts and returns pet with family_id and created_by', async () => {
+      const pet = { id: '1', name: 'Luna', pet_type: 'cat', family_id: 'fam-1', created_by: 'user-1' };
       mockFrom.mockReturnValue(
         chainMock({ data: pet, error: null }),
       );
       const result = await petService.create({
-        user_id: 'u1',
+        family_id: 'fam-1',
         pet_type: 'cat',
         name: 'Luna',
       });
@@ -104,7 +109,7 @@ describe('petService', () => {
         chainMock({ data: null, error: new Error('Insert failed') }),
       );
       await expect(
-        petService.create({ user_id: 'u1', pet_type: 'dog', name: 'Rex' }),
+        petService.create({ family_id: 'fam-1', pet_type: 'dog', name: 'Rex' }),
       ).rejects.toThrow('Insert failed');
     });
   });

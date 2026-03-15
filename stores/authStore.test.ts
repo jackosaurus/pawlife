@@ -1,5 +1,6 @@
 import { useAuthStore } from './authStore';
 import { authService } from '@/services/authService';
+import { useFamilyStore } from '@/stores/familyStore';
 
 jest.mock('@/services/supabase', () => ({
   supabase: {
@@ -19,6 +20,12 @@ jest.mock('@/services/authService', () => ({
     signUp: jest.fn(),
     signIn: jest.fn(),
     signOut: jest.fn(),
+  },
+}));
+
+jest.mock('@/services/familyService', () => ({
+  familyService: {
+    getFamily: jest.fn(),
   },
 }));
 
@@ -86,12 +93,20 @@ describe('authStore', () => {
   });
 
   describe('signOut', () => {
-    it('calls authService.signOut', async () => {
+    it('calls authService.signOut and clears family store', async () => {
       mockAuthService.signOut.mockResolvedValue(undefined);
+
+      // Pre-populate family store
+      useFamilyStore.setState({
+        family: { id: 'fam-1', name: 'Test', created_by: 'u1', created_at: '', updated_at: '' },
+        myRole: 'admin',
+      });
 
       await useAuthStore.getState().signOut();
       expect(mockAuthService.signOut).toHaveBeenCalled();
       expect(useAuthStore.getState().loading).toBe(false);
+      expect(useFamilyStore.getState().family).toBeNull();
+      expect(useFamilyStore.getState().myRole).toBeNull();
     });
   });
 

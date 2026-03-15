@@ -10,6 +10,11 @@ jest.mock('./supabase', () => {
     supabase: {
       from: mockFrom,
       storage: mockStorage,
+      auth: {
+        getUser: jest.fn().mockResolvedValue({
+          data: { user: { id: 'user-1' } },
+        }),
+      },
     },
   };
 });

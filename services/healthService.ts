@@ -42,9 +42,13 @@ export const healthService = {
   },
 
   async createVaccination(vaccination: VaccinationInsert): Promise<Vaccination> {
+    const { data: { user } } = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from('vaccinations')
-      .insert(vaccination)
+      .insert({
+        ...vaccination,
+        created_by: user?.id ?? null,
+      })
       .select()
       .single();
     if (error) throw error;
@@ -55,9 +59,14 @@ export const healthService = {
     id: string,
     updates: VaccinationUpdate,
   ): Promise<Vaccination> {
+    const { data: { user } } = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from('vaccinations')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update({
+        ...updates,
+        modified_by: user?.id ?? null,
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', id)
       .select()
       .single();
@@ -96,9 +105,13 @@ export const healthService = {
   },
 
   async createVetVisit(vetVisit: VetVisitInsert): Promise<VetVisit> {
+    const { data: { user } } = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from('vet_visits')
-      .insert(vetVisit)
+      .insert({
+        ...vetVisit,
+        created_by: user?.id ?? null,
+      })
       .select()
       .single();
     if (error) throw error;
@@ -109,9 +122,14 @@ export const healthService = {
     id: string,
     updates: VetVisitUpdate,
   ): Promise<VetVisit> {
+    const { data: { user } } = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from('vet_visits')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update({
+        ...updates,
+        modified_by: user?.id ?? null,
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', id)
       .select()
       .single();
@@ -238,9 +256,13 @@ export const healthService = {
   },
 
   async createMedication(medication: MedicationInsert): Promise<Medication> {
+    const { data: { user } } = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from('medications')
-      .insert(medication)
+      .insert({
+        ...medication,
+        created_by: user?.id ?? null,
+      })
       .select()
       .single();
     if (error) throw error;
@@ -251,9 +273,14 @@ export const healthService = {
     id: string,
     updates: MedicationUpdate,
   ): Promise<Medication> {
+    const { data: { user } } = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from('medications')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update({
+        ...updates,
+        modified_by: user?.id ?? null,
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', id)
       .select()
       .single();
@@ -282,9 +309,13 @@ export const healthService = {
   },
 
   async logMedicationDose(dose: MedicationDoseInsert): Promise<MedicationDose> {
+    const { data: { user } } = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from('medication_doses')
-      .insert(dose)
+      .insert({
+        ...dose,
+        created_by: user?.id ?? null,
+      })
       .select()
       .single();
     if (error) throw error;
@@ -363,9 +394,13 @@ export const healthService = {
   },
 
   async createWeightEntry(entry: WeightEntryInsert): Promise<WeightEntry> {
+    const { data: { user } } = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from('weight_entries')
-      .insert(entry)
+      .insert({
+        ...entry,
+        created_by: user?.id ?? null,
+      })
       .select()
       .single();
     if (error) throw error;
@@ -376,9 +411,13 @@ export const healthService = {
     id: string,
     updates: WeightEntryUpdate,
   ): Promise<WeightEntry> {
+    const { data: { user } } = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from('weight_entries')
-      .update(updates)
+      .update({
+        ...updates,
+        modified_by: user?.id ?? null,
+      })
       .eq('id', id)
       .select()
       .single();

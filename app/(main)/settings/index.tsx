@@ -18,10 +18,12 @@ import { TextInput } from '@/components/ui/TextInput';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { useAuthStore } from '@/stores/authStore';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { useFamilyStore } from '@/stores/familyStore';
 import { petService } from '@/services/petService';
 import { authService } from '@/services/authService';
+import { familyService, formatInviteCode } from '@/services/familyService';
 import { Colors } from '@/constants/colors';
-import { Pet } from '@/types';
+import { Pet, FamilyInvite } from '@/types';
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -41,9 +43,24 @@ export default function SettingsScreen() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [changingPassword, setChangingPassword] = useState(false);
 
+  // Family state
+  const family = useFamilyStore((s) => s.family);
+  const members = useFamilyStore((s) => s.members);
+  const myRole = useFamilyStore((s) => s.myRole);
+  const familyLoading = useFamilyStore((s) => s.loading);
+  const loadFamily = useFamilyStore((s) => s.loadFamily);
+  const [activeInvite, setActiveInvite] = useState<FamilyInvite | null>(null);
+  const [editingFamilyName, setEditingFamilyName] = useState(false);
+  const [familyNameInput, setFamilyNameInput] = useState('');
+  const [savingFamilyName, setSavingFamilyName] = useState(false);
+  const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
+  const [leavingFamily, setLeavingFamily] = useState(false);
+  const [revokingInvite, setRevokingInvite] = useState(false);
+
   const userId = session?.user.id;
   const email = session?.user.email ?? '';
   const appVersion = Constants.expoConfig?.version ?? '1.0.0';
+  const isAdmin = myRole === 'admin';
 
   const loadPets = useCallback(async () => {
     try {
@@ -61,12 +78,117 @@ export default function SettingsScreen() {
     }
   }, []);
 
+  const loadActiveInvite = useCallback(async () => {
+    if (!family || myRole !== 'admin') return;
+    try {
+      const invite = await familyService.getActiveInvite(family.id);
+      setActiveInvite(invite);
+    } catch {
+      // Silently handle
+    }
+  }, [family, myRole]);
+
   useEffect(() => {
     if (userId) {
       initializeSettings(userId);
     }
     loadPets();
-  }, [userId, initializeSettings, loadPets]);
+    loadFamily();
+  }, [userId, initializeSettings, loadPets, loadFamily]);
+
+  useEffect(() => {
+    loadActiveInvite();
+  }, [loadActiveInvite]);
+
+  const handleSaveFamilyName = async () => {
+    if (!family || !familyNameInput.trim()) return;
+    setSavingFamilyName(true);
+    try {
+      await familyService.updateFamilyName(family.id, familyNameInput.trim());
+      await loadFamily();
+      setEditingFamilyName(false);
+    } catch {
+      Alert.alert('Error', 'Failed to update family name.');
+    } finally {
+      setSavingFamilyName(false);
+    }
+  };
+
+  const handleRemoveMember = (memberId: string, memberEmail: string) => {
+    Alert.alert(
+      'Remove Member',
+      `Remove ${memberEmail} from the family?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setRemovingMemberId(memberId);
+              await familyService.removeMember(memberId);
+              await loadFamily();
+              await loadActiveInvite();
+            } catch {
+              Alert.alert('Error', 'Failed to remove member.');
+            } finally {
+              setRemovingMemberId(null);
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const handleLeaveFamily = () => {
+    Alert.alert(
+      'Leave Family',
+      'Are you sure? Your pets will stay with this family.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Leave',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setLeavingFamily(true);
+              await familyService.leaveFamily();
+              await loadFamily();
+              await loadPets();
+            } catch (err) {
+              const message =
+                err instanceof Error ? err.message : 'Failed to leave family';
+              Alert.alert('Error', message);
+            } finally {
+              setLeavingFamily(false);
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const handleRevokeInvite = () => {
+    if (!activeInvite) return;
+    Alert.alert('Revoke Invite', 'This will invalidate the current invite code.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Revoke',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            setRevokingInvite(true);
+            await familyService.revokeInvite(activeInvite.id);
+            setActiveInvite(null);
+          } catch {
+            Alert.alert('Error', 'Failed to revoke invite.');
+          } finally {
+            setRevokingInvite(false);
+          }
+        },
+      },
+    ]);
+  };
 
   const handleRestore = async (pet: Pet) => {
     Alert.alert(
@@ -253,8 +375,187 @@ export default function SettingsScreen() {
           />
         </Card>
 
+        {/* Family Section */}
+        {renderSection('Family')}
+        {familyLoading ? (
+          <View className="py-8 items-center">
+            <ActivityIndicator size="small" color={Colors.primary} />
+          </View>
+        ) : family ? (
+          <Card className="p-4">
+            {/* Family Name */}
+            {editingFamilyName ? (
+              <View className="mb-3">
+                <TextInput
+                  label="Family Name"
+                  value={familyNameInput}
+                  onChangeText={setFamilyNameInput}
+                  autoFocus
+                />
+                <View className="flex-row gap-3 mt-2">
+                  <View className="flex-1">
+                    <Button
+                      title="Cancel"
+                      variant="secondary"
+                      onPress={() => setEditingFamilyName(false)}
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <Button
+                      title="Save"
+                      onPress={handleSaveFamilyName}
+                      loading={savingFamilyName}
+                    />
+                  </View>
+                </View>
+              </View>
+            ) : (
+              <View className="flex-row items-center justify-between mb-3">
+                <Text className="text-text-primary text-lg font-semibold">
+                  {family.name}
+                </Text>
+                {isAdmin && (
+                  <Pressable
+                    onPress={() => {
+                      setFamilyNameInput(family.name);
+                      setEditingFamilyName(true);
+                    }}
+                    hitSlop={8}
+                  >
+                    <Ionicons
+                      name="pencil-outline"
+                      size={18}
+                      color={Colors.textSecondary}
+                    />
+                  </Pressable>
+                )}
+              </View>
+            )}
+
+            {/* Member List */}
+            {members.map((member) => {
+              const isMe = member.user_id === userId;
+              return (
+                <View
+                  key={member.id}
+                  className="flex-row items-center py-2 border-t border-border"
+                >
+                  <Ionicons
+                    name="mail-outline"
+                    size={16}
+                    color={Colors.textSecondary}
+                  />
+                  <Text className="text-text-primary text-sm ml-2 flex-1" numberOfLines={1}>
+                    {member.email ?? 'Unknown'}{isMe ? ' (You)' : ''}
+                  </Text>
+                  <Text className="text-text-secondary text-xs capitalize mr-2">
+                    {member.role}
+                  </Text>
+                  {isAdmin && !isMe && (
+                    <Pressable
+                      onPress={() =>
+                        handleRemoveMember(member.id, member.email ?? 'this member')
+                      }
+                      disabled={removingMemberId === member.id}
+                      hitSlop={8}
+                    >
+                      {removingMemberId === member.id ? (
+                        <ActivityIndicator size="small" color={Colors.statusOverdue} />
+                      ) : (
+                        <Ionicons
+                          name="close-circle-outline"
+                          size={20}
+                          color={Colors.statusOverdue}
+                        />
+                      )}
+                    </Pressable>
+                  )}
+                </View>
+              );
+            })}
+
+            {/* Admin: Invite Member Button */}
+            {isAdmin && (
+              <View className="mt-3">
+                <Button
+                  title="Invite Member"
+                  variant="secondary"
+                  onPress={() => router.push('/(main)/settings/invite-member')}
+                  disabled={members.length >= 4}
+                />
+              </View>
+            )}
+
+            {/* Active Invite Display */}
+            {isAdmin && activeInvite && (
+              <View className="flex-row items-center justify-between mt-3 bg-input-fill rounded-xl px-3 py-2">
+                <View className="flex-1">
+                  <Text className="text-text-secondary text-xs">Active invite</Text>
+                  <Text className="text-text-primary text-sm font-medium">
+                    {formatInviteCode(activeInvite.invite_code)}
+                  </Text>
+                  <Text className="text-text-secondary text-xs">
+                    Expires {new Date(activeInvite.expires_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                  </Text>
+                </View>
+                <Pressable
+                  onPress={handleRevokeInvite}
+                  disabled={revokingInvite}
+                  hitSlop={8}
+                >
+                  {revokingInvite ? (
+                    <ActivityIndicator size="small" color={Colors.statusOverdue} />
+                  ) : (
+                    <Ionicons
+                      name="close-circle-outline"
+                      size={20}
+                      color={Colors.statusOverdue}
+                    />
+                  )}
+                </Pressable>
+              </View>
+            )}
+
+            {/* Member: Join a Family link */}
+            {!isAdmin && (
+              <Pressable
+                onPress={() => router.push('/(main)/settings/join-family')}
+                className="mt-3"
+              >
+                <Text className="text-primary text-sm font-semibold">
+                  Join a Family
+                </Text>
+              </Pressable>
+            )}
+
+            {/* Member: Leave Family */}
+            {!isAdmin && (
+              <View className="mt-3">
+                <Button
+                  title="Leave Family"
+                  variant="secondary"
+                  onPress={handleLeaveFamily}
+                  loading={leavingFamily}
+                />
+              </View>
+            )}
+
+            {/* Admin solo: Join a Family link */}
+            {isAdmin && members.length === 1 && (
+              <Pressable
+                onPress={() => router.push('/(main)/settings/join-family')}
+                className="mt-3"
+              >
+                <Text className="text-primary text-sm font-semibold">
+                  Join a Family
+                </Text>
+              </Pressable>
+            )}
+          </Card>
+        ) : null}
+
         {/* Pet Family Section */}
-        {renderSection('Pet Family')}
+        {renderSection('Your Pets')}
         {loadingPets ? (
           <View className="py-8 items-center">
             <ActivityIndicator size="small" color={Colors.primary} />

@@ -5,6 +5,11 @@ import {
   FoodEntryUpdate,
 } from '@/types';
 
+async function getCurrentUserId(): Promise<string | null> {
+  const { data: { user } } = await supabase.auth.getUser();
+  return user?.id ?? null;
+}
+
 export const foodService = {
   async getCurrent(petId: string): Promise<FoodEntry | null> {
     const { data, error } = await supabase
@@ -40,9 +45,13 @@ export const foodService = {
   },
 
   async create(entry: FoodEntryInsert): Promise<FoodEntry> {
+    const userId = await getCurrentUserId();
     const { data, error } = await supabase
       .from('food_entries')
-      .insert(entry)
+      .insert({
+        ...entry,
+        created_by: userId,
+      })
       .select()
       .single();
     if (error) throw error;
@@ -50,9 +59,14 @@ export const foodService = {
   },
 
   async update(id: string, updates: FoodEntryUpdate): Promise<FoodEntry> {
+    const userId = await getCurrentUserId();
     const { data, error } = await supabase
       .from('food_entries')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update({
+        ...updates,
+        modified_by: userId,
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', id)
       .select()
       .single();
