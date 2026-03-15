@@ -1,5 +1,4 @@
 import { View, Text, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
 import { ActionItem } from '@/types';
 
@@ -9,21 +8,10 @@ interface ActionItemCardProps {
   onLogVaccination: (vaccinationId: string, intervalMonths: number) => void;
 }
 
-const urgencyColors: Record<string, string> = {
-  overdue: Colors.statusOverdue,
-  due_today: Colors.statusAmber,
-  upcoming: 'transparent',
-};
-
-const urgencyIconColors: Record<string, string> = {
+const urgencyDotColors: Record<string, string> = {
   overdue: Colors.statusOverdue,
   due_today: Colors.statusAmber,
   upcoming: Colors.textSecondary,
-};
-
-const iconByType: Record<string, keyof typeof Ionicons.glyphMap> = {
-  medication: 'medical-outline',
-  vaccination: 'fitness-outline',
 };
 
 export function ActionItemCard({
@@ -31,9 +19,7 @@ export function ActionItemCard({
   onLogDose,
   onLogVaccination,
 }: ActionItemCardProps) {
-  const borderColor = urgencyColors[item.urgency];
-  const iconColor = urgencyIconColors[item.urgency];
-  const iconName = iconByType[item.type];
+  const dotColor = urgencyDotColors[item.urgency];
 
   const handleAction = () => {
     if (item.type === 'medication' && item.medicationId) {
@@ -45,32 +31,27 @@ export function ActionItemCard({
 
   return (
     <View
-      className="flex-row items-center px-3 py-3"
-      style={{ borderLeftWidth: 3, borderLeftColor: borderColor }}
+      className="flex-row items-center py-2.5"
       testID="action-item-card"
     >
-      {/* Icon */}
-      <View className="mr-3">
-        <Ionicons name={iconName} size={20} color={iconColor} />
-      </View>
+      {/* Status dot */}
+      <View
+        className="rounded-full mr-3"
+        style={{ width: 8, height: 8, backgroundColor: dotColor }}
+        testID="status-dot"
+      />
 
       {/* Content */}
       <View className="flex-1 mr-3">
-        <Text className="text-sm" numberOfLines={1}>
-          <Text className="text-text-secondary">{item.petName}</Text>
-          <Text className="text-text-secondary"> · </Text>
-          <Text className="text-text-primary font-medium">{item.title}</Text>
-        </Text>
-        <Text className="text-sm text-text-secondary mt-0.5" numberOfLines={1}>
-          {item.subtitle}
+        <Text className="text-sm text-text-primary" numberOfLines={1}>
+          <Text className="font-medium">{item.title}</Text>
+          <Text className="text-text-secondary"> · {item.subtitle}</Text>
         </Text>
       </View>
 
       {/* Action button */}
       <Pressable onPress={handleAction} hitSlop={8} testID="action-button">
-        <Text className="text-sm font-medium text-primary">
-          {item.type === 'medication' ? 'Log Dose' : 'Log'}
-        </Text>
+        <Text className="text-sm font-medium text-primary">Log</Text>
       </Pressable>
     </View>
   );

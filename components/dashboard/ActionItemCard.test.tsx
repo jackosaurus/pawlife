@@ -16,7 +16,7 @@ function makeItem(overrides: Partial<ActionItem> = {}): ActionItem {
     petId: 'pet-1',
     petName: 'Buddy',
     title: 'Heartgard',
-    subtitle: '50mg - Due today',
+    subtitle: 'Due today',
     recordId: 'rec-1',
     medicationId: 'med-1',
     ...overrides,
@@ -33,45 +33,46 @@ describe('ActionItemCard', () => {
     jest.clearAllMocks();
   });
 
-  it('renders medication item with correct pet name and title', () => {
+  it('renders title and subtitle', () => {
     const item = makeItem();
     render(<ActionItemCard item={item} {...defaultProps} />);
 
-    expect(screen.getByText('Buddy')).toBeTruthy();
     expect(screen.getByText('Heartgard')).toBeTruthy();
-    expect(screen.getByText('50mg - Due today')).toBeTruthy();
+    expect(screen.getByText(/Due today/)).toBeTruthy();
   });
 
   it('renders vaccination item correctly', () => {
     const item = makeItem({
       type: 'vaccination',
       title: 'Rabies',
-      subtitle: 'Due 20 Mar 2026',
-      petName: 'Luna',
+      subtitle: 'Due in 7 days',
       medicationId: undefined,
     });
     render(<ActionItemCard item={item} {...defaultProps} />);
 
-    expect(screen.getByText('Luna')).toBeTruthy();
     expect(screen.getByText('Rabies')).toBeTruthy();
-    expect(screen.getByText('Due 20 Mar 2026')).toBeTruthy();
+    expect(screen.getByText(/Due in 7 days/)).toBeTruthy();
   });
 
-  it('shows "Log Dose" action for medication items', () => {
-    const item = makeItem({ type: 'medication' });
-    render(<ActionItemCard item={item} {...defaultProps} />);
+  it('shows consistent "Log" action for both types', () => {
+    const medItem = makeItem({ type: 'medication' });
+    const { unmount } = render(
+      <ActionItemCard item={medItem} {...defaultProps} />,
+    );
+    expect(screen.getByText('Log')).toBeTruthy();
+    unmount();
 
-    expect(screen.getByText('Log Dose')).toBeTruthy();
-  });
-
-  it('shows "Log" action for vaccination items', () => {
-    const item = makeItem({ type: 'vaccination', medicationId: undefined, vaccinationId: 'vax-1', intervalMonths: 12 });
-    render(<ActionItemCard item={item} {...defaultProps} />);
-
+    const vaxItem = makeItem({
+      type: 'vaccination',
+      medicationId: undefined,
+      vaccinationId: 'vax-1',
+      intervalMonths: 12,
+    });
+    render(<ActionItemCard item={vaxItem} {...defaultProps} />);
     expect(screen.getByText('Log')).toBeTruthy();
   });
 
-  it('calls onLogDose with medicationId when Log Dose pressed', () => {
+  it('calls onLogDose with medicationId when Log pressed', () => {
     const onLogDose = jest.fn();
     const item = makeItem({ medicationId: 'med-42' });
     render(
@@ -91,8 +92,6 @@ describe('ActionItemCard', () => {
     const onLogVaccination = jest.fn();
     const item = makeItem({
       type: 'vaccination',
-      petId: 'pet-7',
-      recordId: 'vax-99',
       medicationId: undefined,
       vaccinationId: 'vax-99',
       intervalMonths: 12,
@@ -110,28 +109,26 @@ describe('ActionItemCard', () => {
     expect(onLogVaccination).toHaveBeenCalledTimes(1);
   });
 
-  it('shows overdue styling (left border color) for overdue items', () => {
+  it('shows overdue dot color for overdue items', () => {
     const item = makeItem({ urgency: 'overdue' });
     render(<ActionItemCard item={item} {...defaultProps} />);
 
-    const card = screen.getByTestId('action-item-card');
-    expect(card.props.style).toEqual(
+    const dot = screen.getByTestId('status-dot');
+    expect(dot.props.style).toEqual(
       expect.objectContaining({
-        borderLeftWidth: 3,
-        borderLeftColor: Colors.statusOverdue,
+        backgroundColor: Colors.statusOverdue,
       }),
     );
   });
 
-  it('shows amber styling for due_today items', () => {
+  it('shows amber dot color for due_today items', () => {
     const item = makeItem({ urgency: 'due_today' });
     render(<ActionItemCard item={item} {...defaultProps} />);
 
-    const card = screen.getByTestId('action-item-card');
-    expect(card.props.style).toEqual(
+    const dot = screen.getByTestId('status-dot');
+    expect(dot.props.style).toEqual(
       expect.objectContaining({
-        borderLeftWidth: 3,
-        borderLeftColor: Colors.statusAmber,
+        backgroundColor: Colors.statusAmber,
       }),
     );
   });

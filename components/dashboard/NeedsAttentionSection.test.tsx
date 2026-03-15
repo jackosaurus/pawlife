@@ -1,10 +1,14 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react-native';
+import { render, screen } from '@testing-library/react-native';
 import { NeedsAttentionSection } from './NeedsAttentionSection';
 import { ActionItem } from '@/types';
 
 jest.mock('@expo/vector-icons', () => ({
   Ionicons: 'Ionicons',
+}));
+
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ push: jest.fn() }),
 }));
 
 function makeItem(
@@ -23,10 +27,6 @@ function makeItem(
     medicationId: `med-${id}`,
     ...overrides,
   };
-}
-
-function makeItems(count: number): ActionItem[] {
-  return Array.from({ length: count }, (_, i) => makeItem(String(i + 1)));
 }
 
 describe('NeedsAttentionSection', () => {
@@ -54,60 +54,70 @@ describe('NeedsAttentionSection', () => {
   });
 
   it('shows count badge with correct number', () => {
-    const items = makeItems(3);
+    const items = [makeItem('1'), makeItem('2'), makeItem('3')];
     render(<NeedsAttentionSection items={items} {...defaultProps} />);
 
     expect(screen.getByText('3')).toBeTruthy();
     expect(screen.getByTestId('count-badge')).toBeTruthy();
   });
 
-  it('renders action item cards', () => {
+  it('groups items by pet with pet name header', () => {
     const items = [
-      makeItem('1', { title: 'Heartgard' }),
-      makeItem('2', { title: 'Apoquel' }),
+      makeItem('1', { petId: 'p1', petName: 'Buddy', title: 'Heartgard' }),
+      makeItem('2', { petId: 'p2', petName: 'Luna', title: 'Apoquel' }),
     ];
     render(<NeedsAttentionSection items={items} {...defaultProps} />);
 
-    expect(screen.getByText('Heartgard')).toBeTruthy();
-    expect(screen.getByText('Apoquel')).toBeTruthy();
+    const headers = screen.getAllByTestId('pet-group-header');
+    expect(headers).toHaveLength(2);
+    expect(screen.getByText('Buddy')).toBeTruthy();
+    expect(screen.getByText('Luna')).toBeTruthy();
   });
 
-  it('shows only 5 items when more than 5 exist', () => {
-    const items = makeItems(7);
+  it('shows inline items when pet has 3 or fewer', () => {
+    const items = [
+      makeItem('1', { petId: 'p1', petName: 'Buddy', title: 'Med A' }),
+      makeItem('2', { petId: 'p1', petName: 'Buddy', title: 'Med B' }),
+      makeItem('3', { petId: 'p1', petName: 'Buddy', title: 'Med C' }),
+    ];
     render(<NeedsAttentionSection items={items} {...defaultProps} />);
 
-    // Should render exactly 5 action item cards
-    const cards = screen.getAllByTestId('action-item-card');
-    expect(cards).toHaveLength(5);
+    expect(screen.getAllByTestId('action-item-card')).toHaveLength(3);
+    expect(screen.queryByTestId('overflow-link')).toBeNull();
   });
 
-  it('shows "Show all" button when more than 5 items', () => {
-    const items = makeItems(8);
+  it('shows overflow summary when pet has more than 3 items', () => {
+    const items = [
+      makeItem('1', { petId: 'p1', petName: 'Buddy' }),
+      makeItem('2', { petId: 'p1', petName: 'Buddy' }),
+      makeItem('3', { petId: 'p1', petName: 'Buddy' }),
+      makeItem('4', { petId: 'p1', petName: 'Buddy' }),
+    ];
     render(<NeedsAttentionSection items={items} {...defaultProps} />);
 
-    expect(screen.getByText('Show all (8)')).toBeTruthy();
+    expect(screen.queryAllByTestId('action-item-card')).toHaveLength(0);
+    expect(screen.getByTestId('overflow-link')).toBeTruthy();
+    expect(screen.getByText('4 items need attention')).toBeTruthy();
+    expect(screen.getByText('View all')).toBeTruthy();
   });
 
-  it('expands to show all items when "Show all" pressed', () => {
-    const items = makeItems(7);
+  it('sorts pet groups by urgency: overdue pets first', () => {
+    const items = [
+      makeItem('1', {
+        petId: 'p1',
+        petName: 'Buddy',
+        urgency: 'upcoming',
+      }),
+      makeItem('2', {
+        petId: 'p2',
+        petName: 'Luna',
+        urgency: 'overdue',
+      }),
+    ];
     render(<NeedsAttentionSection items={items} {...defaultProps} />);
 
-    // Initially 5
-    expect(screen.getAllByTestId('action-item-card')).toHaveLength(5);
-
-    // Press toggle
-    fireEvent.press(screen.getByTestId('toggle-button'));
-
-    // Now all 7
-    expect(screen.getAllByTestId('action-item-card')).toHaveLength(7);
-  });
-
-  it('shows "Show less" after expanding', () => {
-    const items = makeItems(6);
-    render(<NeedsAttentionSection items={items} {...defaultProps} />);
-
-    fireEvent.press(screen.getByTestId('toggle-button'));
-
-    expect(screen.getByText('Show less')).toBeTruthy();
+    const headers = screen.getAllByTestId('pet-group-header');
+    expect(headers[0].props.children).toBe('Luna');
+    expect(headers[1].props.children).toBe('Buddy');
   });
 });

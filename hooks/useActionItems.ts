@@ -4,12 +4,14 @@ import { Pet, ActionItem } from '@/types';
 import { getRecurringMedicationStatus } from '@/utils/status';
 import { getDosesPerDay, isRecurringFrequency } from '@/constants/frequencies';
 
-function getSortPriority(item: ActionItem): number {
-  if (item.type === 'medication' && item.urgency === 'overdue') return 0;
-  if (item.type === 'medication' && item.urgency === 'due_today') return 1;
-  if (item.type === 'vaccination' && item.urgency === 'overdue') return 2;
-  if (item.type === 'vaccination' && item.urgency === 'upcoming') return 3;
-  return 4;
+function getUrgencyRank(urgency: string): number {
+  if (urgency === 'overdue') return 0;
+  if (urgency === 'due_today') return 1;
+  return 2; // upcoming
+}
+
+function getTypeRank(type: string): number {
+  return type === 'medication' ? 0 : 1;
 }
 
 function daysBetween(dateStr: string): number {
@@ -139,10 +141,12 @@ export function useActionItems(pets: Pet[]) {
         };
       });
 
-      // Combine and sort
+      // Combine and sort: urgency tier > type (meds first) > pet name
       const allItems = [...medItems, ...vaxItems].sort((a, b) => {
-        const priorityDiff = getSortPriority(a) - getSortPriority(b);
-        if (priorityDiff !== 0) return priorityDiff;
+        const urgencyDiff = getUrgencyRank(a.urgency) - getUrgencyRank(b.urgency);
+        if (urgencyDiff !== 0) return urgencyDiff;
+        const typeDiff = getTypeRank(a.type) - getTypeRank(b.type);
+        if (typeDiff !== 0) return typeDiff;
         return a.petName.localeCompare(b.petName);
       });
 

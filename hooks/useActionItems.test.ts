@@ -339,7 +339,7 @@ describe('useActionItems', () => {
     expect(result.current.actionItems[0].title).toBe('Rimadyl');
   });
 
-  it('sorts items by priority: overdue meds > due_today meds > overdue vax > upcoming vax', async () => {
+  it('sorts items by urgency tier, then type (meds first), then pet name', async () => {
     const pets = [
       makePet({ id: 'p1', name: 'Buddy' }),
       makePet({ id: 'p2', name: 'Luna' }),
@@ -412,12 +412,15 @@ describe('useActionItems', () => {
     });
 
     expect(result.current.actionItems).toHaveLength(4);
+    // Overdue tier: meds first, then vax
     expect(result.current.actionItems[0].type).toBe('medication');
     expect(result.current.actionItems[0].urgency).toBe('overdue');
-    expect(result.current.actionItems[1].type).toBe('medication');
-    expect(result.current.actionItems[1].urgency).toBe('due_today');
-    expect(result.current.actionItems[2].type).toBe('vaccination');
-    expect(result.current.actionItems[2].urgency).toBe('overdue');
+    expect(result.current.actionItems[1].type).toBe('vaccination');
+    expect(result.current.actionItems[1].urgency).toBe('overdue');
+    // Due today tier
+    expect(result.current.actionItems[2].type).toBe('medication');
+    expect(result.current.actionItems[2].urgency).toBe('due_today');
+    // Upcoming tier
     expect(result.current.actionItems[3].type).toBe('vaccination');
     expect(result.current.actionItems[3].urgency).toBe('upcoming');
   });
