@@ -46,10 +46,10 @@ export const familyService = {
       .single();
     if (familyError) throw familyError;
 
-    // Get members with email from users table
+    // Get members with email and display_name from users table
     const { data: members, error: membersError } = await supabase
       .from('family_members')
-      .select('*, users(email)')
+      .select('*, users(email, display_name)')
       .eq('family_id', membership.family_id)
       .order('joined_at', { ascending: true });
     if (membersError) throw membersError;
@@ -61,6 +61,7 @@ export const familyService = {
       role: m.role,
       joined_at: m.joined_at,
       email: m.users?.email,
+      display_name: m.users?.display_name,
     }));
 
     return { ...family, members: enrichedMembers };

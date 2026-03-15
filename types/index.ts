@@ -11,6 +11,7 @@ export type FamilyUpdate = Tables['families']['Update'];
 
 export type FamilyMember = Tables['family_members']['Row'] & {
   email?: string;
+  display_name?: string;
 };
 export type FamilyMemberInsert = Tables['family_members']['Insert'];
 

@@ -5,7 +5,6 @@ import {
   Pressable,
   ActivityIndicator,
   Alert,
-  FlatList,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,8 +20,10 @@ import { useSettingsStore } from '@/stores/settingsStore';
 import { useFamilyStore } from '@/stores/familyStore';
 import { petService } from '@/services/petService';
 import { authService } from '@/services/authService';
+import { userService } from '@/services/userService';
 import { familyService, formatInviteCode } from '@/services/familyService';
 import { Colors } from '@/constants/colors';
+import { formatDistanceToNow } from '@/utils/dates';
 import { Pet, FamilyInvite } from '@/types';
 
 export default function SettingsScreen() {
@@ -42,6 +43,12 @@ export default function SettingsScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [changingPassword, setChangingPassword] = useState(false);
+
+  // Display name state
+  const [displayName, setDisplayName] = useState('');
+  const [displayNameInput, setDisplayNameInput] = useState('');
+  const [editingDisplayName, setEditingDisplayName] = useState(false);
+  const [savingDisplayName, setSavingDisplayName] = useState(false);
 
   // Family state
   const family = useFamilyStore((s) => s.family);
@@ -88,13 +95,24 @@ export default function SettingsScreen() {
     }
   }, [family, myRole]);
 
+  const loadDisplayName = useCallback(async () => {
+    if (!userId) return;
+    try {
+      const profile = await userService.getProfile(userId);
+      setDisplayName(profile.display_name ?? '');
+    } catch {
+      // Silently handle
+    }
+  }, [userId]);
+
   useEffect(() => {
     if (userId) {
       initializeSettings(userId);
+      loadDisplayName();
     }
     loadPets();
     loadFamily();
-  }, [userId, initializeSettings, loadPets, loadFamily]);
+  }, [userId, initializeSettings, loadPets, loadFamily, loadDisplayName]);
 
   useEffect(() => {
     loadActiveInvite();
@@ -114,10 +132,27 @@ export default function SettingsScreen() {
     }
   };
 
-  const handleRemoveMember = (memberId: string, memberEmail: string) => {
+  const handleSaveDisplayName = async () => {
+    if (!userId) return;
+    const trimmed = displayNameInput.trim();
+    setSavingDisplayName(true);
+    try {
+      await userService.updateProfile(userId, {
+        display_name: trimmed || null,
+      });
+      setDisplayName(trimmed);
+      setEditingDisplayName(false);
+    } catch {
+      Alert.alert('Error', 'Failed to update display name.');
+    } finally {
+      setSavingDisplayName(false);
+    }
+  };
+
+  const handleRemoveMember = (memberId: string, memberName: string) => {
     Alert.alert(
       'Remove Member',
-      `Remove ${memberEmail} from the family?`,
+      `Remove ${memberName} from the family?`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -291,6 +326,60 @@ export default function SettingsScreen() {
             />
           </View>
         </Card>
+        {/* Display Name */}
+        {editingDisplayName ? (
+          <Card className="p-4 mt-3">
+            <TextInput
+              label="Display Name"
+              placeholder="Set your name"
+              value={displayNameInput}
+              onChangeText={setDisplayNameInput}
+              autoFocus
+              autoCapitalize="words"
+            />
+            <View className="flex-row gap-3 mt-2">
+              <View className="flex-1">
+                <Button
+                  title="Cancel"
+                  variant="secondary"
+                  onPress={() => setEditingDisplayName(false)}
+                />
+              </View>
+              <View className="flex-1">
+                <Button
+                  title="Save"
+                  onPress={handleSaveDisplayName}
+                  loading={savingDisplayName}
+                />
+              </View>
+            </View>
+          </Card>
+        ) : (
+          <Pressable
+            onPress={() => {
+              setDisplayNameInput(displayName);
+              setEditingDisplayName(true);
+            }}
+            className="mt-3"
+            testID="edit-display-name-button"
+          >
+            <Card className="p-4 flex-row items-center justify-between">
+              <View>
+                <Text className="text-text-secondary text-sm">Display Name</Text>
+                <Text
+                  className={`text-base ${displayName ? 'text-text-primary font-medium' : 'text-text-secondary'}`}
+                >
+                  {displayName || 'Set your name'}
+                </Text>
+              </View>
+              <Ionicons
+                name="pencil-outline"
+                size={18}
+                color={Colors.textSecondary}
+              />
+            </Card>
+          </Pressable>
+        )}
         {/* Change Password */}
         {showChangePassword ? (
           <Card className="p-4 mt-3">
@@ -435,26 +524,46 @@ export default function SettingsScreen() {
             {/* Member List */}
             {members.map((member) => {
               const isMe = member.user_id === userId;
+              const memberDisplayName = isMe
+                ? displayName || email
+                : member.display_name || 'No name set';
+              const nameWithYou = isMe
+                ? `${memberDisplayName} (You)`
+                : memberDisplayName;
+              const roleLabel =
+                member.role === 'admin' ? 'Admin' : 'Member';
+              const joinedLabel = member.joined_at
+                ? `Joined ${formatDistanceToNow(member.joined_at)}`
+                : '';
+
               return (
                 <View
                   key={member.id}
-                  className="flex-row items-center py-2 border-t border-border"
+                  className="flex-row items-center py-3 border-t border-border"
                 >
                   <Ionicons
-                    name="mail-outline"
+                    name="person-outline"
                     size={16}
                     color={Colors.textSecondary}
                   />
-                  <Text className="text-text-primary text-sm ml-2 flex-1" numberOfLines={1}>
-                    {member.email ?? 'Unknown'}{isMe ? ' (You)' : ''}
-                  </Text>
-                  <Text className="text-text-secondary text-xs capitalize mr-2">
-                    {member.role}
-                  </Text>
+                  <View className="ml-2 flex-1">
+                    <Text
+                      className="text-text-primary text-sm font-medium"
+                      numberOfLines={1}
+                    >
+                      {nameWithYou}
+                    </Text>
+                    <Text className="text-text-secondary text-xs">
+                      {roleLabel}{joinedLabel ? ` · ${joinedLabel}` : ''}
+                    </Text>
+                  </View>
                   {isAdmin && !isMe && (
                     <Pressable
                       onPress={() =>
-                        handleRemoveMember(member.id, member.email ?? 'this member')
+                        handleRemoveMember(
+                          member.id,
+                          member.display_name || 'this member',
+                        )
                       }
                       disabled={removingMemberId === member.id}
                       hitSlop={8}
@@ -473,18 +582,6 @@ export default function SettingsScreen() {
                 </View>
               );
             })}
-
-            {/* Admin: Invite Member Button */}
-            {isAdmin && (
-              <View className="mt-3">
-                <Button
-                  title="Invite Member"
-                  variant="secondary"
-                  onPress={() => router.push('/(main)/settings/invite-member')}
-                  disabled={members.length >= 4}
-                />
-              </View>
-            )}
 
             {/* Active Invite Display */}
             {isAdmin && activeInvite && (
@@ -516,20 +613,40 @@ export default function SettingsScreen() {
               </View>
             )}
 
-            {/* Member: Join a Family link */}
-            {!isAdmin && (
-              <Pressable
-                onPress={() => router.push('/(main)/settings/join-family')}
-                className="mt-3"
-              >
-                <Text className="text-primary text-sm font-semibold">
-                  Join a Family
-                </Text>
-              </Pressable>
+            {/* Contextual action buttons */}
+            {isAdmin && members.length === 1 && (
+              /* Solo admin: show Invite + Join side by side */
+              <View className="flex-row gap-3 mt-3">
+                <View className="flex-1">
+                  <Button
+                    title="Invite Member"
+                    onPress={() => router.push('/(main)/settings/invite-member')}
+                  />
+                </View>
+                <View className="flex-1">
+                  <Button
+                    title="Join a Family"
+                    variant="secondary"
+                    onPress={() => router.push('/(main)/settings/join-family')}
+                  />
+                </View>
+              </View>
             )}
 
-            {/* Member: Leave Family */}
+            {isAdmin && members.length > 1 && (
+              /* Admin with members: Invite only */
+              <View className="mt-3">
+                <Button
+                  title="Invite Member"
+                  variant="secondary"
+                  onPress={() => router.push('/(main)/settings/invite-member')}
+                  disabled={members.length >= 4}
+                />
+              </View>
+            )}
+
             {!isAdmin && (
+              /* Member: Leave Family */
               <View className="mt-3">
                 <Button
                   title="Leave Family"
@@ -538,18 +655,6 @@ export default function SettingsScreen() {
                   loading={leavingFamily}
                 />
               </View>
-            )}
-
-            {/* Admin solo: Join a Family link */}
-            {isAdmin && members.length === 1 && (
-              <Pressable
-                onPress={() => router.push('/(main)/settings/join-family')}
-                className="mt-3"
-              >
-                <Text className="text-primary text-sm font-semibold">
-                  Join a Family
-                </Text>
-              </Pressable>
             )}
           </Card>
         ) : null}

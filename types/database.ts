@@ -19,18 +19,21 @@ export interface Database {
         Row: {
           id: string;
           email: string;
+          display_name: string | null;
           weight_unit: 'kg' | 'lbs';
           created_at: string;
         };
         Insert: {
           id: string;
           email: string;
+          display_name?: string | null;
           weight_unit?: 'kg' | 'lbs';
           created_at?: string;
         };
         Update: {
           id?: string;
           email?: string;
+          display_name?: string | null;
           weight_unit?: 'kg' | 'lbs';
           created_at?: string;
         };

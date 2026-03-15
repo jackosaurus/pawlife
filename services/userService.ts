@@ -14,7 +14,7 @@ export const userService = {
 
   async updateProfile(
     userId: string,
-    updates: { weight_unit?: 'kg' | 'lbs' },
+    updates: { weight_unit?: 'kg' | 'lbs'; display_name?: string | null },
   ): Promise<User> {
     const { data, error } = await supabase
       .from('users')

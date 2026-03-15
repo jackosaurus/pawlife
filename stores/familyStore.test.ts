@@ -52,6 +52,7 @@ describe('familyStore', () => {
             role: 'admin' as const,
             joined_at: '2025-01-01',
             email: 'test@test.com',
+            display_name: 'Jack',
           },
         ],
       };
@@ -69,6 +70,7 @@ describe('familyStore', () => {
         updated_at: '2025-01-01',
       });
       expect(state.members).toHaveLength(1);
+      expect(state.members[0].display_name).toBe('Jack');
       expect(state.myRole).toBe('admin');
       expect(state.loading).toBe(false);
       expect(state.error).toBeNull();

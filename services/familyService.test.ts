@@ -83,11 +83,12 @@ describe('familyService', () => {
   });
 
   describe('getFamily', () => {
-    it('returns family with members', async () => {
+    it('returns family with members including display_name', async () => {
       const membership = { family_id: 'fam-1' };
       const family = { id: 'fam-1', name: 'Test Family', created_by: 'user-1' };
       const members = [
-        { id: 'm1', family_id: 'fam-1', user_id: 'user-1', role: 'admin', joined_at: '2025-01-01', users: { email: 'test@test.com' } },
+        { id: 'm1', family_id: 'fam-1', user_id: 'user-1', role: 'admin', joined_at: '2025-01-01', users: { email: 'test@test.com', display_name: 'Jack' } },
+        { id: 'm2', family_id: 'fam-1', user_id: 'user-2', role: 'member', joined_at: '2025-01-02', users: { email: 'other@test.com', display_name: null } },
       ];
 
       // First call: family_members for membership
@@ -100,8 +101,10 @@ describe('familyService', () => {
       const result = await familyService.getFamily();
       expect(result).not.toBeNull();
       expect(result!.id).toBe('fam-1');
-      expect(result!.members).toHaveLength(1);
+      expect(result!.members).toHaveLength(2);
       expect(result!.members[0].email).toBe('test@test.com');
+      expect(result!.members[0].display_name).toBe('Jack');
+      expect(result!.members[1].display_name).toBeNull();
     });
 
     it('throws when not authenticated', async () => {
