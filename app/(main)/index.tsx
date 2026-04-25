@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useMemo, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator, Pressable, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
@@ -7,11 +7,13 @@ import { Screen } from '@/components/ui/Screen';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { PetCard } from '@/components/pets/PetCard';
-import { NeedsAttentionSection } from '@/components/dashboard/NeedsAttentionSection';
+import { NeedsAttentionSummary } from '@/components/dashboard/NeedsAttentionSummary';
+import { PetActionList } from '@/components/dashboard/PetActionList';
 import { usePets } from '@/hooks/usePets';
 import { useActionItems } from '@/hooks/useActionItems';
 import { healthService } from '@/services/healthService';
 import { Colors } from '@/constants/colors';
+import { ActionItem } from '@/types';
 
 const welcomeHero = require('@/assets/illustrations/welcome-hero.png');
 const emptyPets = require('@/assets/illustrations/empty-pets.png');
@@ -71,6 +73,20 @@ export default function DashboardScreen() {
     }
   }, [loggingDose, refreshActions]);
 
+  // Group action items by pet ID once per actionItems change
+  const itemsByPetId = useMemo(() => {
+    const map = new Map<string, ActionItem[]>();
+    for (const item of actionItems) {
+      const existing = map.get(item.petId);
+      if (existing) {
+        existing.push(item);
+      } else {
+        map.set(item.petId, [item]);
+      }
+    }
+    return map;
+  }, [actionItems]);
+
   return (
     <Screen>
       <View className="flex-1 px-6 pt-4">
@@ -124,12 +140,24 @@ export default function DashboardScreen() {
           <FlatList
             data={pets}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <PetCard
-                pet={item}
-                onPress={() => router.push(`/(main)/pets/${item.id}`)}
-              />
-            )}
+            renderItem={({ item }) => {
+              const petItems = itemsByPetId.get(item.id) ?? [];
+              return (
+                <View>
+                  <PetCard
+                    pet={item}
+                    onPress={() => router.push(`/(main)/pets/${item.id}`)}
+                  />
+                  <PetActionList
+                    petId={item.id}
+                    petName={item.name}
+                    items={petItems}
+                    onLogDose={handleLogDose}
+                    onLogVaccination={handleLogVaccination}
+                  />
+                </View>
+              );
+            }}
             showsVerticalScrollIndicator={false}
             ListHeaderComponent={
               <>
@@ -140,11 +168,7 @@ export default function DashboardScreen() {
                     resizeMode="contain"
                   />
                 </View>
-                <NeedsAttentionSection
-                  items={actionItems}
-                  onLogDose={handleLogDose}
-                  onLogVaccination={handleLogVaccination}
-                />
+                <NeedsAttentionSummary items={actionItems} />
               </>
             }
             ListFooterComponent={
