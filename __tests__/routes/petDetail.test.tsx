@@ -27,8 +27,11 @@ const basePet = {
   id: 'pet-1',
   name: 'Buddy',
   type: 'dog',
-  breed: 'Labrador',
+  breed: 'Labrador' as string | null,
   birth_date: '2020-01-01',
+  date_of_birth: '2018-03-14' as string | null,
+  sex: 'male' as 'male' | 'female' | 'unknown' | null,
+  microchip_number: '981000000000123' as string | null,
   insurance_provider: null as string | null,
   insurance_policy_number: null as string | null,
 };
@@ -102,10 +105,10 @@ jest.mock('@expo/vector-icons', () => ({
 }));
 
 describe('PetDetailScreen tab order', () => {
-  it('renders tabs in the order Medicines, Vaccinations, Food, Weight', () => {
+  it('renders tabs in the order Profile, Medicines, Vaccinations, Food, Weight', () => {
     const { getAllByTestId } = render(<PetDetailScreen />);
 
-    const tabKeys = ['medications', 'vaccinations', 'food', 'weight'];
+    const tabKeys = ['profile', 'medications', 'vaccinations', 'food', 'weight'];
     const tabs = tabKeys.map((k) => getAllByTestId(`tab-${k}`)[0]);
 
     // Confirm presence
@@ -121,20 +124,46 @@ describe('PetDetailScreen tab order', () => {
       return textNode?.props?.children;
     });
 
-    expect(labels).toEqual(['Medicines', 'Vaccinations', 'Food', 'Weight']);
+    expect(labels).toEqual([
+      'Profile',
+      'Medicines',
+      'Vaccinations',
+      'Food',
+      'Weight',
+    ]);
   });
 
-  it('defaults to the Medicines tab as active (first tab)', () => {
+  it('Profile is the first (leftmost) tab', () => {
+    const { getAllByTestId } = render(<PetDetailScreen />);
+    const profileTab = getAllByTestId('tab-profile')[0];
+    const profileLabel = (profileTab.children[0] as {
+      props?: { children?: string };
+    }).props?.children;
+    expect(profileLabel).toBe('Profile');
+  });
+
+  it('defaults to the Medicines tab as active (preserves muscle memory)', () => {
     const { getByTestId } = render(<PetDetailScreen />);
     // Active tab includes a second child (the underline View). Inactive tabs
     // only have the Text child, so child count is the cheap check.
     const med = getByTestId('tab-medications');
+    const profile = getByTestId('tab-profile');
     const food = getByTestId('tab-food');
     expect(med.children.length).toBeGreaterThan(food.children.length);
+    // Profile is NOT the default active tab.
+    expect(med.children.length).toBeGreaterThan(profile.children.length);
+  });
+
+  it('shows the Medicines empty state by default, not Profile content', () => {
+    const { queryByText } = render(<PetDetailScreen />);
+    // Medicines empty state copy
+    expect(queryByText('No medications recorded yet.')).toBeTruthy();
+    // Profile section labels should NOT be present on entry
+    expect(queryByText('ABOUT')).toBeNull();
   });
 });
 
-describe('PetDetailScreen allergies + insurance cards', () => {
+describe('PetDetailScreen allergies + insurance cards (under Profile tab)', () => {
   beforeEach(() => {
     mockAllergiesData = [];
     mockPet.insurance_provider = null;
@@ -143,6 +172,7 @@ describe('PetDetailScreen allergies + insurance cards', () => {
 
   it('renders empty allergies state with an inline add link', () => {
     const { getByText, getByTestId } = render(<PetDetailScreen />);
+    fireEvent.press(getByTestId('tab-profile'));
     expect(getByText('ALLERGIES')).toBeTruthy();
     expect(getByText('No known allergies yet.')).toBeTruthy();
     expect(getByTestId('add-allergy-link')).toBeTruthy();
@@ -154,6 +184,7 @@ describe('PetDetailScreen allergies + insurance cards', () => {
       { id: 'a2', allergen: 'Beef' },
     ];
     const { getByText, getByTestId } = render(<PetDetailScreen />);
+    fireEvent.press(getByTestId('tab-profile'));
     expect(getByText('Chicken')).toBeTruthy();
     expect(getByText('Beef')).toBeTruthy();
     expect(getByTestId('allergy-pill-a1')).toBeTruthy();
@@ -162,6 +193,7 @@ describe('PetDetailScreen allergies + insurance cards', () => {
 
   it('renders an Add insurance link when both fields are empty', () => {
     const { getByTestId, getByText } = render(<PetDetailScreen />);
+    fireEvent.press(getByTestId('tab-profile'));
     expect(getByText('INSURANCE')).toBeTruthy();
     expect(getByTestId('add-insurance-link')).toBeTruthy();
   });
@@ -169,10 +201,73 @@ describe('PetDetailScreen allergies + insurance cards', () => {
   it('renders provider + policy rows when insurance is set', () => {
     mockPet.insurance_provider = 'Petplan';
     mockPet.insurance_policy_number = 'ABC123';
-    const { getByText, queryByTestId } = render(<PetDetailScreen />);
+    const { getByText, getByTestId, queryByTestId } = render(<PetDetailScreen />);
+    fireEvent.press(getByTestId('tab-profile'));
     expect(getByText('Petplan')).toBeTruthy();
     expect(getByText('ABC123')).toBeTruthy();
     expect(queryByTestId('add-insurance-link')).toBeNull();
+  });
+});
+
+describe('PetDetailScreen Profile tab', () => {
+  beforeEach(() => {
+    mockAllergiesData = [];
+    mockPet.breed = 'Labrador';
+    mockPet.date_of_birth = '2018-03-14';
+    mockPet.sex = 'male';
+    mockPet.microchip_number = '981000000000123';
+    mockPet.insurance_provider = null;
+    mockPet.insurance_policy_number = null;
+  });
+
+  it('renders ABOUT, ALLERGIES, and INSURANCE cards when Profile tab is active', () => {
+    const { getByText, getByTestId } = render(<PetDetailScreen />);
+    fireEvent.press(getByTestId('tab-profile'));
+    expect(getByText('ABOUT')).toBeTruthy();
+    expect(getByText('ALLERGIES')).toBeTruthy();
+    expect(getByText('INSURANCE')).toBeTruthy();
+  });
+
+  it('renders ABOUT rows: breed, sex, dob (day-first), microchip', () => {
+    const { getByText, getAllByText, getByTestId } = render(<PetDetailScreen />);
+    fireEvent.press(getByTestId('tab-profile'));
+    expect(getByText('Breed')).toBeTruthy();
+    // Breed also appears in the sticky header, so there should be >=1 match.
+    expect(getAllByText('Labrador').length).toBeGreaterThanOrEqual(1);
+    expect(getByText('Sex')).toBeTruthy();
+    // "Male" appears as the ABOUT row value; it may also appear elsewhere.
+    expect(getAllByText('Male').length).toBeGreaterThanOrEqual(1);
+    expect(getByText('Date of birth')).toBeTruthy();
+    expect(getByText('14 Mar 2018')).toBeTruthy();
+    expect(getByText('Microchip number')).toBeTruthy();
+    expect(getByText('981000000000123')).toBeTruthy();
+  });
+
+  it('renders "Not added" for empty ABOUT values', () => {
+    mockPet.breed = null;
+    mockPet.sex = null;
+    mockPet.date_of_birth = null;
+    mockPet.microchip_number = null;
+    const { getAllByText, getByTestId } = render(<PetDetailScreen />);
+    fireEvent.press(getByTestId('tab-profile'));
+    // All four rows render "Not added"
+    expect(getAllByText('Not added')).toHaveLength(4);
+  });
+
+  it('does not render the add-record card on the Profile tab', () => {
+    const { queryByText, getByTestId } = render(<PetDetailScreen />);
+    fireEvent.press(getByTestId('tab-profile'));
+    expect(queryByText('Add medication')).toBeNull();
+    expect(queryByText('Add vaccination')).toBeNull();
+    expect(queryByText('Add weight entry')).toBeNull();
+  });
+
+  it('does not render ABOUT/ALLERGIES/INSURANCE on the Medicines tab (regression guard)', () => {
+    const { queryByText } = render(<PetDetailScreen />);
+    // Default tab is Medicines; profile section labels should be absent.
+    expect(queryByText('ABOUT')).toBeNull();
+    expect(queryByText('ALLERGIES')).toBeNull();
+    expect(queryByText('INSURANCE')).toBeNull();
   });
 });
 

@@ -13,6 +13,7 @@ import { AddRecordCard } from '@/components/pets/AddRecordCard';
 import { Ionicons } from '@expo/vector-icons';
 import { Card } from '@/components/ui/Card';
 import { DetailRow } from '@/components/ui/DetailRow';
+import { formatDate } from '@/utils/dates';
 import { usePet } from '@/hooks/usePet';
 import { useFoodEntries } from '@/hooks/useFoodEntries';
 import { useVaccinations } from '@/hooks/useVaccinations';
@@ -29,6 +30,7 @@ const emptyVaccinations = require('@/assets/illustrations/empty-vaccinations.png
 const emptyWeight = require('@/assets/illustrations/empty-weight.png');
 
 const TABS: Tab[] = [
+  { key: 'profile', label: 'Profile' },
   { key: 'medications', label: 'Medicines' },
   { key: 'vaccinations', label: 'Vaccinations' },
   { key: 'food', label: 'Food' },
@@ -110,6 +112,8 @@ export default function PetDetailScreen() {
 
   const renderAddCard = () => {
     switch (activeTab) {
+      case 'profile':
+        return null;
       case 'medications':
         return (
           <AddRecordCard
@@ -151,6 +155,27 @@ export default function PetDetailScreen() {
 
   const renderTabContent = () => {
     switch (activeTab) {
+      case 'profile':
+        return (
+          <>
+            <AboutCard pet={pet} />
+            <AllergiesCard
+              allergies={allergies}
+              onAdd={() =>
+                router.push(`/(main)/pets/${petId}/allergies/add`)
+              }
+              onPressAllergy={(id) =>
+                router.push(`/(main)/pets/${petId}/allergies/${id}`)
+              }
+            />
+            <InsuranceCard
+              provider={pet.insurance_provider}
+              policyNumber={pet.insurance_policy_number}
+              onAddOrEdit={() => router.push(`/(main)/pets/${petId}/edit`)}
+            />
+          </>
+        );
+
       case 'medications':
         return medications.length === 0 && archivedMeds.length === 0 ? (
           <EmptyState message="No medications recorded yet." illustration={emptyMedications} />
@@ -294,26 +319,88 @@ export default function PetDetailScreen() {
             contentContainerStyle={{ paddingTop: 16, paddingBottom: 40 }}
             showsVerticalScrollIndicator={false}
           >
-            <AllergiesCard
-              allergies={allergies}
-              onAdd={() =>
-                router.push(`/(main)/pets/${petId}/allergies/add`)
-              }
-              onPressAllergy={(id) =>
-                router.push(`/(main)/pets/${petId}/allergies/${id}`)
-              }
-            />
-            <InsuranceCard
-              provider={pet.insurance_provider}
-              policyNumber={pet.insurance_policy_number}
-              onAddOrEdit={() => router.push(`/(main)/pets/${petId}/edit`)}
-            />
             {renderAddCard()}
             {renderTabContent()}
           </ScrollView>
         </View>
       </View>
     </Screen>
+  );
+}
+
+interface AboutCardProps {
+  pet: {
+    breed: string | null;
+    sex: 'male' | 'female' | 'unknown' | null;
+    date_of_birth: string | null;
+    microchip_number: string | null;
+  };
+}
+
+function AboutCard({ pet }: AboutCardProps) {
+  const sexLabel =
+    pet.sex === 'male' ? 'Male' : pet.sex === 'female' ? 'Female' : null;
+  const breedValue = pet.breed && pet.breed.length > 0 ? pet.breed : null;
+  const dobValue = pet.date_of_birth ? formatDate(pet.date_of_birth) : null;
+  const microchipValue =
+    pet.microchip_number && pet.microchip_number.length > 0
+      ? pet.microchip_number
+      : null;
+
+  const rows: { label: string; value: string | null }[] = [
+    { label: 'Breed', value: breedValue },
+    { label: 'Sex', value: sexLabel },
+    { label: 'Date of birth', value: dobValue },
+    { label: 'Microchip number', value: microchipValue },
+  ];
+
+  return (
+    <View className="px-6 mb-4">
+      <Text className="text-xs font-semibold text-text-secondary mb-2 tracking-wider">
+        ABOUT
+      </Text>
+      <Card className="px-5 py-1">
+        {rows.map((row, idx) => (
+          <AboutRow
+            key={row.label}
+            label={row.label}
+            value={row.value}
+            isLast={idx === rows.length - 1}
+          />
+        ))}
+      </Card>
+    </View>
+  );
+}
+
+function AboutRow({
+  label,
+  value,
+  isLast,
+}: {
+  label: string;
+  value: string | null;
+  isLast?: boolean;
+}) {
+  if (value) {
+    return <DetailRow label={label} value={value} isLast={isLast} />;
+  }
+  return (
+    <View
+      className={`flex-row items-start justify-between py-4 ${
+        isLast ? '' : 'border-b border-border'
+      }`}
+    >
+      <Text className="text-base text-text-secondary flex-shrink-0 mr-4">
+        {label}
+      </Text>
+      <Text
+        style={{ color: Colors.textSecondary }}
+        className="text-base text-right flex-1 flex-shrink"
+      >
+        Not added
+      </Text>
+    </View>
   );
 }
 
