@@ -158,12 +158,14 @@ create table public.medications (
   end_date date,
   prescribing_vet text,
   notes text,
-  is_completed boolean not null default false,
+  is_archived boolean not null default false,
+  archived_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
 create index idx_medications_pet_id on public.medications(pet_id);
+create index idx_medications_pet_active on public.medications(pet_id) where is_archived = false;
 ```
 
 #### weight_entries
@@ -413,7 +415,7 @@ Multiple parallel requests fire:
      → Returns all vaccinations (for status pill calculation)
 
   3. supabase.from('medications').select('*').eq('pet_id', petId)
-       .eq('is_completed', false)
+       .eq('is_archived', false)
      → Returns active medications count
 
   4. supabase.from('vet_visits').select('*').eq('pet_id', petId)

@@ -16,7 +16,7 @@ A contextual "Needs Attention" section on the Your Pet Family dashboard that sur
 ### Exclusions
 
 - **"As needed" medications** — no schedule, never "due"
-- **Completed/finished medications** — `is_completed = true` or `end_date` in the past
+- **Archived medications** — `is_archived = true` (user explicitly archived; `end_date` in the past alone does not exclude — surfaced as a stale prompt instead)
 - **Vaccinations without `next_due_date`** — no due date means nothing to track
 - **Medications with status `green`** — all doses are up to date
 

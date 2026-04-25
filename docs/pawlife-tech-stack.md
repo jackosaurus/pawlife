@@ -122,7 +122,8 @@ medications
   - end_date (nullable — null means ongoing)
   - prescribing_vet (nullable)
   - notes (text, nullable)
-  - is_completed (boolean, default false)
+  - is_archived (boolean, default false)
+  - archived_at (timestamp, nullable)
   - created_at
   - updated_at
 
