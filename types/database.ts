@@ -145,6 +145,8 @@ export interface Database {
           weight: number | null;
           microchip_number: string | null;
           profile_photo_url: string | null;
+          insurance_provider: string | null;
+          insurance_policy_number: string | null;
           is_archived: boolean;
           created_at: string;
           updated_at: string;
@@ -162,6 +164,8 @@ export interface Database {
           weight?: number | null;
           microchip_number?: string | null;
           profile_photo_url?: string | null;
+          insurance_provider?: string | null;
+          insurance_policy_number?: string | null;
           is_archived?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -179,7 +183,38 @@ export interface Database {
           weight?: number | null;
           microchip_number?: string | null;
           profile_photo_url?: string | null;
+          insurance_provider?: string | null;
+          insurance_policy_number?: string | null;
           is_archived?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      pet_allergies: {
+        Row: {
+          id: string;
+          pet_id: string;
+          allergen: string;
+          created_by: string | null;
+          modified_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          pet_id: string;
+          allergen: string;
+          created_by?: string | null;
+          modified_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          pet_id?: string;
+          allergen?: string;
+          created_by?: string | null;
+          modified_by?: string | null;
           created_at?: string;
           updated_at?: string;
         };

@@ -8,6 +8,16 @@ export const addPetSchema = z.object({
   dateOfBirth: z.string().nullable().optional(),
   approximateAgeMonths: z.number().int().min(0).nullable().optional(),
   microchipNumber: z.string().nullable().optional(),
+  insuranceProvider: z
+    .string()
+    .max(100, 'Provider is too long')
+    .nullable()
+    .optional(),
+  insurancePolicyNumber: z
+    .string()
+    .max(60, 'Policy number is too long')
+    .nullable()
+    .optional(),
 });
 
 export type AddPetFormData = z.infer<typeof addPetSchema>;

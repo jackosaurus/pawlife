@@ -75,6 +75,10 @@ export type FoodEntry = Tables['food_entries']['Row'];
 export type FoodEntryInsert = Tables['food_entries']['Insert'];
 export type FoodEntryUpdate = Tables['food_entries']['Update'];
 
+export type PetAllergy = Tables['pet_allergies']['Row'];
+export type PetAllergyInsert = Tables['pet_allergies']['Insert'];
+export type PetAllergyUpdate = Tables['pet_allergies']['Update'];
+
 // ── Feedback ────────────────────────────────────────────────────
 
 export type Feedback = Tables['feedback']['Row'];
