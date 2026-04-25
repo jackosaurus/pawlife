@@ -155,7 +155,8 @@ These are in the `docs/` directory:
 - `pawlife-screen-inventory.md` — Design system, voice & tone, 28 screens, user flows
 - `pawlife-tech-stack.md` — Full tech stack with architecture and migration path
 - `pawlife-data-model.md` — Schema, RLS policies, storage, data flows, service layer examples
-- `pawlife-build-plan.md` — 11 sequenced units of work
+- `pawlife-build-plan.md` — 11 sequenced units of work (MVP build, Units 1-10 complete)
+- `pawlife-v1-release-plan.md` — 9 open items before first App Store release, with rationale and suggested ordering
 - `pawlife-stitch-prompts.md` — Design mockup prompts (for reference, not code)
 
 ## Things to Avoid
