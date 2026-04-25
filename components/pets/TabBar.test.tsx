@@ -1,13 +1,6 @@
 import { render, fireEvent, screen } from '@testing-library/react-native';
 import { TabBar, Tab } from './TabBar';
 
-jest.mock('expo-linear-gradient', () => {
-  const { View } = jest.requireActual('react-native');
-  return {
-    LinearGradient: (props: Record<string, unknown>) => <View {...props} />,
-  };
-});
-
 const TABS: Tab[] = [
   { key: 'food', label: 'Food' },
   { key: 'vet-visits', label: 'Vet Visits' },

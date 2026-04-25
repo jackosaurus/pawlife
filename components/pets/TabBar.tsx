@@ -8,7 +8,6 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '@/constants/colors';
 
 export interface Tab {
@@ -22,7 +21,52 @@ interface TabBarProps {
   onTabPress: (key: string) => void;
 }
 
-const EDGE_FADE_WIDTH = 16;
+const EDGE_FADE_WIDTH = 24;
+const EDGE_FADE_STRIPES = 6;
+
+// Pure-JS edge fade (stacked stripes with stepped opacity). Avoids the native
+// `expo-linear-gradient` dependency, which would require rebuilding the dev
+// client to take effect — this works on JS-reload alone.
+function EdgeFade({
+  side,
+  testID,
+}: {
+  side: 'left' | 'right';
+  testID?: string;
+}) {
+  const stripeWidth = EDGE_FADE_WIDTH / EDGE_FADE_STRIPES;
+  return (
+    <View
+      testID={testID}
+      pointerEvents="none"
+      style={{
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        [side]: 0,
+        width: EDGE_FADE_WIDTH,
+        flexDirection: 'row',
+      }}
+    >
+      {Array.from({ length: EDGE_FADE_STRIPES }).map((_, i) => {
+        const opacity =
+          side === 'left'
+            ? 1 - i / (EDGE_FADE_STRIPES - 1)
+            : i / (EDGE_FADE_STRIPES - 1);
+        return (
+          <View
+            key={i}
+            style={{
+              width: stripeWidth,
+              backgroundColor: '#FFFFFF',
+              opacity,
+            }}
+          />
+        );
+      })}
+    </View>
+  );
+}
 
 export function TabBar({ tabs, activeTab, onTabPress }: TabBarProps) {
   const scrollRef = useRef<ScrollView>(null);
@@ -114,36 +158,10 @@ export function TabBar({ tabs, activeTab, onTabPress }: TabBarProps) {
         })}
       </ScrollView>
       {showLeftFade ? (
-        <LinearGradient
-          testID="tab-bar-left-fade"
-          pointerEvents="none"
-          colors={[Colors.background, `${Colors.background}00`]}
-          start={{ x: 0, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
-          style={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            bottom: 0,
-            width: EDGE_FADE_WIDTH,
-          }}
-        />
+        <EdgeFade side="left" testID="tab-bar-left-fade" />
       ) : null}
       {showRightFade ? (
-        <LinearGradient
-          testID="tab-bar-right-fade"
-          pointerEvents="none"
-          colors={[`${Colors.background}00`, Colors.background]}
-          start={{ x: 0, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
-          style={{
-            position: 'absolute',
-            right: 0,
-            top: 0,
-            bottom: 0,
-            width: EDGE_FADE_WIDTH,
-          }}
-        />
+        <EdgeFade side="right" testID="tab-bar-right-fade" />
       ) : null}
     </View>
   );
