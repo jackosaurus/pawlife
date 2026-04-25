@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, Image, ImageSourcePropType } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, Image, ImageSourcePropType, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
 import { Screen } from '@/components/ui/Screen';
@@ -12,12 +12,14 @@ import { TabBar, Tab } from '@/components/pets/TabBar';
 import { AddRecordCard } from '@/components/pets/AddRecordCard';
 import { Ionicons } from '@expo/vector-icons';
 import { Card } from '@/components/ui/Card';
+import { DetailRow } from '@/components/ui/DetailRow';
 import { usePet } from '@/hooks/usePet';
 import { useFoodEntries } from '@/hooks/useFoodEntries';
 import { useVaccinations } from '@/hooks/useVaccinations';
 import { useMedications } from '@/hooks/useMedications';
 import { useArchivedMedications } from '@/hooks/useArchivedMedications';
 import { useWeightEntries } from '@/hooks/useWeightEntries';
+import { usePetAllergies } from '@/hooks/usePetAllergies';
 import { healthService } from '@/services/healthService';
 import { Colors } from '@/constants/colors';
 
@@ -52,6 +54,7 @@ export default function PetDetailScreen() {
   const { medications, refresh: refreshMedications } = useMedications(petId!);
   const { data: archivedMeds, refresh: refreshArchivedMeds } = useArchivedMedications(petId!);
   const { weightEntries, refresh: refreshWeight } = useWeightEntries(petId!);
+  const { data: allergies, refresh: refreshAllergies } = usePetAllergies(petId!);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -61,9 +64,10 @@ export default function PetDetailScreen() {
       refreshMedications();
       refreshArchivedMeds();
       refreshWeight();
+      refreshAllergies();
     });
     return unsubscribe;
-  }, [navigation, refresh, refreshFood, refreshVaccinations, refreshMedications, refreshArchivedMeds, refreshWeight]);
+  }, [navigation, refresh, refreshFood, refreshVaccinations, refreshMedications, refreshArchivedMeds, refreshWeight, refreshAllergies]);
 
   if (loading) {
     return (
@@ -290,12 +294,122 @@ export default function PetDetailScreen() {
             contentContainerStyle={{ paddingTop: 16, paddingBottom: 40 }}
             showsVerticalScrollIndicator={false}
           >
+            <AllergiesCard
+              allergies={allergies}
+              onAdd={() =>
+                router.push(`/(main)/pets/${petId}/allergies/add`)
+              }
+              onPressAllergy={(id) =>
+                router.push(`/(main)/pets/${petId}/allergies/${id}`)
+              }
+            />
+            <InsuranceCard
+              provider={pet.insurance_provider}
+              policyNumber={pet.insurance_policy_number}
+              onAddOrEdit={() => router.push(`/(main)/pets/${petId}/edit`)}
+            />
             {renderAddCard()}
             {renderTabContent()}
           </ScrollView>
         </View>
       </View>
     </Screen>
+  );
+}
+
+interface AllergiesCardProps {
+  allergies: { id: string; allergen: string }[];
+  onAdd: () => void;
+  onPressAllergy: (id: string) => void;
+}
+
+function AllergiesCard({ allergies, onAdd, onPressAllergy }: AllergiesCardProps) {
+  return (
+    <View className="px-6 mb-4">
+      <Text className="text-xs font-semibold text-text-secondary mb-2 tracking-wider">
+        ALLERGIES
+      </Text>
+      <Card className="px-5 py-4">
+        {allergies.length === 0 ? (
+          <View>
+            <Text className="text-base text-text-secondary">
+              No known allergies yet.
+            </Text>
+            <Pressable onPress={onAdd} hitSlop={8} className="mt-3" testID="add-allergy-link">
+              <Text className="text-primary text-base font-medium">
+                + Add allergy
+              </Text>
+            </Pressable>
+          </View>
+        ) : (
+          <View>
+            <View className="flex-row flex-wrap gap-2">
+              {allergies.map((a) => (
+                <Pressable
+                  key={a.id}
+                  onPress={() => onPressAllergy(a.id)}
+                  testID={`allergy-pill-${a.id}`}
+                  style={{ backgroundColor: `${Colors.statusNeutral}15` }}
+                  className="px-3 py-1.5 rounded-full"
+                >
+                  <Text
+                    style={{ color: Colors.textPrimary }}
+                    className="text-sm font-medium"
+                  >
+                    {a.allergen}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+            <Pressable onPress={onAdd} hitSlop={8} className="mt-3" testID="add-allergy-link">
+              <Text className="text-primary text-base font-medium">
+                + Add allergy
+              </Text>
+            </Pressable>
+          </View>
+        )}
+      </Card>
+    </View>
+  );
+}
+
+interface InsuranceCardProps {
+  provider: string | null;
+  policyNumber: string | null;
+  onAddOrEdit: () => void;
+}
+
+function InsuranceCard({ provider, policyNumber, onAddOrEdit }: InsuranceCardProps) {
+  const hasInsurance = Boolean(provider || policyNumber);
+  return (
+    <View className="px-6 mb-4">
+      <Text className="text-xs font-semibold text-text-secondary mb-2 tracking-wider">
+        INSURANCE
+      </Text>
+      <Card className="px-5 py-3">
+        {hasInsurance ? (
+          <View>
+            <DetailRow label="Provider" value={provider ?? '—'} />
+            <DetailRow
+              label="Policy number"
+              value={policyNumber ?? '—'}
+              isLast
+            />
+          </View>
+        ) : (
+          <Pressable
+            onPress={onAddOrEdit}
+            hitSlop={8}
+            className="py-2"
+            testID="add-insurance-link"
+          >
+            <Text className="text-primary text-base font-medium">
+              Add insurance details
+            </Text>
+          </Pressable>
+        )}
+      </Card>
+    </View>
   );
 }
 

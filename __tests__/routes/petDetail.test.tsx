@@ -21,15 +21,19 @@ jest.mock('@react-navigation/native', () => ({
   }),
 }));
 
+const basePet = {
+  id: 'pet-1',
+  name: 'Buddy',
+  type: 'dog',
+  breed: 'Labrador',
+  birth_date: '2020-01-01',
+  insurance_provider: null as string | null,
+  insurance_policy_number: null as string | null,
+};
+const mockPet = { ...basePet };
 jest.mock('@/hooks/usePet', () => ({
   usePet: () => ({
-    pet: {
-      id: 'pet-1',
-      name: 'Buddy',
-      type: 'dog',
-      breed: 'Labrador',
-      birth_date: '2020-01-01',
-    },
+    pet: mockPet,
     loading: false,
     error: null,
     refresh: jest.fn(),
@@ -69,6 +73,17 @@ jest.mock('@/hooks/useWeightEntries', () => ({
   useWeightEntries: () => ({
     weightEntries: [],
     refresh: jest.fn(),
+  }),
+}));
+
+const mockAllergiesRefresh = jest.fn();
+let mockAllergiesData: { id: string; allergen: string }[] = [];
+jest.mock('@/hooks/usePetAllergies', () => ({
+  usePetAllergies: () => ({
+    data: mockAllergiesData,
+    loading: false,
+    error: null,
+    refresh: mockAllergiesRefresh,
   }),
 }));
 
@@ -113,5 +128,47 @@ describe('PetDetailScreen tab order', () => {
     const med = getByTestId('tab-medications');
     const food = getByTestId('tab-food');
     expect(med.children.length).toBeGreaterThan(food.children.length);
+  });
+});
+
+describe('PetDetailScreen allergies + insurance cards', () => {
+  beforeEach(() => {
+    mockAllergiesData = [];
+    mockPet.insurance_provider = null;
+    mockPet.insurance_policy_number = null;
+  });
+
+  it('renders empty allergies state with an inline add link', () => {
+    const { getByText, getByTestId } = render(<PetDetailScreen />);
+    expect(getByText('ALLERGIES')).toBeTruthy();
+    expect(getByText('No known allergies yet.')).toBeTruthy();
+    expect(getByTestId('add-allergy-link')).toBeTruthy();
+  });
+
+  it('renders allergy pills when allergies exist', () => {
+    mockAllergiesData = [
+      { id: 'a1', allergen: 'Chicken' },
+      { id: 'a2', allergen: 'Beef' },
+    ];
+    const { getByText, getByTestId } = render(<PetDetailScreen />);
+    expect(getByText('Chicken')).toBeTruthy();
+    expect(getByText('Beef')).toBeTruthy();
+    expect(getByTestId('allergy-pill-a1')).toBeTruthy();
+    expect(getByTestId('allergy-pill-a2')).toBeTruthy();
+  });
+
+  it('renders an Add insurance link when both fields are empty', () => {
+    const { getByTestId, getByText } = render(<PetDetailScreen />);
+    expect(getByText('INSURANCE')).toBeTruthy();
+    expect(getByTestId('add-insurance-link')).toBeTruthy();
+  });
+
+  it('renders provider + policy rows when insurance is set', () => {
+    mockPet.insurance_provider = 'Petplan';
+    mockPet.insurance_policy_number = 'ABC123';
+    const { getByText, queryByTestId } = render(<PetDetailScreen />);
+    expect(getByText('Petplan')).toBeTruthy();
+    expect(getByText('ABC123')).toBeTruthy();
+    expect(queryByTestId('add-insurance-link')).toBeNull();
   });
 });
