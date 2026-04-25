@@ -8,6 +8,7 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
 
 export interface Tab {
@@ -21,13 +22,18 @@ interface TabBarProps {
   onTabPress: (key: string) => void;
 }
 
-const EDGE_FADE_WIDTH = 24;
+const EDGE_FADE_WIDTH = 28;
 const EDGE_FADE_STRIPES = 6;
+const CHEVRON_SIZE = 14;
+const CHEVRON_INSET = 6;
 
-// Pure-JS edge fade (stacked stripes with stepped opacity). Avoids the native
-// `expo-linear-gradient` dependency, which would require rebuilding the dev
-// client to take effect — this works on JS-reload alone.
-function EdgeFade({
+// Pure-JS overflow indicator: stacked white stripes (stepped opacity) for a
+// soft fade, plus a small chevron icon centered vertically that signals the
+// scroll direction. The fade alone is invisible against a white tab bar when
+// the offscreen tab is fully out of view, so the chevron is the primary
+// signal and the fade is secondary reinforcement. Avoids
+// `expo-linear-gradient` so it works on JS-reload alone.
+function OverflowIndicator({
   side,
   testID,
 }: {
@@ -46,24 +52,54 @@ function EdgeFade({
         [side]: 0,
         width: EDGE_FADE_WIDTH,
         flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
     >
-      {Array.from({ length: EDGE_FADE_STRIPES }).map((_, i) => {
-        const opacity =
-          side === 'left'
-            ? 1 - i / (EDGE_FADE_STRIPES - 1)
-            : i / (EDGE_FADE_STRIPES - 1);
-        return (
-          <View
-            key={i}
-            style={{
-              width: stripeWidth,
-              backgroundColor: '#FFFFFF',
-              opacity,
-            }}
-          />
-        );
-      })}
+      <View
+        style={{
+          position: 'absolute',
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          flexDirection: 'row',
+        }}
+      >
+        {Array.from({ length: EDGE_FADE_STRIPES }).map((_, i) => {
+          const opacity =
+            side === 'left'
+              ? 1 - i / (EDGE_FADE_STRIPES - 1)
+              : i / (EDGE_FADE_STRIPES - 1);
+          return (
+            <View
+              key={i}
+              style={{
+                width: stripeWidth,
+                backgroundColor: '#FFFFFF',
+                opacity,
+              }}
+            />
+          );
+        })}
+      </View>
+      <View
+        testID={testID ? `${testID}-chevron` : undefined}
+        style={{
+          position: 'absolute',
+          [side]: CHEVRON_INSET,
+          top: 0,
+          bottom: 0,
+          justifyContent: 'center',
+        }}
+      >
+        <Ionicons
+          name={side === 'left' ? 'chevron-back' : 'chevron-forward'}
+          size={CHEVRON_SIZE}
+          color={Colors.textSecondary}
+          style={{ opacity: 0.6 }}
+        />
+      </View>
     </View>
   );
 }
@@ -72,8 +108,8 @@ export function TabBar({ tabs, activeTab, onTabPress }: TabBarProps) {
   const scrollRef = useRef<ScrollView>(null);
   const tabLayouts = useRef<Record<string, { x: number; width: number }>>({});
   const scrollViewWidth = useRef(0);
-  const [showLeftFade, setShowLeftFade] = useState(false);
-  const [showRightFade, setShowRightFade] = useState(false);
+  const [showLeftOverflow, setShowLeftOverflow] = useState(false);
+  const [showRightOverflow, setShowRightOverflow] = useState(false);
 
   const handleTabLayout = useCallback((key: string, e: LayoutChangeEvent) => {
     const { x, width } = e.nativeEvent.layout;
@@ -84,28 +120,28 @@ export function TabBar({ tabs, activeTab, onTabPress }: TabBarProps) {
     scrollViewWidth.current = e.nativeEvent.layout.width;
   }, []);
 
-  const updateFades = useCallback(
+  const updateOverflow = useCallback(
     (offsetX: number, layoutWidth: number, contentWidth: number) => {
-      setShowLeftFade(offsetX > 0);
-      setShowRightFade(offsetX + layoutWidth < contentWidth - 1);
+      setShowLeftOverflow(offsetX > 0);
+      setShowRightOverflow(offsetX + layoutWidth < contentWidth - 1);
     },
     [],
   );
 
   const handleContentSizeChange = useCallback(
     (contentWidth: number) => {
-      // When content first measures, show right fade if content overflows.
-      updateFades(0, scrollViewWidth.current, contentWidth);
+      // When content first measures, show right indicator if content overflows.
+      updateOverflow(0, scrollViewWidth.current, contentWidth);
     },
-    [updateFades],
+    [updateOverflow],
   );
 
   const handleScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       const { contentOffset, layoutMeasurement, contentSize } = e.nativeEvent;
-      updateFades(contentOffset.x, layoutMeasurement.width, contentSize.width);
+      updateOverflow(contentOffset.x, layoutMeasurement.width, contentSize.width);
     },
-    [updateFades],
+    [updateOverflow],
   );
 
   const handleTabPress = useCallback((key: string) => {
@@ -157,11 +193,11 @@ export function TabBar({ tabs, activeTab, onTabPress }: TabBarProps) {
           );
         })}
       </ScrollView>
-      {showLeftFade ? (
-        <EdgeFade side="left" testID="tab-bar-left-fade" />
+      {showLeftOverflow ? (
+        <OverflowIndicator side="left" testID="tab-bar-left-fade" />
       ) : null}
-      {showRightFade ? (
-        <EdgeFade side="right" testID="tab-bar-right-fade" />
+      {showRightOverflow ? (
+        <OverflowIndicator side="right" testID="tab-bar-right-fade" />
       ) : null}
     </View>
   );

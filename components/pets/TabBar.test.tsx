@@ -150,5 +150,32 @@ describe('TabBar', () => {
       expect(leftFade.props.pointerEvents).toBe('none');
       expect(rightFade.props.pointerEvents).toBe('none');
     });
+
+    it('renders a chevron inside the right overflow indicator when content overflows', () => {
+      render(<TabBar tabs={TABS} activeTab="food" onTabPress={onTabPress} />);
+      const scrollView = screen.UNSAFE_getByType(
+        require('react-native').ScrollView,
+      );
+      fireEvent(scrollView, 'layout', {
+        nativeEvent: { layout: { x: 0, y: 0, width: 200, height: 50 } },
+      });
+      fireEvent(scrollView, 'contentSizeChange', 500, 50);
+      expect(screen.getByTestId('tab-bar-right-fade-chevron')).toBeTruthy();
+    });
+
+    it('renders a chevron inside the left overflow indicator after scrolling right', () => {
+      render(<TabBar tabs={TABS} activeTab="food" onTabPress={onTabPress} />);
+      const scrollView = screen.UNSAFE_getByType(
+        require('react-native').ScrollView,
+      );
+      fireEvent.scroll(scrollView, {
+        nativeEvent: {
+          contentOffset: { x: 50, y: 0 },
+          layoutMeasurement: { width: 200, height: 50 },
+          contentSize: { width: 500, height: 50 },
+        },
+      });
+      expect(screen.getByTestId('tab-bar-left-fade-chevron')).toBeTruthy();
+    });
   });
 });
