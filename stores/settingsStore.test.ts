@@ -19,6 +19,7 @@ const defaultProfile = {
   reminders_enabled: true,
   medication_reminder_time: '20:00',
   vaccination_advance_days: 14,
+  timezone: 'UTC',
   created_at: '2024-01-01',
 };
 

@@ -4,6 +4,7 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
 import { notificationService } from '@/services/notificationService';
+import { userService } from '@/services/userService';
 
 // Show notification when app is in foreground
 Notifications.setNotificationHandler({
@@ -42,12 +43,34 @@ async function getExpoPushToken(): Promise<string | null> {
   return tokenData.data;
 }
 
+async function syncUserTimezone(userId: string): Promise<void> {
+  const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  if (!detected) return;
+
+  // Older Hermes builds can return 'UTC' from Intl even on non-UTC devices.
+  // If the device clock isn't actually on UTC, skip — don't overwrite a
+  // correct stored zone with a fabricated 'UTC'.
+  if (detected === 'UTC' && new Date().getTimezoneOffset() !== 0) return;
+
+  const profile = await userService.getProfile(userId);
+  if (profile.timezone === detected) return;
+
+  await userService.updateProfile(userId, { timezone: detected });
+}
+
 export function useNotificationSetup(userId: string | null) {
   const router = useRouter();
   const responseListener = useRef<Notifications.Subscription>();
 
   useEffect(() => {
     if (!userId) return;
+
+    // Sync the device's IANA timezone so the Edge Function can fire reminders
+    // at the user's local hour, not UTC. Only writes if the stored value is
+    // different — avoids an update every app launch.
+    syncUserTimezone(userId).catch((err) =>
+      console.warn('Failed to sync user timezone:', err),
+    );
 
     // Set up Android notification channel
     if (Platform.OS === 'android') {

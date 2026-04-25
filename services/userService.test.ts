@@ -46,7 +46,7 @@ beforeEach(() => {
 describe('userService', () => {
   describe('getProfile', () => {
     it('returns user profile', async () => {
-      const user = { id: 'u1', email: 'test@example.com', weight_unit: 'kg', created_at: '2024-01-01' };
+      const user = { id: 'u1', email: 'test@example.com', weight_unit: 'kg', timezone: 'UTC', created_at: '2024-01-01' };
       mockFrom.mockReturnValue(chainMock({ data: user, error: null }));
       const result = await userService.getProfile('u1');
       expect(result).toEqual(user);
@@ -61,7 +61,7 @@ describe('userService', () => {
 
   describe('updateProfile', () => {
     it('updates and returns user', async () => {
-      const user = { id: 'u1', email: 'test@example.com', weight_unit: 'lbs', created_at: '2024-01-01' };
+      const user = { id: 'u1', email: 'test@example.com', weight_unit: 'lbs', timezone: 'UTC', created_at: '2024-01-01' };
       mockFrom.mockReturnValue(chainMock({ data: user, error: null }));
       const result = await userService.updateProfile('u1', { weight_unit: 'lbs' });
       expect(result).toEqual(user);

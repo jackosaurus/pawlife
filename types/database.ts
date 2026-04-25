@@ -25,6 +25,7 @@ export interface Database {
           reminders_enabled: boolean;
           medication_reminder_time: string;
           vaccination_advance_days: number;
+          timezone: string;
           created_at: string;
         };
         Insert: {
@@ -36,6 +37,7 @@ export interface Database {
           reminders_enabled?: boolean;
           medication_reminder_time?: string;
           vaccination_advance_days?: number;
+          timezone?: string;
           created_at?: string;
         };
         Update: {
@@ -47,6 +49,7 @@ export interface Database {
           reminders_enabled?: boolean;
           medication_reminder_time?: string;
           vaccination_advance_days?: number;
+          timezone?: string;
           created_at?: string;
         };
       };

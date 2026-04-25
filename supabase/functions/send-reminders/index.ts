@@ -30,6 +30,45 @@ interface PushTicket {
   details?: { error?: string };
 }
 
+// ── Auth: inspect the role claim inside the bearer JWT ──────────
+function isServiceRoleBearer(authHeader: string | null): boolean {
+  if (!authHeader?.startsWith('Bearer ')) return false;
+  const token = authHeader.slice(7).trim();
+  const parts = token.split('.');
+  if (parts.length !== 3) return false;
+  try {
+    // base64url → base64, then pad to multiple of 4
+    const b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = b64 + '='.repeat((4 - (b64.length % 4)) % 4);
+    const payload = JSON.parse(atob(padded));
+    return payload?.role === 'service_role';
+  } catch {
+    return false;
+  }
+}
+
+// ── User-local time helpers (IANA timezone aware) ───────────────
+// Intl.DateTimeFormat handles DST automatically, which a fixed offset cannot.
+function getUserLocalHour(timezone: string): number {
+  const hourStr = new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    hour12: false,
+    timeZone: timezone,
+  }).format(new Date());
+  // en-US with hour12=false can emit "24" at midnight; normalize.
+  return Number(hourStr) % 24;
+}
+
+function getUserLocalDateISO(timezone: string, when: Date = new Date()): string {
+  // en-CA formats as YYYY-MM-DD, which matches Postgres DATE output.
+  return new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone: timezone,
+  }).format(when);
+}
+
 // ── Send batch of push notifications via Expo Push API ──────────
 async function sendPushNotifications(
   messages: PushMessage[],
@@ -114,6 +153,8 @@ async function logNotification(
 async function processMedicationReminders(
   userId: string,
   tokens: PushTokenEntry[],
+  today: string,
+  timezone: string,
 ): Promise<{ messages: PushMessage[]; sentLogs: Array<{ type: string; refId: string; key: string }> }> {
   const messages: PushMessage[] = [];
   const sentLogs: Array<{ type: string; refId: string; key: string }> = [];
@@ -135,8 +176,6 @@ async function processMedicationReminders(
 
   if (!pets || pets.length === 0) return { messages, sentLogs };
 
-  const today = new Date().toISOString().split('T')[0];
-
   for (const pet of pets) {
     // Get active medications
     const { data: medications } = await supabase
@@ -149,16 +188,24 @@ async function processMedicationReminders(
 
     if (!medications || medications.length === 0) continue;
 
-    // Check which medications have been logged today
+    // Check which medications have been logged today (user's local day).
+    // `given_at` is a UTC timestamptz; filter by a generous UTC window
+    // (last 36h) then bucket by the user's local date to get true "today".
+    // Naive `${today}T00:00:00` comparisons would misclassify doses near
+    // midnight in zones far from UTC.
     const medIds = medications.map((m) => m.id);
+    const sinceUtc = new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString();
     const { data: doses } = await supabase
       .from('medication_doses')
-      .select('medication_id')
+      .select('medication_id, given_at')
       .in('medication_id', medIds)
-      .gte('given_at', `${today}T00:00:00`)
-      .lte('given_at', `${today}T23:59:59`);
+      .gte('given_at', sinceUtc);
 
-    const loggedMedIds = new Set((doses ?? []).map((d) => d.medication_id));
+    const loggedMedIds = new Set(
+      (doses ?? [])
+        .filter((d) => getUserLocalDateISO(timezone, new Date(d.given_at)) === today)
+        .map((d) => d.medication_id),
+    );
     const unloggedMeds = medications.filter((m) => !loggedMedIds.has(m.id));
 
     if (unloggedMeds.length === 0) continue;
@@ -200,6 +247,7 @@ async function processVaccinationReminders(
   userId: string,
   tokens: PushTokenEntry[],
   advanceDays: number,
+  todayISO: string,
 ): Promise<{ messages: PushMessage[]; sentLogs: Array<{ type: string; refId: string; key: string }> }> {
   const messages: PushMessage[] = [];
   const sentLogs: Array<{ type: string; refId: string; key: string }> = [];
@@ -220,8 +268,10 @@ async function processVaccinationReminders(
 
   if (!pets || pets.length === 0) return { messages, sentLogs };
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // Parse user-local midnight. Constructing via components avoids the
+  // local-tz-of-the-Deno-runtime trap of `new Date(todayISO)`.
+  const [y, m, d] = todayISO.split('-').map(Number);
+  const today = new Date(Date.UTC(y, m - 1, d));
 
   for (const pet of pets) {
     const { data: vaccinations } = await supabase
@@ -235,8 +285,8 @@ async function processVaccinationReminders(
     for (const vax of vaccinations) {
       if (!vax.next_due_date) continue;
 
-      const dueDate = new Date(vax.next_due_date);
-      dueDate.setHours(0, 0, 0, 0);
+      const [dy, dm, dd] = vax.next_due_date.split('-').map(Number);
+      const dueDate = new Date(Date.UTC(dy, dm - 1, dd));
       const diffDays = Math.round(
         (dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
       );
@@ -292,23 +342,25 @@ async function processVaccinationReminders(
 // ── Main handler ────────────────────────────────────────────────
 Deno.serve(async (req) => {
   try {
-    // Verify this is an authorized call (cron or admin)
-    const authHeader = req.headers.get('Authorization');
-    if (
-      !authHeader?.includes(supabaseServiceKey) &&
-      req.headers.get('x-cron-secret') !== Deno.env.get('CRON_SECRET')
-    ) {
-      // Allow if called from Supabase internally
-      console.log('Proceeding with edge function invocation');
+    // Require a project-signed JWT with role=service_role. The Supabase
+    // gateway has already verified the signature before we see the request;
+    // here we only inspect the payload's role claim. Checking the claim
+    // rather than doing a byte-exact string match against our own env var
+    // is robust against JWT-signing-key rotations (where the dashboard's
+    // visible key and the runtime's injected SUPABASE_SERVICE_ROLE_KEY
+    // can temporarily diverge).
+    if (!isServiceRoleBearer(req.headers.get('Authorization'))) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } },
+      );
     }
-
-    const currentHour = new Date().getUTCHours();
 
     // Fetch users with reminders enabled and at least one push token
     const { data: users, error } = await supabase
       .from('users')
       .select(
-        'id, push_tokens, medication_reminder_time, vaccination_advance_days',
+        'id, push_tokens, medication_reminder_time, vaccination_advance_days, timezone',
       )
       .eq('reminders_enabled', true)
       .neq('push_tokens', '[]');
@@ -329,13 +381,22 @@ Deno.serve(async (req) => {
       const allMessages: PushMessage[] = [];
       const allLogs: Array<{ type: string; refId: string; key: string }> = [];
 
-      // Check if current hour matches user's medication reminder time
+      const timezone = user.timezone ?? 'UTC';
+      const userLocalHour = getUserLocalHour(timezone);
+      const userLocalToday = getUserLocalDateISO(timezone);
+
+      // Check if current hour (in the user's timezone) matches their reminder hour
       const [reminderHour] = (user.medication_reminder_time ?? '20:00')
         .split(':')
         .map(Number);
 
-      if (currentHour === reminderHour) {
-        const medResult = await processMedicationReminders(user.id, tokens);
+      if (userLocalHour === reminderHour) {
+        const medResult = await processMedicationReminders(
+          user.id,
+          tokens,
+          userLocalToday,
+          timezone,
+        );
         allMessages.push(...medResult.messages);
         allLogs.push(...medResult.sentLogs);
       }
@@ -346,6 +407,7 @@ Deno.serve(async (req) => {
         user.id,
         tokens,
         user.vaccination_advance_days ?? 14,
+        userLocalToday,
       );
       allMessages.push(...vaxResult.messages);
       allLogs.push(...vaxResult.sentLogs);
