@@ -24,9 +24,9 @@ const emptyVaccinations = require('@/assets/illustrations/empty-vaccinations.png
 const emptyWeight = require('@/assets/illustrations/empty-weight.png');
 
 const TABS: Tab[] = [
-  { key: 'food', label: 'Food' },
   { key: 'medications', label: 'Medicines' },
   { key: 'vaccinations', label: 'Vaccinations' },
+  { key: 'food', label: 'Food' },
   { key: 'weight', label: 'Weight' },
 ];
 
@@ -41,7 +41,7 @@ export default function PetDetailScreen() {
   const { petId } = useLocalSearchParams<{ petId: string }>();
   const router = useRouter();
   const navigation = useNavigation();
-  const [activeTab, setActiveTab] = useState('food');
+  const [activeTab, setActiveTab] = useState('medications');
   const [loggingDoseId, setLoggingDoseId] = useState<string | null>(null);
   const { pet, loading, error, refresh } = usePet(petId!);
   const { currentFood, history: foodHistory, refresh: refreshFood } = useFoodEntries(petId!);
@@ -101,19 +101,6 @@ export default function PetDetailScreen() {
 
   const renderAddCard = () => {
     switch (activeTab) {
-      case 'food':
-        return (
-          <AddRecordCard
-            label={currentFood ? 'Change food' : 'Add food'}
-            onPress={() =>
-              router.push(
-                currentFood
-                  ? `/(main)/pets/${petId}/food/add?change=true`
-                  : `/(main)/pets/${petId}/food/add`,
-              )
-            }
-          />
-        );
       case 'medications':
         return (
           <AddRecordCard
@@ -126,6 +113,19 @@ export default function PetDetailScreen() {
           <AddRecordCard
             label="Add vaccination"
             onPress={() => router.push(`/(main)/pets/${petId}/health/vaccination/add`)}
+          />
+        );
+      case 'food':
+        return (
+          <AddRecordCard
+            label={currentFood ? 'Change food' : 'Add food'}
+            onPress={() =>
+              router.push(
+                currentFood
+                  ? `/(main)/pets/${petId}/food/add?change=true`
+                  : `/(main)/pets/${petId}/food/add`,
+              )
+            }
           />
         );
       case 'weight':
@@ -142,25 +142,6 @@ export default function PetDetailScreen() {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'food':
-        return allFoodEntries.length === 0 ? (
-          <EmptyState message={`What's ${pet.name} eating? Add their current food.`} illustration={emptyFood} />
-        ) : (
-          allFoodEntries.map((entry) => (
-            <View key={entry.id} className="px-6 mb-3">
-              <RecordCard
-                title={entry.brand}
-                subtitle={entry.product_name ?? undefined}
-                detail={buildFoodSubtitle(entry) || undefined}
-                date={entry.start_date}
-                status={entry.end_date === null ? 'green' : 'neutral'}
-                statusLabel={entry.end_date === null ? 'Current' : 'Past'}
-                onPress={() => router.push(`/(main)/pets/${petId}/food/${entry.id}`)}
-              />
-            </View>
-          ))
-        );
-
       case 'medications':
         return medications.length === 0 ? (
           <EmptyState message="No medications recorded yet." illustration={emptyMedications} />
@@ -208,6 +189,25 @@ export default function PetDetailScreen() {
                   }
                 }}
                 logLoading={loggingDoseId === v.id}
+              />
+            </View>
+          ))
+        );
+
+      case 'food':
+        return allFoodEntries.length === 0 ? (
+          <EmptyState message={`What's ${pet.name} eating? Add their current food.`} illustration={emptyFood} />
+        ) : (
+          allFoodEntries.map((entry) => (
+            <View key={entry.id} className="px-6 mb-3">
+              <RecordCard
+                title={entry.brand}
+                subtitle={entry.product_name ?? undefined}
+                detail={buildFoodSubtitle(entry) || undefined}
+                date={entry.start_date}
+                status={entry.end_date === null ? 'green' : 'neutral'}
+                statusLabel={entry.end_date === null ? 'Current' : 'Past'}
+                onPress={() => router.push(`/(main)/pets/${petId}/food/${entry.id}`)}
               />
             </View>
           ))
