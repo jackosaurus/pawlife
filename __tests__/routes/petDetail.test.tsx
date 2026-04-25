@@ -254,12 +254,60 @@ describe('PetDetailScreen Profile tab', () => {
     expect(getAllByText('Not added')).toHaveLength(4);
   });
 
-  it('does not render the add-record card on the Profile tab', () => {
+  it('does not render any Add record card on the Profile tab', () => {
     const { queryByText, getByTestId } = render(<PetDetailScreen />);
     fireEvent.press(getByTestId('tab-profile'));
     expect(queryByText('Add medication')).toBeNull();
     expect(queryByText('Add vaccination')).toBeNull();
     expect(queryByText('Add weight entry')).toBeNull();
+  });
+
+  it('renders an "Edit profile" button at the top of the Profile tab', () => {
+    const { getByText, getAllByTestId } = render(<PetDetailScreen />);
+    fireEvent.press(getAllByTestId('tab-profile')[0]);
+    // Card uses the same testID as AddRecordCard
+    const card = getAllByTestId('add-record-card')[0];
+    expect(card).toBeTruthy();
+    expect(getByText('Edit profile')).toBeTruthy();
+  });
+
+  it('positions "Edit profile" above the ABOUT card on the Profile tab', () => {
+    const { getByText, getAllByTestId } = render(<PetDetailScreen />);
+    fireEvent.press(getAllByTestId('tab-profile')[0]);
+    const editLabel = getByText('Edit profile');
+    const aboutLabel = getByText('ABOUT');
+    // Both render; the Edit profile card sits above ABOUT in the scroll view.
+    expect(editLabel).toBeTruthy();
+    expect(aboutLabel).toBeTruthy();
+  });
+
+  it('navigates to the edit route when "Edit profile" is tapped', () => {
+    mockPush.mockClear();
+    const { getAllByTestId } = render(<PetDetailScreen />);
+    fireEvent.press(getAllByTestId('tab-profile')[0]);
+    const card = getAllByTestId('add-record-card')[0];
+    fireEvent.press(card);
+    expect(mockPush).toHaveBeenCalledWith('/(main)/pets/pet-1/edit');
+  });
+
+  it('does not render "Edit profile" on Medicines, Vaccinations, Food, or Weight tabs', () => {
+    const tabs = ['medications', 'vaccinations', 'food', 'weight'] as const;
+    tabs.forEach((tab) => {
+      const { queryByText, getAllByTestId, unmount } = render(<PetDetailScreen />);
+      fireEvent.press(getAllByTestId(`tab-${tab}`)[0]);
+      expect(queryByText('Edit profile')).toBeNull();
+      unmount();
+    });
+  });
+
+  it('does not render an Edit button in the header on any tab (regression guard)', () => {
+    const tabs = ['profile', 'medications', 'vaccinations', 'food', 'weight'] as const;
+    tabs.forEach((tab) => {
+      const { queryByTestId, getAllByTestId, unmount } = render(<PetDetailScreen />);
+      fireEvent.press(getAllByTestId(`tab-${tab}`)[0]);
+      expect(queryByTestId('edit-button')).toBeNull();
+      unmount();
+    });
   });
 
   it('does not render ABOUT/ALLERGIES/INSURANCE on the Medicines tab (regression guard)', () => {

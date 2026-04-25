@@ -113,7 +113,13 @@ export default function PetDetailScreen() {
   const renderAddCard = () => {
     switch (activeTab) {
       case 'profile':
-        return null;
+        return (
+          <AddRecordCard
+            label="Edit profile"
+            variant="edit"
+            onPress={() => router.push(`/(main)/pets/${petId}/edit`)}
+          />
+        );
       case 'medications':
         return (
           <AddRecordCard
@@ -310,7 +316,6 @@ export default function PetDetailScreen() {
         <StickyHeader
           pet={pet}
           onBack={() => router.back()}
-          onEdit={() => router.push(`/(main)/pets/${petId}/edit`)}
           latestWeight={weightEntries.length > 0 ? weightEntries[0].weight : null}
         />
         <TabBar tabs={TABS} activeTab={activeTab} onTabPress={setActiveTab} />

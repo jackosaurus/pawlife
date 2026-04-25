@@ -9,11 +9,10 @@ import { Pet } from '@/types';
 interface StickyHeaderProps {
   pet: Pet;
   onBack: () => void;
-  onEdit?: () => void;
   latestWeight?: number | null;
 }
 
-export function StickyHeader({ pet, onBack, onEdit, latestWeight }: StickyHeaderProps) {
+export function StickyHeader({ pet, onBack, latestWeight }: StickyHeaderProps) {
   const age = calculateAge(pet.date_of_birth, pet.approximate_age_months);
 
   const sexLabel =
@@ -25,22 +24,6 @@ export function StickyHeader({ pet, onBack, onEdit, latestWeight }: StickyHeader
         <Pressable onPress={onBack} hitSlop={8} testID="back-button">
           <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </Pressable>
-        {onEdit ? (
-          <Pressable
-            onPress={onEdit}
-            testID="edit-button"
-            className="flex-row items-center"
-            hitSlop={8}
-          >
-            <Ionicons
-              name="create-outline"
-              size={18}
-              color={Colors.primary}
-              style={{ marginRight: 4 }}
-            />
-            <Text className="text-base font-medium text-primary">Edit</Text>
-          </Pressable>
-        ) : null}
       </View>
 
       <View className="flex-row items-center">

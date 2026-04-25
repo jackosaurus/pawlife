@@ -2,12 +2,24 @@ import { Pressable, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
 
+type AddRecordCardVariant = 'add' | 'edit';
+
 interface AddRecordCardProps {
   label: string;
   onPress: () => void;
+  variant?: AddRecordCardVariant;
 }
 
-export function AddRecordCard({ label, onPress }: AddRecordCardProps) {
+const VARIANT_ICON: Record<AddRecordCardVariant, keyof typeof Ionicons.glyphMap> = {
+  add: 'add',
+  edit: 'pencil-outline',
+};
+
+export function AddRecordCard({ label, onPress, variant = 'add' }: AddRecordCardProps) {
+  const iconName = VARIANT_ICON[variant];
+  // Outline icons render slightly smaller visually; pencil-outline gets a touch less than the bold "+".
+  const iconSize = variant === 'add' ? 20 : 16;
+
   return (
     <Pressable
       onPress={onPress}
@@ -24,7 +36,7 @@ export function AddRecordCard({ label, onPress }: AddRecordCardProps) {
         className="w-8 h-8 rounded-full items-center justify-center mr-3"
         style={{ backgroundColor: `${Colors.primary}20` }}
       >
-        <Ionicons name="add" size={20} color={Colors.primary} />
+        <Ionicons name={iconName} size={iconSize} color={Colors.primary} />
       </View>
       <Text className="text-base font-medium text-primary">{label}</Text>
     </Pressable>

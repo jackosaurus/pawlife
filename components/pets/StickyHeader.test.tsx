@@ -59,22 +59,13 @@ describe('StickyHeader', () => {
     expect(onBack).toHaveBeenCalledTimes(1);
   });
 
-  it('renders edit button in header and calls onEdit when pressed', () => {
-    const onEdit = jest.fn();
-    render(<StickyHeader pet={mockPet} onBack={jest.fn()} onEdit={onEdit} />);
-    const editButton = screen.getByTestId('edit-button');
-    expect(screen.getByText('Edit')).toBeTruthy();
-    fireEvent.press(editButton);
-    expect(onEdit).toHaveBeenCalledTimes(1);
-  });
-
-  it('does not render edit button when onEdit not provided', () => {
+  it('does not render an edit button (header right slot is empty)', () => {
     render(<StickyHeader pet={mockPet} onBack={jest.fn()} />);
     expect(screen.queryByTestId('edit-button')).toBeNull();
     expect(screen.queryByText('Edit')).toBeNull();
   });
 
-  it('truncates weight to 1 decimal place', () => {
+it('truncates weight to 1 decimal place', () => {
     render(<StickyHeader pet={mockPet} onBack={jest.fn()} latestWeight={12.222222222111111} />);
     expect(screen.getByText('12.2 kg')).toBeTruthy();
     expect(screen.queryByText(/12\.222/)).toBeNull();
