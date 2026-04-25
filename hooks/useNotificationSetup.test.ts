@@ -49,16 +49,43 @@ jest.mock('@/services/notificationService', () => ({
   },
 }));
 
+const mockGetProfile = jest.fn();
+const mockUpdateProfile = jest.fn();
+jest.mock('@/services/userService', () => ({
+  userService: {
+    getProfile: (...args: unknown[]) => mockGetProfile(...args),
+    updateProfile: (...args: unknown[]) => mockUpdateProfile(...args),
+  },
+}));
+
 // Import after mocks are set up
 import { useNotificationSetup } from './useNotificationSetup';
 
+const flushPromises = () => new Promise((r) => setTimeout(r, 0));
+
+const stubResolvedTimezone = (timezone: string) => {
+  jest
+    .spyOn(Intl, 'DateTimeFormat')
+    .mockImplementation(
+      () =>
+        ({
+          resolvedOptions: () => ({ timeZone: timezone }),
+          format: () => '',
+          formatToParts: () => [],
+        }) as unknown as Intl.DateTimeFormat,
+    );
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.restoreAllMocks();
   mockGetPermissionsAsync.mockResolvedValue({ status: 'granted' });
   mockGetExpoPushTokenAsync.mockResolvedValue({
     data: 'ExponentPushToken[xxx]',
   });
   mockRegisterPushToken.mockResolvedValue(undefined);
+  mockGetProfile.mockResolvedValue({ timezone: 'UTC' });
+  mockUpdateProfile.mockResolvedValue({});
   mockAddNotificationResponseReceivedListener.mockReturnValue({
     remove: jest.fn(),
   });
@@ -127,5 +154,67 @@ describe('useNotificationSetup', () => {
     expect(mockRemoveNotificationSubscription).toHaveBeenCalledWith(
       mockSubscription,
     );
+  });
+
+  describe('syncUserTimezone', () => {
+    it('writes detected timezone when it differs from stored', async () => {
+      stubResolvedTimezone('Australia/Sydney');
+      mockGetProfile.mockResolvedValue({ timezone: 'UTC' });
+
+      renderHook(() => useNotificationSetup('u1'));
+      await flushPromises();
+
+      expect(mockGetProfile).toHaveBeenCalledWith('u1');
+      expect(mockUpdateProfile).toHaveBeenCalledWith('u1', {
+        timezone: 'Australia/Sydney',
+      });
+    });
+
+    it('skips write when stored timezone already matches detected', async () => {
+      stubResolvedTimezone('Australia/Sydney');
+      mockGetProfile.mockResolvedValue({ timezone: 'Australia/Sydney' });
+
+      renderHook(() => useNotificationSetup('u1'));
+      await flushPromises();
+
+      expect(mockUpdateProfile).not.toHaveBeenCalled();
+    });
+
+    it('does not overwrite stored zone when Hermes falsely reports UTC on a non-UTC device', async () => {
+      stubResolvedTimezone('UTC');
+      // Pretend the device is actually offset from UTC
+      jest.spyOn(Date.prototype, 'getTimezoneOffset').mockReturnValue(-600);
+      mockGetProfile.mockResolvedValue({ timezone: 'Australia/Sydney' });
+
+      renderHook(() => useNotificationSetup('u1'));
+      await flushPromises();
+
+      expect(mockGetProfile).not.toHaveBeenCalled();
+      expect(mockUpdateProfile).not.toHaveBeenCalled();
+    });
+
+    it('writes UTC when device is genuinely on UTC', async () => {
+      stubResolvedTimezone('UTC');
+      jest.spyOn(Date.prototype, 'getTimezoneOffset').mockReturnValue(0);
+      mockGetProfile.mockResolvedValue({ timezone: 'America/New_York' });
+
+      renderHook(() => useNotificationSetup('u1'));
+      await flushPromises();
+
+      expect(mockUpdateProfile).toHaveBeenCalledWith('u1', { timezone: 'UTC' });
+    });
+
+    it('swallows errors from the profile fetch without crashing', async () => {
+      stubResolvedTimezone('Australia/Sydney');
+      mockGetProfile.mockRejectedValue(new Error('network'));
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+      renderHook(() => useNotificationSetup('u1'));
+      await flushPromises();
+
+      expect(warnSpy).toHaveBeenCalled();
+      // Push token registration should still proceed
+      expect(mockGetExpoPushTokenAsync).toHaveBeenCalled();
+    });
   });
 });
