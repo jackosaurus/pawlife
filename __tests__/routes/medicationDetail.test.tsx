@@ -101,6 +101,34 @@ describe('MedicationDetailScreen — active', () => {
     expect(message).toContain('Apoquel');
     alertSpy.mockRestore();
   });
+
+  it('confirming Archive in the Alert calls archiveMedication and reloads', async () => {
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    mockArchiveMedication.mockResolvedValue(undefined);
+    const { getByText } = render(<MedicationDetailScreen />);
+    await waitFor(() => expect(getByText('Apoquel')).toBeTruthy());
+    // First fetch on mount
+    expect(mockGetMedicationById).toHaveBeenCalledTimes(1);
+
+    fireEvent.press(getByText('Archive'));
+    const buttons = alertSpy.mock.calls[0][2] as Array<{
+      text: string;
+      onPress?: () => void;
+    }>;
+    const archiveBtn = buttons.find((b) => b.text === 'Archive');
+    expect(archiveBtn).toBeTruthy();
+
+    // Simulate user tapping "Archive" inside the Alert
+    await archiveBtn!.onPress!();
+    await waitFor(() => {
+      expect(mockArchiveMedication).toHaveBeenCalledWith('med-1');
+    });
+    // After archiving, the screen reloads the medication
+    await waitFor(() => {
+      expect(mockGetMedicationById).toHaveBeenCalledTimes(2);
+    });
+    alertSpy.mockRestore();
+  });
 });
 
 describe('MedicationDetailScreen — archived', () => {
@@ -144,6 +172,31 @@ describe('MedicationDetailScreen — archived', () => {
     const [title, message] = alertSpy.mock.calls[0];
     expect(title).toBe('Restore medication?');
     expect(message).toContain('Apoquel');
+    alertSpy.mockRestore();
+  });
+
+  it('confirming Restore in the Alert calls restoreMedication and reloads', async () => {
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    mockRestoreMedication.mockResolvedValue(undefined);
+    const { getByText } = render(<MedicationDetailScreen />);
+    await waitFor(() => expect(getByText('Apoquel')).toBeTruthy());
+    expect(mockGetMedicationById).toHaveBeenCalledTimes(1);
+
+    fireEvent.press(getByText('Restore'));
+    const buttons = alertSpy.mock.calls[0][2] as Array<{
+      text: string;
+      onPress?: () => void;
+    }>;
+    const restoreBtn = buttons.find((b) => b.text === 'Restore');
+    expect(restoreBtn).toBeTruthy();
+
+    await restoreBtn!.onPress!();
+    await waitFor(() => {
+      expect(mockRestoreMedication).toHaveBeenCalledWith('med-1');
+    });
+    await waitFor(() => {
+      expect(mockGetMedicationById).toHaveBeenCalledTimes(2);
+    });
     alertSpy.mockRestore();
   });
 });

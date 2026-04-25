@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import { render, fireEvent } from '@testing-library/react-native';
 import PetDetailScreen from '../../app/(main)/pets/[petId]';
 
 jest.mock('react-native-safe-area-context', () => ({
@@ -7,11 +7,13 @@ jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
 }));
 
+const mockPush = jest.fn();
+const mockBack = jest.fn();
 jest.mock('expo-router', () => ({
   useLocalSearchParams: () => ({ petId: 'pet-1' }),
   useRouter: () => ({
-    back: jest.fn(),
-    push: jest.fn(),
+    back: mockBack,
+    push: mockPush,
   }),
 }));
 
@@ -62,9 +64,10 @@ jest.mock('@/hooks/useMedications', () => ({
   }),
 }));
 
+let mockArchivedMedsData: { id: string; pet_id: string; name: string; archived_at: string }[] = [];
 jest.mock('@/hooks/useArchivedMedications', () => ({
   useArchivedMedications: () => ({
-    data: [],
+    data: mockArchivedMedsData,
     refresh: jest.fn(),
   }),
 }));
@@ -170,5 +173,54 @@ describe('PetDetailScreen allergies + insurance cards', () => {
     expect(getByText('Petplan')).toBeTruthy();
     expect(getByText('ABC123')).toBeTruthy();
     expect(queryByTestId('add-insurance-link')).toBeNull();
+  });
+});
+
+describe('PetDetailScreen archived medications footer', () => {
+  beforeEach(() => {
+    mockArchivedMedsData = [];
+    mockPush.mockClear();
+  });
+
+  it('does not render the archived medications footer when count is 0', () => {
+    mockArchivedMedsData = [];
+    const { queryByText } = render(<PetDetailScreen />);
+    expect(queryByText('Archived medications')).toBeNull();
+  });
+
+  it('renders the archived medications footer with count when archived meds exist', () => {
+    mockArchivedMedsData = [
+      {
+        id: 'm1',
+        pet_id: 'pet-1',
+        name: 'Old Med',
+        archived_at: '2026-03-01T10:00:00Z',
+      },
+      {
+        id: 'm2',
+        pet_id: 'pet-1',
+        name: 'Other Old Med',
+        archived_at: '2026-02-01T10:00:00Z',
+      },
+    ];
+    const { getByText } = render(<PetDetailScreen />);
+    expect(getByText('Archived medications')).toBeTruthy();
+    expect(getByText('2')).toBeTruthy();
+  });
+
+  it('navigates to the archived medications screen when footer is tapped', () => {
+    mockArchivedMedsData = [
+      {
+        id: 'm1',
+        pet_id: 'pet-1',
+        name: 'Old Med',
+        archived_at: '2026-03-01T10:00:00Z',
+      },
+    ];
+    const { getByText } = render(<PetDetailScreen />);
+    fireEvent.press(getByText('Archived medications'));
+    expect(mockPush).toHaveBeenCalledWith(
+      '/(main)/pets/pet-1/health/medication/archived',
+    );
   });
 });
