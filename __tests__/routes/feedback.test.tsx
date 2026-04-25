@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
-import FeedbackScreen from './feedback';
+import FeedbackScreen from '../../app/(main)/feedback';
 import { feedbackService } from '@/services/feedbackService';
 import { Alert } from 'react-native';
 
