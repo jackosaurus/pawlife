@@ -323,9 +323,11 @@ export default function SettingsScreen() {
       setShowTimePicker(false);
     }
     if (selectedDate && userId) {
+      // Reminders fire on the hour via pg_cron, so any selected minutes
+      // would be ignored. Round to the picked hour so the stored value
+      // matches what will actually happen.
       const hours = selectedDate.getHours().toString().padStart(2, '0');
-      const minutes = selectedDate.getMinutes().toString().padStart(2, '0');
-      setMedicationReminderTime(userId, `${hours}:${minutes}`);
+      setMedicationReminderTime(userId, `${hours}:00`);
     }
   };
 
@@ -550,46 +552,53 @@ export default function SettingsScreen() {
           {remindersEnabled && (
             <>
               {/* Medication reminder time */}
-              <View className="border-t border-border pt-4 mb-4 flex-row items-center justify-between">
-                <View className="flex-1 mr-3">
-                  <Text className="text-text-primary text-base font-medium">
-                    Medication Reminder Time
-                  </Text>
-                  <Text className="text-text-secondary text-sm">
-                    Daily reminder to log medications
-                  </Text>
+              <View className="border-t border-border pt-4 mb-4">
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-1 mr-3">
+                    <Text className="text-text-primary text-base font-medium">
+                      Medication Reminder Time
+                    </Text>
+                    <Text className="text-text-secondary text-sm">
+                      Daily reminder to log medications
+                    </Text>
+                  </View>
+                  {Platform.OS === 'ios' ? (
+                    <DateTimePicker
+                      value={reminderTimeDate}
+                      mode="time"
+                      display="compact"
+                      minuteInterval={30}
+                      onChange={handleTimeChange}
+                      testID="reminder-time-picker"
+                    />
+                  ) : (
+                    <>
+                      <Pressable
+                        onPress={() => setShowTimePicker(true)}
+                        testID="reminder-time-button"
+                      >
+                        <View className="bg-input-fill rounded-xl px-4 py-3">
+                          <Text className="text-text-primary text-base">
+                            {formatTime(medicationReminderTime)}
+                          </Text>
+                        </View>
+                      </Pressable>
+                      {showTimePicker && (
+                        <DateTimePicker
+                          value={reminderTimeDate}
+                          mode="time"
+                          display="default"
+                          minuteInterval={30}
+                          onChange={handleTimeChange}
+                          testID="reminder-time-picker"
+                        />
+                      )}
+                    </>
+                  )}
                 </View>
-                {Platform.OS === 'ios' ? (
-                  <DateTimePicker
-                    value={reminderTimeDate}
-                    mode="time"
-                    display="compact"
-                    onChange={handleTimeChange}
-                    testID="reminder-time-picker"
-                  />
-                ) : (
-                  <>
-                    <Pressable
-                      onPress={() => setShowTimePicker(true)}
-                      testID="reminder-time-button"
-                    >
-                      <View className="bg-input-fill rounded-xl px-4 py-3">
-                        <Text className="text-text-primary text-base">
-                          {formatTime(medicationReminderTime)}
-                        </Text>
-                      </View>
-                    </Pressable>
-                    {showTimePicker && (
-                      <DateTimePicker
-                        value={reminderTimeDate}
-                        mode="time"
-                        display="default"
-                        onChange={handleTimeChange}
-                        testID="reminder-time-picker"
-                      />
-                    )}
-                  </>
-                )}
+                <Text className="text-text-secondary text-xs mt-2">
+                  Reminders fire at the top of the hour.
+                </Text>
               </View>
 
               {/* Vaccination advance notice */}
