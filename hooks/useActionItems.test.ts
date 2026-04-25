@@ -105,7 +105,7 @@ describe('useActionItems', () => {
         frequency: 'Once monthly',
         start_date: '2025-01-01',
         end_date: null,
-        is_completed: false,
+        is_archived: false, archived_at: null,
       },
     ];
 
@@ -141,7 +141,7 @@ describe('useActionItems', () => {
         frequency: 'Once daily',
         start_date: '2025-01-01',
         end_date: null,
-        is_completed: false,
+        is_archived: false, archived_at: null,
       },
     ];
 
@@ -172,7 +172,7 @@ describe('useActionItems', () => {
         frequency: 'Twice daily',
         start_date: '2025-01-01',
         end_date: null,
-        is_completed: false,
+        is_archived: false, archived_at: null,
       },
     ];
 
@@ -202,7 +202,7 @@ describe('useActionItems', () => {
         frequency: 'Three times daily',
         start_date: '2025-01-01',
         end_date: null,
-        is_completed: false,
+        is_archived: false, archived_at: null,
       },
     ];
 
@@ -295,7 +295,7 @@ describe('useActionItems', () => {
         frequency: 'Once monthly',
         start_date: '2025-01-01',
         end_date: null,
-        is_completed: false,
+        is_archived: false, archived_at: null,
       },
       {
         id: 'med-2',
@@ -304,7 +304,7 @@ describe('useActionItems', () => {
         frequency: 'Once daily',
         start_date: '2025-01-01',
         end_date: null,
-        is_completed: false,
+        is_archived: false, archived_at: null,
       },
     ];
 
@@ -353,7 +353,7 @@ describe('useActionItems', () => {
       frequency: 'Once monthly',
       start_date: '2025-01-01',
       end_date: null,
-      is_completed: false,
+      is_archived: false, archived_at: null,
     };
     // Due-today medication
     const dueTodayMed = {
@@ -363,7 +363,7 @@ describe('useActionItems', () => {
       frequency: 'Once daily',
       start_date: '2025-01-01',
       end_date: null,
-      is_completed: false,
+      is_archived: false, archived_at: null,
     };
 
     mockGetActiveMeds.mockResolvedValue([overdueMed, dueTodayMed]);
@@ -485,7 +485,7 @@ describe('useActionItems', () => {
         frequency: 'Once monthly',
         start_date: '2025-01-01',
         end_date: null,
-        is_completed: false,
+        is_archived: false, archived_at: null,
       },
       {
         id: 'med-2',
@@ -494,7 +494,7 @@ describe('useActionItems', () => {
         frequency: 'Once daily',
         start_date: '2025-01-01',
         end_date: null,
-        is_completed: false,
+        is_archived: false, archived_at: null,
       },
     ];
 

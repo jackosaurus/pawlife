@@ -300,9 +300,49 @@ export const healthService = {
       .from('medications')
       .select('*')
       .eq('pet_id', petId)
+      .eq('is_archived', false)
       .order('start_date', { ascending: false });
     if (error) throw error;
     return data;
+  },
+
+  async getArchivedMedications(petId: string): Promise<Medication[]> {
+    const { data, error } = await supabase
+      .from('medications')
+      .select('*')
+      .eq('pet_id', petId)
+      .eq('is_archived', true)
+      .order('archived_at', { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
+  async archiveMedication(id: string): Promise<void> {
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase
+      .from('medications')
+      .update({
+        is_archived: true,
+        archived_at: new Date().toISOString(),
+        modified_by: user?.id ?? null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id);
+    if (error) throw error;
+  },
+
+  async restoreMedication(id: string): Promise<void> {
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase
+      .from('medications')
+      .update({
+        is_archived: false,
+        archived_at: null,
+        modified_by: user?.id ?? null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id);
+    if (error) throw error;
   },
 
   async getMedicationById(id: string): Promise<Medication> {
@@ -370,6 +410,20 @@ export const healthService = {
 
   async logMedicationDose(dose: MedicationDoseInsert): Promise<MedicationDose> {
     const { data: { user } } = await supabase.auth.getUser();
+
+    // Race-condition guard: refuse to log a dose for an archived medication.
+    // Without this, a member who archives the med while another member taps
+    // "Log Dose" would still create a dose row that the UI hides.
+    const { data: med, error: medError } = await supabase
+      .from('medications')
+      .select('is_archived')
+      .eq('id', dose.medication_id)
+      .single();
+    if (medError) throw medError;
+    if (med?.is_archived) {
+      throw new Error('Cannot log dose for archived medication.');
+    }
+
     const { data, error } = await supabase
       .from('medication_doses')
       .insert({
@@ -443,7 +497,7 @@ export const healthService = {
       .from('medications')
       .select('*')
       .in('pet_id', petIds)
-      .eq('is_completed', false)
+      .eq('is_archived', false)
       .or(`end_date.is.null,end_date.gte.${todayStr}`)
       .neq('frequency', 'As needed');
     if (error) throw error;

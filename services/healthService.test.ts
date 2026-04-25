@@ -462,18 +462,78 @@ describe('healthService', () => {
   });
 
   describe('logMedicationDose', () => {
-    it('inserts and returns dose', async () => {
+    it('inserts and returns dose when medication is not archived', async () => {
       const dose = { id: 'd1', medication_id: 'm1', given_at: '2025-01-15T10:00:00Z' };
-      mockFrom.mockReturnValue(chainMock({ data: dose, error: null }));
+      // First call: medications archive check returns is_archived=false
+      mockFrom.mockReturnValueOnce(chainMock({ data: { is_archived: false }, error: null }));
+      // Second call: medication_doses insert returns the dose
+      mockFrom.mockReturnValueOnce(chainMock({ data: dose, error: null }));
       const result = await healthService.logMedicationDose({ medication_id: 'm1' });
       expect(result).toEqual(dose);
     });
 
-    it('throws on error', async () => {
-      mockFrom.mockReturnValue(chainMock({ data: null, error: new Error('Insert failed') }));
+    it('throws when medication is archived', async () => {
+      mockFrom.mockReturnValueOnce(chainMock({ data: { is_archived: true }, error: null }));
+      await expect(
+        healthService.logMedicationDose({ medication_id: 'm1' }),
+      ).rejects.toThrow('Cannot log dose for archived medication.');
+    });
+
+    it('throws when archive lookup fails', async () => {
+      mockFrom.mockReturnValueOnce(chainMock({ data: null, error: new Error('Lookup failed') }));
+      await expect(
+        healthService.logMedicationDose({ medication_id: 'm1' }),
+      ).rejects.toThrow('Lookup failed');
+    });
+
+    it('throws on insert error', async () => {
+      mockFrom.mockReturnValueOnce(chainMock({ data: { is_archived: false }, error: null }));
+      mockFrom.mockReturnValueOnce(chainMock({ data: null, error: new Error('Insert failed') }));
       await expect(
         healthService.logMedicationDose({ medication_id: 'm1' }),
       ).rejects.toThrow('Insert failed');
+    });
+  });
+
+  describe('archiveMedication', () => {
+    it('archives without error', async () => {
+      mockFrom.mockReturnValue(chainMock({ data: null, error: null }));
+      await expect(healthService.archiveMedication('m1')).resolves.toBeUndefined();
+      expect(mockFrom).toHaveBeenCalledWith('medications');
+    });
+
+    it('throws on error', async () => {
+      mockFrom.mockReturnValue(chainMock({ data: null, error: new Error('Update failed') }));
+      await expect(healthService.archiveMedication('m1')).rejects.toThrow('Update failed');
+    });
+  });
+
+  describe('restoreMedication', () => {
+    it('restores without error', async () => {
+      mockFrom.mockReturnValue(chainMock({ data: null, error: null }));
+      await expect(healthService.restoreMedication('m1')).resolves.toBeUndefined();
+    });
+
+    it('throws on error', async () => {
+      mockFrom.mockReturnValue(chainMock({ data: null, error: new Error('Update failed') }));
+      await expect(healthService.restoreMedication('m1')).rejects.toThrow('Update failed');
+    });
+  });
+
+  describe('getArchivedMedications', () => {
+    it('returns archived medications for a pet', async () => {
+      const meds = [
+        { id: 'm1', pet_id: 'p1', name: 'Old Med', is_archived: true, archived_at: '2026-01-15T10:00:00Z' },
+      ];
+      mockFrom.mockReturnValue(chainMock({ data: meds, error: null }));
+      const result = await healthService.getArchivedMedications('p1');
+      expect(result).toEqual(meds);
+      expect(mockFrom).toHaveBeenCalledWith('medications');
+    });
+
+    it('throws on error', async () => {
+      mockFrom.mockReturnValue(chainMock({ data: null, error: new Error('DB error') }));
+      await expect(healthService.getArchivedMedications('p1')).rejects.toThrow('DB error');
     });
   });
 
@@ -548,8 +608,8 @@ describe('healthService', () => {
   describe('getActiveMedicationsForPets', () => {
     it('returns active recurring medications for given pet IDs', async () => {
       const meds = [
-        { id: 'm1', pet_id: 'p1', name: 'Amoxicillin', frequency: 'Once daily', is_completed: false },
-        { id: 'm2', pet_id: 'p2', name: 'Heartgard', frequency: 'Once monthly', is_completed: false },
+        { id: 'm1', pet_id: 'p1', name: 'Amoxicillin', frequency: 'Once daily', is_archived: false, archived_at: null },
+        { id: 'm2', pet_id: 'p2', name: 'Heartgard', frequency: 'Once monthly', is_archived: false, archived_at: null },
       ];
       mockFrom.mockReturnValue(chainMock({ data: meds, error: null }));
       const result = await healthService.getActiveMedicationsForPets(['p1', 'p2']);
