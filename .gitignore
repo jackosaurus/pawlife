@@ -36,3 +36,9 @@ yarn-error.*
 
 # testing
 coverage/
+
+# Claude Code
+.claude/worktrees/
+
+# Supabase CLI local cache
+supabase/.temp/
