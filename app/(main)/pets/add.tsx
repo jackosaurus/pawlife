@@ -14,7 +14,9 @@ import { Avatar } from '@/components/ui/Avatar';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { SearchableDropdown } from '@/components/ui/SearchableDropdown';
 import { addPetSchema, AddPetFormData } from '@/types/pet';
+import { allergySchema } from '@/types/petAllergy';
 import { petService } from '@/services/petService';
+import { allergyService } from '@/services/allergyService';
 import { useAuthStore } from '@/stores/authStore';
 import { useFamilyStore } from '@/stores/familyStore';
 import { getBreedsForType } from '@/constants/breeds';
@@ -29,6 +31,10 @@ export default function AddPetScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [useApproxAge, setUseApproxAge] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [allergens, setAllergens] = useState<string[]>([]);
+  const [allergenDraft, setAllergenDraft] = useState('');
+  const [allergenInputOpen, setAllergenInputOpen] = useState(false);
+  const [allergenError, setAllergenError] = useState<string | null>(null);
 
   const {
     control,
@@ -46,6 +52,8 @@ export default function AddPetScreen() {
       dateOfBirth: null,
       approximateAgeMonths: null,
       microchipNumber: null,
+      insuranceProvider: null,
+      insurancePolicyNumber: null,
     },
   });
 
@@ -77,6 +85,27 @@ export default function AddPetScreen() {
     }
   };
 
+  const addAllergen = () => {
+    setAllergenError(null);
+    const parsed = allergySchema.safeParse({ allergen: allergenDraft });
+    if (!parsed.success) {
+      setAllergenError(parsed.error.issues[0]?.message ?? 'Invalid allergen');
+      return;
+    }
+    const next = parsed.data.allergen;
+    if (allergens.some((a) => a.toLowerCase() === next.toLowerCase())) {
+      setAllergenError('Already on the list.');
+      return;
+    }
+    setAllergens((prev) => [...prev, next]);
+    setAllergenDraft('');
+    setAllergenInputOpen(false);
+  };
+
+  const removeAllergen = (idx: number) => {
+    setAllergens((prev) => prev.filter((_, i) => i !== idx));
+  };
+
   const onSubmit = async (data: AddPetFormData) => {
     if (!session || !family) return;
     setSubmitting(true);
@@ -94,6 +123,8 @@ export default function AddPetScreen() {
           ? (data.approximateAgeMonths ?? null)
           : null,
         microchip_number: data.microchipNumber ?? null,
+        insurance_provider: data.insuranceProvider?.trim() || null,
+        insurance_policy_number: data.insurancePolicyNumber?.trim() || null,
       });
 
       if (photoUri) {
@@ -108,6 +139,26 @@ export default function AddPetScreen() {
           Alert.alert(
             'Photo Upload Failed',
             'Your pet was added but the photo could not be uploaded. You can add it later.',
+          );
+        }
+      }
+
+      // Best-effort batch-create allergies. If any fail, the pet is still
+      // created; surface a non-blocking notice. The user can re-add from
+      // the pet detail screen.
+      if (allergens.length > 0) {
+        const failed: string[] = [];
+        for (const allergen of allergens) {
+          try {
+            await allergyService.create({ pet_id: pet.id, allergen });
+          } catch {
+            failed.push(allergen);
+          }
+        }
+        if (failed.length > 0) {
+          Alert.alert(
+            'Allergies Partially Saved',
+            `Couldn't save: ${failed.join(', ')}. You can re-add them from ${pet.name}'s profile.`,
           );
         }
       }
@@ -314,6 +365,127 @@ export default function AddPetScreen() {
                 onChangeText={onChange}
                 onBlur={onBlur}
                 value={value ?? ''}
+              />
+            )}
+          />
+        </Card>
+
+        {/* Allergies */}
+        <Text className="text-xs font-semibold text-text-secondary mb-2 tracking-wider">
+          ALLERGIES
+        </Text>
+        <Card className="px-5 py-4 mb-4">
+          {allergens.length === 0 && !allergenInputOpen ? (
+            <Text className="text-base text-text-secondary mb-2">
+              No allergies added yet.
+            </Text>
+          ) : null}
+
+          {allergens.map((a, idx) => (
+            <View
+              key={`${a}-${idx}`}
+              className="flex-row items-center justify-between py-2"
+              testID={`allergen-row-${idx}`}
+            >
+              <Text className="text-base text-text-primary flex-1 mr-3">
+                {a}
+              </Text>
+              <Pressable
+                onPress={() => removeAllergen(idx)}
+                hitSlop={8}
+                testID={`remove-allergen-${idx}`}
+              >
+                <Ionicons
+                  name="close-circle"
+                  size={22}
+                  color={Colors.textSecondary}
+                />
+              </Pressable>
+            </View>
+          ))}
+
+          {allergenInputOpen ? (
+            <View className="mt-2">
+              <TextInput
+                label="Allergen"
+                placeholder="e.g. Chicken"
+                value={allergenDraft}
+                onChangeText={setAllergenDraft}
+                error={allergenError ?? undefined}
+                autoFocus
+                testID="allergen-input"
+              />
+              <View className="flex-row gap-3">
+                <Pressable
+                  onPress={addAllergen}
+                  hitSlop={8}
+                  className="py-1"
+                  testID="save-allergen-button"
+                >
+                  <Text className="text-primary text-base font-semibold">
+                    Save
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    setAllergenInputOpen(false);
+                    setAllergenDraft('');
+                    setAllergenError(null);
+                  }}
+                  hitSlop={8}
+                  className="py-1"
+                  testID="cancel-allergen-button"
+                >
+                  <Text className="text-text-secondary text-base font-medium">
+                    Cancel
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          ) : (
+            <Pressable
+              onPress={() => setAllergenInputOpen(true)}
+              hitSlop={8}
+              className="mt-1 py-1"
+              testID="open-allergen-input"
+            >
+              <Text className="text-primary text-base font-medium">
+                + Add allergy
+              </Text>
+            </Pressable>
+          )}
+        </Card>
+
+        {/* Insurance */}
+        <Text className="text-xs font-semibold text-text-secondary mb-2 tracking-wider">
+          INSURANCE
+        </Text>
+        <Card className="px-5 pt-4 mb-4">
+          <Controller
+            control={control}
+            name="insuranceProvider"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label="Provider"
+                placeholder="e.g. Petplan"
+                onChangeText={onChange}
+                onBlur={onBlur}
+                value={value ?? ''}
+                error={errors.insuranceProvider?.message}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="insurancePolicyNumber"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label="Policy number"
+                placeholder="Your policy reference"
+                onChangeText={onChange}
+                onBlur={onBlur}
+                value={value ?? ''}
+                error={errors.insurancePolicyNumber?.message}
               />
             )}
           />

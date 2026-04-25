@@ -47,6 +47,8 @@ export default function EditPetScreen() {
       dateOfBirth: null,
       approximateAgeMonths: null,
       microchipNumber: null,
+      insuranceProvider: null,
+      insurancePolicyNumber: null,
     },
   });
 
@@ -76,6 +78,8 @@ export default function EditPetScreen() {
           dateOfBirth: pet.date_of_birth,
           approximateAgeMonths: pet.approximate_age_months,
           microchipNumber: pet.microchip_number,
+          insuranceProvider: pet.insurance_provider,
+          insurancePolicyNumber: pet.insurance_policy_number,
         });
       } catch {
         setServerError('Failed to load pet details');
@@ -127,6 +131,8 @@ export default function EditPetScreen() {
           ? (data.approximateAgeMonths ?? null)
           : null,
         microchip_number: data.microchipNumber ?? null,
+        insurance_provider: data.insuranceProvider?.trim() || null,
+        insurance_policy_number: data.insurancePolicyNumber?.trim() || null,
       });
 
       if (photoUri && !photoUri.startsWith('http')) {
@@ -397,6 +403,41 @@ export default function EditPetScreen() {
                 onChangeText={onChange}
                 onBlur={onBlur}
                 value={value ?? ''}
+              />
+            )}
+          />
+        </Card>
+
+        {/* Insurance */}
+        <Text className="text-xs font-semibold text-text-secondary mb-2 tracking-wider">
+          INSURANCE
+        </Text>
+        <Card className="px-5 pt-4 mb-4">
+          <Controller
+            control={control}
+            name="insuranceProvider"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label="Provider"
+                placeholder="e.g. Petplan"
+                onChangeText={onChange}
+                onBlur={onBlur}
+                value={value ?? ''}
+                error={errors.insuranceProvider?.message}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="insurancePolicyNumber"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label="Policy number"
+                placeholder="Your policy reference"
+                onChangeText={onChange}
+                onBlur={onBlur}
+                value={value ?? ''}
+                error={errors.insurancePolicyNumber?.message}
               />
             )}
           />
