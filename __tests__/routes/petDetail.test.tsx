@@ -58,6 +58,13 @@ jest.mock('@/hooks/useMedications', () => ({
   }),
 }));
 
+jest.mock('@/hooks/useArchivedMedications', () => ({
+  useArchivedMedications: () => ({
+    data: [],
+    refresh: jest.fn(),
+  }),
+}));
+
 jest.mock('@/hooks/useWeightEntries', () => ({
   useWeightEntries: () => ({
     weightEntries: [],

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Alert } from 'react-native';
 import { render, fireEvent } from '@testing-library/react-native';
 import { MedicationCard } from './MedicationCard';
 import { MedicationWithDoseInfo } from '@/hooks/useMedications';
@@ -13,6 +14,8 @@ function makeMed(overrides: Partial<MedicationWithDoseInfo> = {}): MedicationWit
     start_date: '2025-01-01',
     end_date: null,
     notes: null,
+    is_archived: false,
+    archived_at: null,
     created_at: '',
     updated_at: '',
     isRecurring: true,
@@ -20,7 +23,7 @@ function makeMed(overrides: Partial<MedicationWithDoseInfo> = {}): MedicationWit
     todayDoseCount: 0,
     dosesPerDay: 1,
     ...overrides,
-  };
+  } as MedicationWithDoseInfo;
 }
 
 describe('MedicationCard', () => {
@@ -136,5 +139,94 @@ describe('MedicationCard', () => {
     );
     expect(queryByTestId('log-dose-button')).toBeNull();
     expect(getByText('Finished')).toBeTruthy();
+  });
+
+  describe('stale prompt', () => {
+    it('renders end_date_passed prompt for med with past end_date', () => {
+      const med = makeMed({ end_date: '2020-01-01' });
+      const { getByTestId } = render(
+        <MedicationCard
+          medication={med}
+          onPress={jest.fn()}
+          onArchive={jest.fn()}
+        />,
+      );
+      const prompt = getByTestId('stale-prompt');
+      expect(prompt).toBeTruthy();
+    });
+
+    it('renders no_recent_doses prompt for daily med with no recent doses', () => {
+      // Last dose 60 days ago, frequency Once daily → stale (>30d)
+      const old = new Date();
+      old.setDate(old.getDate() - 60);
+      const med = makeMed({
+        frequency: 'Once daily',
+        dosesPerDay: 1,
+        lastGivenDate: old.toISOString(),
+      });
+      const { getByTestId } = render(
+        <MedicationCard
+          medication={med}
+          onPress={jest.fn()}
+          onArchive={jest.fn()}
+        />,
+      );
+      expect(getByTestId('stale-prompt')).toBeTruthy();
+    });
+
+    it('does not render prompt when not stale', () => {
+      const med = makeMed({
+        frequency: 'Once daily',
+        dosesPerDay: 1,
+        lastGivenDate: new Date().toISOString(),
+      });
+      const { queryByTestId } = render(
+        <MedicationCard
+          medication={med}
+          onPress={jest.fn()}
+          onArchive={jest.fn()}
+        />,
+      );
+      expect(queryByTestId('stale-prompt')).toBeNull();
+    });
+
+    it('opens Alert.alert with archive confirmation when prompt is tapped', () => {
+      const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+      const onArchive = jest.fn();
+      const med = makeMed({ end_date: '2020-01-01' });
+      const { getByTestId } = render(
+        <MedicationCard
+          medication={med}
+          onPress={jest.fn()}
+          onArchive={onArchive}
+        />,
+      );
+      fireEvent.press(getByTestId('stale-prompt'));
+      expect(alertSpy).toHaveBeenCalledTimes(1);
+      const [title, message, buttons] = alertSpy.mock.calls[0];
+      expect(title).toBe('Archive medication?');
+      expect(message).toContain('Heartgard');
+      expect(message?.toLowerCase()).toContain('archive');
+      expect(buttons).toHaveLength(2);
+      // Simulate pressing the "Archive" button
+      const archiveButton = (buttons as Array<{ text: string; onPress?: () => void }>).find(
+        (b) => b.text === 'Archive',
+      );
+      archiveButton?.onPress?.();
+      expect(onArchive).toHaveBeenCalledTimes(1);
+      alertSpy.mockRestore();
+    });
+
+    it('does not crash if onArchive is omitted when prompt is tapped', () => {
+      const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+      const med = makeMed({ end_date: '2020-01-01' });
+      const { getByTestId } = render(
+        <MedicationCard medication={med} onPress={jest.fn()} />,
+      );
+      fireEvent.press(getByTestId('stale-prompt'));
+      // No alert should be shown without an onArchive handler
+      expect(alertSpy).not.toHaveBeenCalled();
+      alertSpy.mockRestore();
+    });
   });
 });

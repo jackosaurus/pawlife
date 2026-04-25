@@ -10,10 +10,13 @@ import { VaccinationCard } from '@/components/health/VaccinationCard';
 import { StickyHeader } from '@/components/pets/StickyHeader';
 import { TabBar, Tab } from '@/components/pets/TabBar';
 import { AddRecordCard } from '@/components/pets/AddRecordCard';
+import { Ionicons } from '@expo/vector-icons';
+import { Card } from '@/components/ui/Card';
 import { usePet } from '@/hooks/usePet';
 import { useFoodEntries } from '@/hooks/useFoodEntries';
 import { useVaccinations } from '@/hooks/useVaccinations';
 import { useMedications } from '@/hooks/useMedications';
+import { useArchivedMedications } from '@/hooks/useArchivedMedications';
 import { useWeightEntries } from '@/hooks/useWeightEntries';
 import { healthService } from '@/services/healthService';
 import { Colors } from '@/constants/colors';
@@ -47,6 +50,7 @@ export default function PetDetailScreen() {
   const { currentFood, history: foodHistory, refresh: refreshFood } = useFoodEntries(petId!);
   const { vaccinations, refresh: refreshVaccinations } = useVaccinations(petId!);
   const { medications, refresh: refreshMedications } = useMedications(petId!);
+  const { data: archivedMeds, refresh: refreshArchivedMeds } = useArchivedMedications(petId!);
   const { weightEntries, refresh: refreshWeight } = useWeightEntries(petId!);
 
   useEffect(() => {
@@ -55,10 +59,11 @@ export default function PetDetailScreen() {
       refreshFood();
       refreshVaccinations();
       refreshMedications();
+      refreshArchivedMeds();
       refreshWeight();
     });
     return unsubscribe;
-  }, [navigation, refresh, refreshFood, refreshVaccinations, refreshMedications, refreshWeight]);
+  }, [navigation, refresh, refreshFood, refreshVaccinations, refreshMedications, refreshArchivedMeds, refreshWeight]);
 
   if (loading) {
     return (
@@ -143,27 +148,63 @@ export default function PetDetailScreen() {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'medications':
-        return medications.length === 0 ? (
+        return medications.length === 0 && archivedMeds.length === 0 ? (
           <EmptyState message="No medications recorded yet." illustration={emptyMedications} />
         ) : (
-          medications.map((m) => (
-            <View key={m.id} className="px-6 mb-3">
-              <MedicationCard
-                medication={m}
-                onPress={() => router.push(`/(main)/pets/${petId}/health/medication/${m.id}`)}
-                onLogDose={async () => {
-                  setLoggingDoseId(m.id);
-                  try {
-                    await healthService.logMedicationDose({ medication_id: m.id });
-                    refreshMedications();
-                  } finally {
-                    setLoggingDoseId(null);
+          <>
+            {medications.map((m) => (
+              <View key={m.id} className="px-6 mb-3">
+                <MedicationCard
+                  medication={m}
+                  onPress={() => router.push(`/(main)/pets/${petId}/health/medication/${m.id}`)}
+                  onLogDose={async () => {
+                    setLoggingDoseId(m.id);
+                    try {
+                      await healthService.logMedicationDose({ medication_id: m.id });
+                      refreshMedications();
+                    } finally {
+                      setLoggingDoseId(null);
+                    }
+                  }}
+                  logDoseLoading={loggingDoseId === m.id}
+                  onArchive={async () => {
+                    try {
+                      await healthService.archiveMedication(m.id);
+                      await Promise.all([refreshMedications(), refreshArchivedMeds()]);
+                    } catch {
+                      // Silent failure; UI will reflect on next refresh
+                    }
+                  }}
+                />
+              </View>
+            ))}
+            {archivedMeds.length > 0 ? (
+              <View className="px-6 mb-3">
+                <Card
+                  className="px-4 py-3"
+                  onPress={() =>
+                    router.push(`/(main)/pets/${petId}/health/medication/archived`)
                   }
-                }}
-                logDoseLoading={loggingDoseId === m.id}
-              />
-            </View>
-          ))
+                >
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-base text-text-primary">
+                      Archived medications
+                    </Text>
+                    <View className="flex-row items-center">
+                      <Text className="text-sm text-text-secondary mr-2">
+                        {archivedMeds.length}
+                      </Text>
+                      <Ionicons
+                        name="chevron-forward"
+                        size={18}
+                        color={Colors.textSecondary}
+                      />
+                    </View>
+                  </View>
+                </Card>
+              </View>
+            ) : null}
+          </>
         );
 
       case 'vaccinations':

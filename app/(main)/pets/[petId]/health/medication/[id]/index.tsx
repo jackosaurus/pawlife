@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen } from '@/components/ui/Screen';
@@ -26,6 +26,7 @@ export default function MedicationDetailScreen() {
   const [deleting, setDeleting] = useState(false);
   const [loggingDose, setLoggingDose] = useState(false);
   const [deletingDoseId, setDeletingDoseId] = useState<string | null>(null);
+  const [archiving, setArchiving] = useState(false);
 
   const isRecurring = isRecurringFrequency(medication?.frequency);
   const { doses, refresh: refreshDoses } = useMedicationDoses(id!);
@@ -40,6 +41,8 @@ export default function MedicationDetailScreen() {
     end.setHours(0, 0, 0, 0);
     return end.getTime() < now.getTime();
   })();
+
+  const isArchived = medication?.is_archived === true;
 
   const loadMedication = useCallback(async () => {
     try {
@@ -97,6 +100,56 @@ export default function MedicationDetailScreen() {
     }
   };
 
+  const performArchive = async () => {
+    if (!id) return;
+    setArchiving(true);
+    try {
+      await healthService.archiveMedication(id);
+      await loadMedication();
+    } catch {
+      setError('Failed to archive medication');
+    } finally {
+      setArchiving(false);
+    }
+  };
+
+  const performRestore = async () => {
+    if (!id) return;
+    setArchiving(true);
+    try {
+      await healthService.restoreMedication(id);
+      await loadMedication();
+    } catch {
+      setError('Failed to restore medication');
+    } finally {
+      setArchiving(false);
+    }
+  };
+
+  const handleArchivePress = () => {
+    if (!medication) return;
+    Alert.alert(
+      'Archive medication?',
+      `Archive ${medication.name}? It'll move out of active medications. You can restore it anytime.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Archive', onPress: performArchive },
+      ],
+    );
+  };
+
+  const handleRestorePress = () => {
+    if (!medication) return;
+    Alert.alert(
+      'Restore medication?',
+      `Restore ${medication.name}? It'll move back to active medications.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Restore', onPress: performRestore },
+      ],
+    );
+  };
+
   if (loading) {
     return (
       <Screen>
@@ -133,15 +186,23 @@ export default function MedicationDetailScreen() {
     (d) => new Date(d.given_at).getTime() >= startOfToday.getTime(),
   ).length;
 
-  const status = isRecurring
+  const liveStatus = isRecurring
     ? getRecurringMedicationStatus(latestDoseDate, medication.frequency!, todayDoseCount, dosesPerDay)
     : getOneOffMedicationStatus(medication.end_date);
 
-  const statusLabel = isRecurring
-    ? (dosesPerDay != null && dosesPerDay > 1 && status === 'amber'
-        ? `${todayDoseCount}/${dosesPerDay} today`
-        : status === 'green' ? 'Up to date' : status === 'amber' ? 'Due soon' : status === 'overdue' ? 'Overdue' : 'New')
-    : (status === 'green' ? 'Current' : 'Finished med');
+  const statusForPill: 'green' | 'amber' | 'overdue' | 'neutral' = isArchived
+    ? 'neutral'
+    : liveStatus;
+
+  const statusLabel = isArchived
+    ? 'Archived'
+    : isRecurring
+      ? (dosesPerDay != null && dosesPerDay > 1 && liveStatus === 'amber'
+          ? `${todayDoseCount}/${dosesPerDay} today`
+          : liveStatus === 'green' ? 'Up to date' : liveStatus === 'amber' ? 'Due soon' : liveStatus === 'overdue' ? 'Overdue' : 'New')
+      : (liveStatus === 'green' ? 'Current' : 'Finished med');
+
+  const showLogDoseButton = !isArchived && !isFinished;
 
   return (
     <Screen scroll>
@@ -150,12 +211,20 @@ export default function MedicationDetailScreen() {
           <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </Pressable>
 
-        <View className="flex-row items-center justify-between mb-6">
+        <View className="flex-row items-center justify-between mb-2">
           <Text className="text-3xl font-bold text-text-primary flex-1 mr-3">
             {medication.name}
           </Text>
-          <StatusPill label={statusLabel} status={status} />
+          <StatusPill label={statusLabel} status={statusForPill} />
         </View>
+
+        {isArchived && medication.archived_at ? (
+          <Text className="text-text-secondary text-sm mb-4">
+            Archived {formatDate(medication.archived_at)}
+          </Text>
+        ) : (
+          <View className="mb-4" />
+        )}
 
         <Card className="px-5 mb-4">
           <DetailRow label="Dosage" value={medication.dosage ?? 'Not specified'} />
@@ -222,27 +291,65 @@ export default function MedicationDetailScreen() {
         ) : null}
 
         <View className="mt-4 gap-3">
-          {!isFinished ? (
-            <Button
-              title="Log Dose"
-              onPress={handleLogDose}
-              loading={loggingDose}
-            />
-          ) : null}
-          <Button
-            title="Edit"
-            variant={!isFinished ? 'secondary' : undefined}
-            onPress={() =>
-              router.push(
-                `/(main)/pets/${petId}/health/medication/${id}/edit`,
-              )
-            }
-          />
-          <Button
-            title="Delete"
-            variant="secondary"
-            onPress={() => setShowDelete(true)}
-          />
+          {isArchived ? (
+            <>
+              <Button
+                title="Restore"
+                onPress={handleRestorePress}
+                loading={archiving}
+              />
+              <Button
+                title="Edit"
+                variant="secondary"
+                onPress={() =>
+                  router.push(
+                    `/(main)/pets/${petId}/health/medication/${id}/edit`,
+                  )
+                }
+              />
+              <Pressable
+                onPress={() => setShowDelete(true)}
+                hitSlop={8}
+                className="items-center py-2"
+                testID="delete-link"
+              >
+                <Text className="text-sm text-text-secondary">Delete</Text>
+              </Pressable>
+            </>
+          ) : (
+            <>
+              {showLogDoseButton ? (
+                <Button
+                  title="Log Dose"
+                  onPress={handleLogDose}
+                  loading={loggingDose}
+                />
+              ) : null}
+              <Button
+                title="Edit"
+                variant={showLogDoseButton ? 'secondary' : undefined}
+                onPress={() =>
+                  router.push(
+                    `/(main)/pets/${petId}/health/medication/${id}/edit`,
+                  )
+                }
+              />
+              <Button
+                title="Archive"
+                variant="secondary"
+                onPress={handleArchivePress}
+                loading={archiving}
+              />
+              <Pressable
+                onPress={() => setShowDelete(true)}
+                hitSlop={8}
+                className="items-center py-2"
+                testID="delete-link"
+              >
+                <Text className="text-sm text-text-secondary">Delete</Text>
+              </Pressable>
+            </>
+          )}
         </View>
 
         <DeleteConfirmation

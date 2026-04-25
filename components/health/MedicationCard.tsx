@@ -1,4 +1,4 @@
-import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Card } from '@/components/ui/Card';
 import { Colors } from '@/constants/colors';
@@ -10,12 +10,17 @@ import {
   shouldShowLogDose,
   MedicationIndicator,
 } from '@/utils/medications';
+import {
+  getMedicationStaleness,
+  humanizedDuration,
+} from '@/utils/medicationStaleness';
 
 interface MedicationCardProps {
   medication: MedicationWithDoseInfo;
   onPress: () => void;
   onLogDose?: () => void;
   logDoseLoading?: boolean;
+  onArchive?: () => void;
 }
 
 const indicatorColors = {
@@ -76,6 +81,7 @@ export function MedicationCard({
   onPress,
   onLogDose,
   logDoseLoading,
+  onArchive,
 }: MedicationCardProps) {
   const status = medication.isRecurring
     ? getRecurringMedicationStatus(
@@ -89,6 +95,34 @@ export function MedicationCard({
   const indicator = getMedicationIndicator(medication, status);
   const contextText = getMedicationContextText(medication, status);
   const showLogDose = shouldShowLogDose(medication, status) && !!onLogDose;
+
+  // Stale prompt: derived from current data, no extra state.
+  const stale = getMedicationStaleness(
+    medication,
+    medication.lastGivenDate,
+    new Date(),
+  );
+
+  const stalePromptText = (() => {
+    if (!stale.reason || stale.daysSince == null) return null;
+    const duration = humanizedDuration(stale.daysSince);
+    if (stale.reason === 'end_date_passed') {
+      return `This course ended ${duration} ago — archive?`;
+    }
+    return `Last logged ${duration} ago — archive?`;
+  })();
+
+  const handleStalePromptPress = () => {
+    if (!onArchive) return;
+    Alert.alert(
+      'Archive medication?',
+      `Archive ${medication.name}? It'll move out of active medications. You can restore it anytime.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Archive', onPress: onArchive },
+      ],
+    );
+  };
 
   return (
     <Card className="p-4 mb-3" onPress={onPress}>
@@ -134,6 +168,23 @@ export function MedicationCard({
           ) : null}
         </View>
       </View>
+
+      {stalePromptText ? (
+        <Pressable
+          onPress={handleStalePromptPress}
+          hitSlop={4}
+          testID="stale-prompt"
+          className="mt-3"
+        >
+          <Text
+            style={{ color: Colors.textSecondary }}
+            className="text-xs"
+            numberOfLines={2}
+          >
+            {stalePromptText}
+          </Text>
+        </Pressable>
+      ) : null}
     </Card>
   );
 }
