@@ -9,7 +9,8 @@ import { userService } from '@/services/userService';
 // Show notification when app is in foreground
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
   }),
@@ -100,11 +101,8 @@ export function useNotificationSetup(userId: string | null) {
       });
 
     return () => {
-      if (responseListener.current) {
-        Notifications.removeNotificationSubscription(
-          responseListener.current,
-        );
-      }
+      responseListener.current?.remove();
+      responseListener.current = undefined;
     };
   }, [userId, router]);
 }

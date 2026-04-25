@@ -151,9 +151,7 @@ describe('useNotificationSetup', () => {
     const { unmount } = renderHook(() => useNotificationSetup('u1'));
     unmount();
 
-    expect(mockRemoveNotificationSubscription).toHaveBeenCalledWith(
-      mockSubscription,
-    );
+    expect(mockSubscription.remove).toHaveBeenCalled();
   });
 
   describe('syncUserTimezone', () => {
