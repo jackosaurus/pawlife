@@ -101,6 +101,34 @@ All colors are defined in `constants/colors.ts`. Always reference the constant, 
 - When creating a new screen, follow the Expo Router file convention in `app/`.
 - When creating a new record type, follow the pattern established by vaccinations: service methods → Zod schema → add form → detail screen → list integration → pet detail integration.
 
+## Working Style
+
+These are the defaults — no need to ask each time.
+
+### Background by default
+Any task beyond a couple of tool calls (implementations, planning rounds, test audits, DB reviews, refactors) is launched via the Agent tool with `run_in_background: true`. Foreground only when the user explicitly says so or the work is genuinely a one-line edit.
+
+### Plan before implementing
+Default to a planning round before any implementation: spawn parallel PM/UX and senior engineering agents, synthesize their reports, surface 2–4 open questions, and commission implementation only after the user answers. The token cost is accepted — it scales as the product grows complex. Skip the planning round only for genuinely one-line fixes or direct follow-ups to an already-planned thread.
+
+### Visualize before UI sign-off
+When asking the user to approve a UI change, include an ASCII or word-mockup of "before / after." Don't ask for sign-off without a visual.
+
+### Test coverage is non-negotiable, enforced at agent-launch time
+Every implementation agent's brief includes explicit test requirements: which files to update, what cases to add, run `npx jest` and require green before commit. Don't ask the user "should I add tests?" — just add them. The existing rule "every new component, hook, service, and utility must have tests" is enforced when commissioning the agent, not after.
+
+### Honor the DB review chain (rules 6 + 7) at the parent agent level
+When an implementation agent can't spawn its own subagents (some environments lack the Agent tool), the parent agent must spawn the senior DB review and post-migration code review independently before declaring the work done. Don't accept "I did the review inline" as substitute — get a fresh independent set of eyes on every migration.
+
+### Coordinate migrations + Edge Function deploys
+If a feature touches both a SQL migration and a deployed Edge Function (e.g. `send-reminders`), the implementation agent must surface deploy ordering in its final report: migration first, then Edge Function redeploy. Don't bury this — there's a brief window where the wrong order causes runtime errors.
+
+### Commit + push are part of "done"
+Implementation agents commit and push their work as part of the task. Don't leave work uncommitted on disk waiting for a follow-up "commit this" instruction. Migrations are the exception — they're committed but applied manually by the user.
+
+### Status dashboard for parallel work
+When multiple agents are running, end responses with a brief status table of all active threads so the user can see what's in flight at a glance.
+
 ## Common Commands
 
 ```bash
