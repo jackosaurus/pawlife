@@ -1,6 +1,13 @@
 import { render, fireEvent, screen } from '@testing-library/react-native';
 import { TabBar, Tab } from './TabBar';
 
+jest.mock('expo-linear-gradient', () => {
+  const { View } = jest.requireActual('react-native');
+  return {
+    LinearGradient: (props: Record<string, unknown>) => <View {...props} />,
+  };
+});
+
 const TABS: Tab[] = [
   { key: 'food', label: 'Food' },
   { key: 'vet-visits', label: 'Vet Visits' },
@@ -83,5 +90,72 @@ describe('TabBar', () => {
     // Press food tab - should scroll to 0, not negative
     fireEvent.press(foodTab);
     expect(onTabPress).toHaveBeenCalledWith('food');
+  });
+
+  describe('edge fade indicators', () => {
+    it('hides the left edge fade initially when scrolled to start', () => {
+      render(<TabBar tabs={TABS} activeTab="food" onTabPress={onTabPress} />);
+      expect(screen.queryByTestId('tab-bar-left-fade')).toBeNull();
+    });
+
+    it('shows the right edge fade initially when content overflows', () => {
+      render(<TabBar tabs={TABS} activeTab="food" onTabPress={onTabPress} />);
+      // Simulate the ScrollView measuring with content wider than the viewport.
+      // We need to drive both the scroll view's layout and content size change.
+      const scrollView = screen.UNSAFE_getByType(
+        require('react-native').ScrollView,
+      );
+      fireEvent(scrollView, 'layout', {
+        nativeEvent: { layout: { x: 0, y: 0, width: 200, height: 50 } },
+      });
+      fireEvent(scrollView, 'contentSizeChange', 500, 50);
+      expect(screen.getByTestId('tab-bar-right-fade')).toBeTruthy();
+    });
+
+    it('shows left fade and hides right fade after scrolling to the end', () => {
+      render(<TabBar tabs={TABS} activeTab="food" onTabPress={onTabPress} />);
+      const scrollView = screen.UNSAFE_getByType(
+        require('react-native').ScrollView,
+      );
+      // Simulate scroll to a non-zero offset: left fade should appear.
+      fireEvent.scroll(scrollView, {
+        nativeEvent: {
+          contentOffset: { x: 50, y: 0 },
+          layoutMeasurement: { width: 200, height: 50 },
+          contentSize: { width: 500, height: 50 },
+        },
+      });
+      expect(screen.getByTestId('tab-bar-left-fade')).toBeTruthy();
+      expect(screen.getByTestId('tab-bar-right-fade')).toBeTruthy();
+
+      // Now simulate scrolling to the very end: right fade hides.
+      fireEvent.scroll(scrollView, {
+        nativeEvent: {
+          contentOffset: { x: 300, y: 0 },
+          layoutMeasurement: { width: 200, height: 50 },
+          contentSize: { width: 500, height: 50 },
+        },
+      });
+      expect(screen.getByTestId('tab-bar-left-fade')).toBeTruthy();
+      expect(screen.queryByTestId('tab-bar-right-fade')).toBeNull();
+    });
+
+    it('renders edge fades with pointerEvents="none" so they do not block taps', () => {
+      render(<TabBar tabs={TABS} activeTab="food" onTabPress={onTabPress} />);
+      const scrollView = screen.UNSAFE_getByType(
+        require('react-native').ScrollView,
+      );
+      fireEvent.scroll(scrollView, {
+        nativeEvent: {
+          contentOffset: { x: 50, y: 0 },
+          layoutMeasurement: { width: 200, height: 50 },
+          contentSize: { width: 500, height: 50 },
+        },
+      });
+      const leftFade = screen.getByTestId('tab-bar-left-fade');
+      const rightFade = screen.getByTestId('tab-bar-right-fade');
+      expect(leftFade.props.pointerEvents).toBe('none');
+      expect(rightFade.props.pointerEvents).toBe('none');
+    });
   });
 });
