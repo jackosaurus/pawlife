@@ -182,7 +182,7 @@ async function processMedicationReminders(
       .from('medications')
       .select('id, name, dosage, frequency')
       .eq('pet_id', pet.id)
-      .eq('is_completed', false)
+      .eq('is_archived', false)
       .lte('start_date', today)
       .or(`end_date.is.null,end_date.gte.${today}`);
 
