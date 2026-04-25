@@ -94,9 +94,9 @@ export default function DashboardScreen() {
           <Text className="text-2xl font-bold text-text-primary">
             Your Pet Family
           </Text>
-          <Pressable onPress={() => router.push('/(main)/settings')} hitSlop={8} testID="settings-button">
+          <Pressable onPress={() => router.push('/(main)/menu')} hitSlop={8} testID="menu-button">
             <Ionicons
-              name="settings-outline"
+              name="paw-outline"
               size={24}
               color={Colors.textSecondary}
             />

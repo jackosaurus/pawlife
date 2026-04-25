@@ -7,6 +7,16 @@ export default function MainLayout() {
         headerShown: false,
         contentStyle: { backgroundColor: '#FFF8E7' },
       }}
-    />
+    >
+      <Stack.Screen
+        name="menu"
+        options={{
+          presentation: 'formSheet',
+          sheetAllowedDetents: [0.45, 0.9],
+          sheetGrabberVisible: true,
+          headerShown: false,
+        }}
+      />
+    </Stack>
   );
 }
