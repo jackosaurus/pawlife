@@ -177,5 +177,29 @@ describe('TabBar', () => {
       });
       expect(screen.getByTestId('tab-bar-left-fade-chevron')).toBeTruthy();
     });
+
+    it('points each chevron in the direction users need to scroll', () => {
+      // Guards against accidentally swapping the icon name ternary, which
+      // would visually point users the wrong way while keeping testIDs intact.
+      render(<TabBar tabs={TABS} activeTab="food" onTabPress={onTabPress} />);
+      const scrollView = screen.UNSAFE_getByType(
+        require('react-native').ScrollView,
+      );
+      fireEvent.scroll(scrollView, {
+        nativeEvent: {
+          contentOffset: { x: 50, y: 0 },
+          layoutMeasurement: { width: 200, height: 50 },
+          contentSize: { width: 500, height: 50 },
+        },
+      });
+
+      const leftChevronWrapper = screen.getByTestId('tab-bar-left-fade-chevron');
+      const rightChevronWrapper = screen.getByTestId('tab-bar-right-fade-chevron');
+      // The Ionicons element is the single child of the wrapper View.
+      const leftIcon = leftChevronWrapper.children[0] as any;
+      const rightIcon = rightChevronWrapper.children[0] as any;
+      expect(leftIcon.props.name).toBe('chevron-back');
+      expect(rightIcon.props.name).toBe('chevron-forward');
+    });
   });
 });
