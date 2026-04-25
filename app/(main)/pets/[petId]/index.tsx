@@ -165,15 +165,7 @@ export default function PetDetailScreen() {
         return (
           <>
             <AboutCard pet={pet} />
-            <AllergiesCard
-              allergies={allergies}
-              onAdd={() =>
-                router.push(`/(main)/pets/${petId}/allergies/add`)
-              }
-              onPressAllergy={(id) =>
-                router.push(`/(main)/pets/${petId}/allergies/${id}`)
-              }
-            />
+            <AllergiesCard allergies={allergies} />
             <InsuranceCard
               provider={pet.insurance_provider}
               policyNumber={pet.insurance_policy_number}
@@ -411,11 +403,9 @@ function AboutRow({
 
 interface AllergiesCardProps {
   allergies: { id: string; allergen: string }[];
-  onAdd: () => void;
-  onPressAllergy: (id: string) => void;
 }
 
-function AllergiesCard({ allergies, onAdd, onPressAllergy }: AllergiesCardProps) {
+function AllergiesCard({ allergies }: AllergiesCardProps) {
   return (
     <View className="px-6 mb-4">
       <Text className="text-xs font-semibold text-text-secondary mb-2 tracking-wider">
@@ -423,41 +413,26 @@ function AllergiesCard({ allergies, onAdd, onPressAllergy }: AllergiesCardProps)
       </Text>
       <Card className="px-5 py-4">
         {allergies.length === 0 ? (
-          <View>
-            <Text className="text-base text-text-secondary">
-              No known allergies yet.
-            </Text>
-            <Pressable onPress={onAdd} hitSlop={8} className="mt-3" testID="add-allergy-link">
-              <Text className="text-primary text-base font-medium">
-                + Add allergy
-              </Text>
-            </Pressable>
-          </View>
+          <Text className="text-base text-text-secondary">
+            No known allergies.
+          </Text>
         ) : (
-          <View>
-            <View className="flex-row flex-wrap gap-2">
-              {allergies.map((a) => (
-                <Pressable
-                  key={a.id}
-                  onPress={() => onPressAllergy(a.id)}
-                  testID={`allergy-pill-${a.id}`}
-                  style={{ backgroundColor: `${Colors.statusNeutral}15` }}
-                  className="px-3 py-1.5 rounded-full"
+          <View className="flex-row flex-wrap gap-2">
+            {allergies.map((a) => (
+              <View
+                key={a.id}
+                testID={`allergy-pill-${a.id}`}
+                style={{ backgroundColor: `${Colors.statusNeutral}15` }}
+                className="px-3 py-1.5 rounded-full"
+              >
+                <Text
+                  style={{ color: Colors.textPrimary }}
+                  className="text-sm font-medium"
                 >
-                  <Text
-                    style={{ color: Colors.textPrimary }}
-                    className="text-sm font-medium"
-                  >
-                    {a.allergen}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-            <Pressable onPress={onAdd} hitSlop={8} className="mt-3" testID="add-allergy-link">
-              <Text className="text-primary text-base font-medium">
-                + Add allergy
-              </Text>
-            </Pressable>
+                  {a.allergen}
+                </Text>
+              </View>
+            ))}
           </View>
         )}
       </Card>

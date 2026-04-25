@@ -170,25 +170,30 @@ describe('PetDetailScreen allergies + insurance cards (under Profile tab)', () =
     mockPet.insurance_policy_number = null;
   });
 
-  it('renders empty allergies state with an inline add link', () => {
-    const { getByText, getByTestId } = render(<PetDetailScreen />);
+  it('renders empty allergies state with read-only copy (no inline add link)', () => {
+    const { getByText, getByTestId, queryByTestId } = render(<PetDetailScreen />);
     fireEvent.press(getByTestId('tab-profile'));
     expect(getByText('ALLERGIES')).toBeTruthy();
-    expect(getByText('No known allergies yet.')).toBeTruthy();
-    expect(getByTestId('add-allergy-link')).toBeTruthy();
+    expect(getByText('No known allergies.')).toBeTruthy();
+    expect(queryByTestId('add-allergy-link')).toBeNull();
   });
 
-  it('renders allergy pills when allergies exist', () => {
+  it('renders allergy pills as read-only Views when allergies exist', () => {
     mockAllergiesData = [
       { id: 'a1', allergen: 'Chicken' },
       { id: 'a2', allergen: 'Beef' },
     ];
-    const { getByText, getByTestId } = render(<PetDetailScreen />);
+    const { getByText, getByTestId, queryByTestId } = render(<PetDetailScreen />);
     fireEvent.press(getByTestId('tab-profile'));
     expect(getByText('Chicken')).toBeTruthy();
     expect(getByText('Beef')).toBeTruthy();
     expect(getByTestId('allergy-pill-a1')).toBeTruthy();
     expect(getByTestId('allergy-pill-a2')).toBeTruthy();
+    // No inline add link in either empty or populated state.
+    expect(queryByTestId('add-allergy-link')).toBeNull();
+    // Pills do not have an onPress handler — they're plain Views.
+    const pill = getByTestId('allergy-pill-a1');
+    expect((pill.props as { onPress?: unknown }).onPress).toBeUndefined();
   });
 
   it('renders an Add insurance link when both fields are empty', () => {
