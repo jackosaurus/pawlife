@@ -49,6 +49,29 @@ function chainMock(result: { data: unknown; error: unknown }) {
   return handler();
 }
 
+/**
+ * Like chainMock but records every method call (name + args) so tests can
+ * assert the exact filter chain — e.g. that `.eq('is_archived', false)` was
+ * called. The proxy-based chainMock above is convenient but opaque, so it
+ * can't catch regressions where a critical filter is silently dropped.
+ */
+function trackingChainMock(result: { data: unknown; error: unknown }) {
+  const calls: Array<{ method: string; args: unknown[] }> = [];
+  const builder: Record<string, unknown> = {};
+  const proxy = new Proxy(builder, {
+    get: (_, prop) => {
+      if (prop === 'then') {
+        return (resolve: (v: unknown) => void) => resolve(result);
+      }
+      return (...args: unknown[]) => {
+        calls.push({ method: prop as string, args });
+        return proxy;
+      };
+    },
+  });
+  return { proxy, calls };
+}
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
@@ -380,6 +403,21 @@ describe('healthService', () => {
       mockFrom.mockReturnValue(chainMock({ data: null, error: new Error('DB error') }));
       await expect(healthService.getMedications('p1')).rejects.toThrow('DB error');
     });
+
+    // Regression guard — archived meds must never appear in the per-pet
+    // active list (Medicines tab), so the is_archived filter is mandatory.
+    it('filters out archived medications via is_archived = false', async () => {
+      const { proxy, calls } = trackingChainMock({ data: [], error: null });
+      mockFrom.mockReturnValue(proxy);
+
+      await healthService.getMedications('p1');
+
+      const eqCalls = calls.filter((c) => c.method === 'eq');
+      const archivedFilter = eqCalls.find(
+        (c) => c.args[0] === 'is_archived' && c.args[1] === false,
+      );
+      expect(archivedFilter).toBeDefined();
+    });
   });
 
   describe('getMedicationById', () => {
@@ -627,6 +665,23 @@ describe('healthService', () => {
       await expect(
         healthService.getActiveMedicationsForPets(['p1']),
       ).rejects.toThrow('DB error');
+    });
+
+    // Regression guard for v1 bug #6 — archived medications appearing in
+    // dashboard "Needs Attention". The dashboard relies on this query to
+    // filter out archived rows server-side; if the filter is ever dropped or
+    // weakened, archived meds will leak into action items.
+    it('filters out archived medications via is_archived = false', async () => {
+      const { proxy, calls } = trackingChainMock({ data: [], error: null });
+      mockFrom.mockReturnValue(proxy);
+
+      await healthService.getActiveMedicationsForPets(['p1']);
+
+      const eqCalls = calls.filter((c) => c.method === 'eq');
+      const archivedFilter = eqCalls.find(
+        (c) => c.args[0] === 'is_archived' && c.args[1] === false,
+      );
+      expect(archivedFilter).toBeDefined();
     });
   });
 

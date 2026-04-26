@@ -95,6 +95,53 @@ describe('useActionItems', () => {
     expect(mockGetActionableVax).not.toHaveBeenCalled();
   });
 
+  // Regression guard for v1 bug #6 — defense-in-depth filter that drops any
+  // medication marked is_archived even if the service-layer filter is bypassed
+  // or returns stale data. Without this filter, archived meds re-appeared in
+  // dashboard "Needs Attention".
+  it('filters out archived medications even if the service returns them', async () => {
+    const pets = [makePet({ id: 'p1', name: 'Buddy' })];
+    const meds = [
+      {
+        id: 'med-archived',
+        pet_id: 'p1',
+        name: 'Old course',
+        frequency: 'Once daily',
+        start_date: '2025-01-01',
+        end_date: null,
+        is_archived: true,
+        archived_at: '2026-04-20T10:00:00Z',
+      },
+      {
+        id: 'med-active',
+        pet_id: 'p1',
+        name: 'Current med',
+        frequency: 'Once daily',
+        start_date: '2025-01-01',
+        end_date: null,
+        is_archived: false,
+        archived_at: null,
+      },
+    ];
+
+    mockGetActiveMeds.mockResolvedValue(meds);
+    mockGetTodayCounts.mockResolvedValue({ 'med-active': 0 });
+    mockGetLatestDoses.mockResolvedValue({});
+    mockGetMedStatus.mockReturnValue('amber');
+
+    const { result } = renderHook(() => useActionItems(pets));
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.actionItems).toHaveLength(1);
+    expect(result.current.actionItems[0].medicationId).toBe('med-active');
+    // Dose lookups must skip the archived med entirely
+    expect(mockGetTodayCounts).toHaveBeenCalledWith(['med-active']);
+    expect(mockGetLatestDoses).toHaveBeenCalledWith(['med-active']);
+  });
+
   it('returns medication action items for overdue medications', async () => {
     const pets = [makePet({ id: 'p1', name: 'Buddy' })];
     const meds = [

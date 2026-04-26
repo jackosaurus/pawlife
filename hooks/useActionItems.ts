@@ -56,8 +56,14 @@ export function useActionItems(pets: Pet[]) {
         healthService.getActionableVaccinations(petIds, 14),
       ]);
 
-      // Fetch dose info for medications
-      const recurringMeds = activeMeds.filter((m) => isRecurringFrequency(m.frequency));
+      // Fetch dose info for medications.
+      // Defense-in-depth: also filter archived meds client-side. The service
+      // already excludes them server-side, but a stale cached response or a
+      // future regression in the service-layer filter could leak them into
+      // dashboard "Needs Attention". Belt-and-suspenders for v1 bug #6.
+      const recurringMeds = activeMeds.filter(
+        (m) => isRecurringFrequency(m.frequency) && m.is_archived !== true,
+      );
       const medIds = recurringMeds.map((m) => m.id);
 
       const [todayCounts, latestDoses] =
