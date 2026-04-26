@@ -154,25 +154,9 @@ The following items were captured by the user 2026-04-25 at the close of a long 
 - **Most likely:** stale cache / missing focus refresh on the dashboard. The dashboard `useActionItems` hook calls `refresh()` on focus; verify it's actually firing after the archive navigation pops.
 - This is a v1 blocker — not shipping with a known data-correctness bug.
 
-### 7. Slow pet detail screen load (1-2 seconds)
+### 7. ~~Slow pet detail screen load~~ (DEFERRED — moved to backlog 2026-04-26)
 
-**Roadmap reference:** new (perf)
-
-**User's words (verbatim):**
-> not sure if this should make it to v1 cut or not but im just seeing that loading the next screen when you click into a pet takes a second or two, could be for a number of reasons but in this task we should discuss whether we should address this or not, and how we do it? we could cache data and show loading spinners on sections that its still updating? ifnrastructural change and not sure how this should be. just want to have a think about whehter we nee to address this in v1 or later on.
-
-**Open questions / concerns:**
-- The pet detail screen now fans out **6+ hooks** on focus: `useVaccinations`, `useMedications`, `useArchivedMedications`, `useMedicationDoses`, `useWeightEntries`, `useFoodEntries`, `usePetAllergies`. Each is a Supabase round-trip. Even at 100ms per round-trip that's 600ms+ minimum, plus React render time.
-- **Quick wins (v1 candidates):**
-  - Audit whether the hooks fetch in parallel (`Promise.all`) or sequentially in the focus listener — if sequential, parallelize
-  - Skeleton screens or per-section loading states so first paint is fast and content fills in progressively (the user's own suggestion)
-  - Render the bio header + tab bar IMMEDIATELY (they only need the pet record from the previous screen), defer the tab content fetches until after first paint
-- **Heavier wins (probably defer past v1):**
-  - Add **TanStack Query** or **SWR** for cache-aside semantics — currently rejected in CLAUDE.md ("Don't install TanStack Query / React Query yet"), worth re-evaluating now that the app has grown
-  - Denormalize a pet view in Postgres (e.g. `pet_dashboard` view that joins everything) — single round-trip
-  - Push relevant data into Zustand on dashboard load so pet detail can render from cache
-- **Architectural question:** the current pattern of "service layer + useState/useEffect in components" was a deliberate choice. As the app grows, the pain becomes real. Worth a planning round on whether to introduce TanStack Query before launch — its caching alone would make most of this disappear.
-- **For v1:** lean toward shipping the quick wins (parallel fetches + skeleton states) — they're cheap and meaningfully improve perceived performance. Defer the architectural shift to v1.1.
+Moved out of v1 scope. Tracked in "Deferred to v1.1+" below.
 
 ### 8. Analytics + observability
 
@@ -233,21 +217,20 @@ The following items were captured by the user 2026-04-25 at the close of a long 
 This is a recommended sequencing — not final. Each item should still get its own scoping pass with proposals before commitment.
 
 1. **Bug fix #6** (archived meds on dashboard) — blocker, do first
-2. **Quick-win perf fixes from #7** (parallel hooks, skeletons) — easy wins, ship before deeper work
-3. **UI review #5** (text scale) — polish pass before expanding scope
-4. **Sentry from #8** (error tracking only, defer analytics to v1.1) — instrumentation before feature work
-5. **Env split #4** (dev vs prod) — needed before pulling forward Phase 2/3 items so we have a safe place to develop
-6. **Multi pet types #1** (rabbit, snake, lizard, bird) — depends on agreed approach for breed/species labelling
-7. **Apple Sign In from #2** (only Apple, defer Google/Facebook to v1.1)
-8. **Rename to Boopa #3** — last, so we change bundle ID exactly once, just before submission
-9. **App Store readiness:** privacy policy, App Store Connect setup, screenshots, store listing copy, submission
+2. **UI review #5** (text scale) — polish pass before expanding scope
+3. **Sentry from #8** (error tracking only, defer analytics to v1.1) — instrumentation before feature work
+4. **Env split #4** (dev vs prod) — needed before pulling forward Phase 2/3 items so we have a safe place to develop
+5. **Multi pet types #1** (rabbit, snake, lizard, bird) — depends on agreed approach for breed/species labelling
+6. **Apple Sign In from #2** (only Apple, defer Google/Facebook to v1.1)
+7. **Rename to Boopa #3** — last, so we change bundle ID exactly once, just before submission
+8. **App Store readiness:** privacy policy, App Store Connect setup, screenshots, store listing copy, submission
 
 ## Deferred to v1.1+
 
 - Google sign-in (#2 partial)
 - Facebook sign-in (probably indefinitely)
 - PostHog product analytics (#8 partial)
-- TanStack Query architectural shift (#7 heavier wins)
+- **Pet detail screen load perf (#7, full scope)** — fan-out of 6+ hooks on focus causes 1-2s load. Quick wins (parallel fetches, skeleton states) and heavier wins (TanStack Query, denormalized `pet_dashboard` view, Zustand cache from dashboard) all deferred. Revisit when load time becomes user-blocking or when the app grows further. Notes from original v1 scoping retained in git history.
 - Maestro E2E tests (#9)
 - Multi-policy insurance, severity field on allergies, allergen-medication warning (already deferred — see `MEMORY.md → project_pet_record_followups.md`)
 - Archive sections for vaccinations / food / weight (currently medications-only)
