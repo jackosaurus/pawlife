@@ -27,6 +27,16 @@ module.exports = {
       borderRadius: {
         card: '16px',
       },
+      fontSize: {
+        display: ['30px', '36px'],
+        title: ['22px', '28px'],
+        headline: ['17px', { lineHeight: '22px', fontWeight: '600' }],
+        body: ['17px', '24px'],
+        callout: ['16px', '22px'],
+        footnote: ['13px', '18px'],
+        caption: ['12px', '16px'],
+        'button-sm': ['15px', { lineHeight: '20px', fontWeight: '600' }],
+      },
     },
   },
   plugins: [],

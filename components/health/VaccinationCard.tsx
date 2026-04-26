@@ -120,21 +120,24 @@ export function VaccinationCard({
         {/* Left: vaccination info */}
         <View className="flex-1 justify-center mr-3">
           <Text
-            className="text-base font-semibold text-text-primary"
+            className="text-headline text-text-primary"
             numberOfLines={1}
           >
             {vaccination.vaccine_name}
           </Text>
-          <Text className="text-sm text-text-secondary mt-0.5" numberOfLines={1}>
+          <Text
+            className="text-callout text-text-secondary mt-0.5"
+            numberOfLines={1}
+          >
             {getIntervalLabel(vaccination.interval_months)}
           </Text>
         </View>
 
         {/* Right: status indicator + context + Log */}
-        <View className="items-center justify-center" style={{ minWidth: 80 }}>
+        <View className="items-center justify-center" style={{ minWidth: 96 }}>
           <StatusIndicator type={indicator.type} color={indicator.color} />
           <Text
-            className="text-xs text-text-secondary mt-1 text-center"
+            className="text-footnote text-text-secondary mt-1 text-center"
             numberOfLines={1}
           >
             {contextText}
@@ -143,14 +146,17 @@ export function VaccinationCard({
             <Pressable
               onPress={() => onLog!()}
               disabled={logLoading}
-              hitSlop={4}
+              hitSlop={8}
               testID="log-button"
-              className="mt-1"
+              accessibilityRole="button"
+              accessibilityLabel="Log vaccination"
+              className="mt-2 px-4 py-2.5 rounded-full"
+              style={{ backgroundColor: `${Colors.primary}1A` }}
             >
               {logLoading ? (
                 <ActivityIndicator size="small" color={Colors.primary} />
               ) : (
-                <Text className="text-xs font-semibold text-primary">
+                <Text className="text-button-sm text-primary">
                   Log
                 </Text>
               )}

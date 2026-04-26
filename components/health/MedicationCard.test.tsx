@@ -114,6 +114,23 @@ describe('MedicationCard', () => {
     expect(onLogDose).toHaveBeenCalledTimes(1);
   });
 
+  it('renders Log Dose as an accessible pill button with a ≥44pt vertical hit target', () => {
+    const med = makeMed({ lastGivenDate: null });
+    const { getByTestId } = render(
+      <MedicationCard medication={med} onPress={jest.fn()} onLogDose={jest.fn()} />,
+    );
+    const pill = getByTestId('log-dose-button');
+    // Accessibility surface
+    expect(pill.props.accessibilityRole).toBe('button');
+    // hitSlop=8 + py-2.5 (10pt top + 10pt bottom) + ~20pt text line ≥ 44pt
+    expect(pill.props.hitSlop).toBe(8);
+    // Tinted-pill class signature
+    const className: string = pill.props.className ?? '';
+    expect(className).toContain('rounded-full');
+    expect(className).toContain('py-2.5');
+    expect(className).toContain('px-4');
+  });
+
   it('calls onPress when card is pressed', () => {
     const onPress = jest.fn();
     const med = makeMed();

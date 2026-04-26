@@ -38,16 +38,16 @@ export function RecordCard({
           <Text className="text-2xl font-bold text-primary leading-tight">
             {day}
           </Text>
-          <Text className="text-xs font-semibold text-text-secondary uppercase">
+          <Text className="text-footnote font-semibold text-text-secondary uppercase">
             {month}
           </Text>
-          <Text className="text-xs text-text-secondary">
+          <Text className="text-footnote text-text-secondary">
             {year}
           </Text>
         </View>
         <View className="flex-1 justify-center">
           <View className="flex-row items-center justify-between">
-            <Text className="text-base font-semibold text-text-primary flex-1 mr-2" numberOfLines={1}>
+            <Text className="text-headline text-text-primary flex-1 mr-2" numberOfLines={1}>
               {title}
             </Text>
             {status && statusLabel ? (
@@ -55,12 +55,12 @@ export function RecordCard({
             ) : null}
           </View>
           {subtitle ? (
-            <Text className="text-sm text-text-secondary mt-1" numberOfLines={1}>
+            <Text className="text-callout text-text-secondary mt-1" numberOfLines={1}>
               {subtitle}
             </Text>
           ) : null}
           {detail ? (
-            <Text className="text-sm text-text-secondary mt-0.5" numberOfLines={1}>
+            <Text className="text-callout text-text-secondary mt-0.5" numberOfLines={1}>
               {detail}
             </Text>
           ) : null}

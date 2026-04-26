@@ -1,12 +1,22 @@
 import { useEffect } from 'react';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { Text } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { useAuthStore } from '@/stores/authStore';
 import { useNotificationSetup } from '@/hooks/useNotificationSetup';
 import '../global.css';
 
 SplashScreen.preventAutoHideAsync();
+
+// Cap iOS Dynamic Type scaling so AX1+ users still get larger text but our
+// fixed-width layouts (date column, status pill, log-dose pill) don't break.
+// 1.3 corresponds to iOS "Larger" without crossing into the accessibility
+// presets that overflow tightly-packed cards.
+// @ts-ignore — defaultProps is set at runtime; RN's types don't expose it.
+Text.defaultProps = Text.defaultProps || {};
+// @ts-ignore — see above.
+Text.defaultProps.maxFontSizeMultiplier = 1.3;
 
 export default function RootLayout() {
   const { session, initialized, initialize } = useAuthStore();

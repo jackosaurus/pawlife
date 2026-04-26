@@ -25,10 +25,10 @@ export function PetCard({ pet, onPress }: PetCardProps) {
           <Text className="text-lg font-semibold text-text-primary">
             {pet.name}
           </Text>
-          <Text className="text-sm text-text-secondary">
+          <Text className="text-callout text-text-secondary">
             {pet.breed ?? 'Mixed / Unknown'}
           </Text>
-          <Text className="text-sm text-text-secondary">{age}</Text>
+          <Text className="text-callout text-text-secondary">{age}</Text>
         </View>
         <Text className="text-2xl text-text-secondary">
           {pet.pet_type === 'dog' ? '🐕' : '🐈'}
