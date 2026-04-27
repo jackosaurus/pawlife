@@ -11,6 +11,56 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
 
+// ── Observability: raw fetch to PostHog /capture/ + healthchecks.io ────
+// Reviewer amendment §1: do NOT use npm:posthog-node here. Deno kills
+// setTimeout-pending tasks when the response returns; posthog-node's
+// `shutdown()` resolves before the network request actually leaves the
+// runtime. A raw fetch call is ~30 LOC, fully await-able, and zero ambiguity.
+
+const POSTHOG_API_KEY = Deno.env.get('POSTHOG_API_KEY');
+const POSTHOG_HOST = Deno.env.get('POSTHOG_HOST') ?? 'https://eu.i.posthog.com';
+const HEALTHCHECK_URL = Deno.env.get('HEALTHCHECK_URL');
+const OBSERVABILITY_ENV = Deno.env.get('OBSERVABILITY_ENV') ?? 'production';
+
+async function capturePostHogException(err: unknown): Promise<void> {
+  if (!POSTHOG_API_KEY) return; // gate: no key → no-op
+  const error = err instanceof Error ? err : new Error(String(err));
+  try {
+    await fetch(`${POSTHOG_HOST}/capture/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        api_key: POSTHOG_API_KEY,
+        event: '$exception',
+        // Service-level events go under a stable distinct_id so they're
+        // attributable to the function, not bucketed under a random anon.
+        distinct_id: 'edge-function:send-reminders',
+        properties: {
+          $exception_message: error.message,
+          $exception_type: error.name,
+          $exception_stack_trace_raw: error.stack ?? '',
+          env: OBSERVABILITY_ENV,
+          source: 'send-reminders',
+        },
+        timestamp: new Date().toISOString(),
+      }),
+    });
+  } catch {
+    // PostHog itself is down? Don't recurse — just swallow.
+  }
+}
+
+async function pingHealthcheck(success: boolean): Promise<void> {
+  if (!HEALTHCHECK_URL) return;
+  const url = success ? HEALTHCHECK_URL : `${HEALTHCHECK_URL}/fail`;
+  try {
+    await fetch(url, { method: 'GET' });
+  } catch {
+    // Best-effort. A missed heartbeat eventually flags via hc-ping.com's
+    // grace-period alert, which is fine.
+  }
+}
+
 interface PushTokenEntry {
   token: string;
   platform: 'ios' | 'android';
@@ -440,11 +490,21 @@ Deno.serve(async (req) => {
       totalSent += allMessages.length - staleTokens.length;
     }
 
+    // Successful run — heartbeat to healthchecks.io. PostHog can't tell us
+    // "the cron stopped firing entirely" because it only sees what we emit;
+    // hc-ping.com fills that gap.
+    await pingHealthcheck(true);
+
     return new Response(JSON.stringify({ sent: totalSent }), {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err) {
     console.error('send-reminders error:', err);
+    // Capture in PostHog (raw fetch — awaited so the request leaves the
+    // runtime before we return) and ping the failure URL so hc-ping flips
+    // the check to "down" within its grace window.
+    await capturePostHogException(err);
+    await pingHealthcheck(false);
     return new Response(
       JSON.stringify({ error: (err as Error).message }),
       { status: 500, headers: { 'Content-Type': 'application/json' } },
