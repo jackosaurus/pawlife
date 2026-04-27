@@ -5,6 +5,7 @@ import { Text } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { useAuthStore } from '@/stores/authStore';
 import { useNotificationSetup } from '@/hooks/useNotificationSetup';
+import { ToastProvider } from '@/components/ui/Toast';
 import '../global.css';
 
 SplashScreen.preventAutoHideAsync();
@@ -52,9 +53,9 @@ export default function RootLayout() {
   }
 
   return (
-    <>
+    <ToastProvider>
       <StatusBar style="dark" />
       <Slot />
-    </>
+    </ToastProvider>
   );
 }

@@ -14,6 +14,7 @@ module.exports = {
           pressed: '#341539',
         },
         accent: '#E8735A',
+        destructive: '#E5484D',
         card: '#FFFFFF',
         'text-primary': '#2D2A26',
         'text-secondary': '#7A756E',
