@@ -125,7 +125,6 @@ Refer to `docs/pawlife-build-plan.md` for the full sequenced build plan.
 These are in the `docs/` directory:
 - `pawlife-roadmap.md` — Product vision, MVP scope, phased backlog
 - `pawlife-design-system.md` — Canonical design system: tokens, components, patterns, voice, destructive-action tiers
-- `pawlife-screen-inventory.md` — DEPRECATED; superseded by the design system doc, kept for history only
 - `pawlife-tech-stack.md` — Full tech stack with architecture and migration path
 - `pawlife-data-model.md` — Schema, RLS policies, storage, data flows, service layer examples
 - `pawlife-build-plan.md` — 11 sequenced units of work (MVP build, Units 1-10 complete)

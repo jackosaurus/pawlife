@@ -2,7 +2,7 @@
 
 > Canonical source of truth for design in Pawlife. Always check this doc before introducing a new pattern. When you change a pattern in code, update this doc in the same PR.
 
-This doc consolidates everything previously scattered across `CLAUDE.md` (Design System / UI Patterns / Styling), `docs/pawlife-screen-inventory.md`, and the various `feedback_*.md` / `project_*.md` memory files. Where this doc and any of those disagree, **this doc wins**.
+This doc consolidates everything previously scattered across `CLAUDE.md` (Design System / UI Patterns / Styling), `docs/archive/pawlife-screen-inventory.md`, and the various `feedback_*.md` / `project_*.md` memory files. Where this doc and any of those disagree, **this doc wins**.
 
 Source-of-truth precedence when this doc is silent:
 1. **Code tokens** — `constants/colors.ts`, `constants/typography.ts`, `tailwind.config.js`
@@ -495,7 +495,7 @@ The following memory and doc references have been folded into this document; the
 - `feedback_design.md` — no decorative accents, flat IA, generous typography → folded into [Design Principles](#design-principles) and [Color Palette](#color-palette).
 - `feedback_button_labels.md` — "Edit" / "Delete" only on record details → folded into [Detail screens](#detail-screens-record-detail).
 - `project_medications_redesign.md` — MedicationCard, dose tracking, status model → folded into [Medication cards](#medication-cards).
-- `docs/pawlife-screen-inventory.md` — voice & tone and design principles pulled forward; per-screen prose treated as archived (the doc carries a deprecation banner).
+- `docs/archive/pawlife-screen-inventory.md` — voice & tone and design principles pulled forward; per-screen prose treated as archived (the doc carries a deprecation banner).
 - `docs/pawlife-stitch-prompts.md` — design mockup prompts; left in place as a separate concern (not part of the design system).
 
 `project_art_style.md` (illustration art style) is referenced from this doc but **stays as its own memory file**, because illustration generation is a separate workstream from in-app design tokens.

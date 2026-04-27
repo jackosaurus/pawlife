@@ -17,7 +17,7 @@ interface NeedsAttentionSummaryProps {
  *
  * Replaces the previous tiny `caption`-pill rendering, which was the
  * highest-value piece of information on the screen but rendered at the
- * smallest text size — see `docs/pawlife-typography-review-product.md`
+ * smallest text size — see `docs/archive/pawlife-typography-review-product.md`
  * §2 Screen 2 for the rationale behind promoting it.
  */
 export function NeedsAttentionSummary({ items }: NeedsAttentionSummaryProps) {
