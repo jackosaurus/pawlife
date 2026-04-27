@@ -412,6 +412,22 @@ The pet detail sticky header replaces the static "8 years, 1 month" age pill wit
 
 **Fallback:** pets recorded with `approximate_age_months` only (no precise `date_of_birth`) get the legacy static `MetadataPill` via `calculateAge`. There's no birthday to celebrate without a real date, and `AgePill` requires a dob.
 
+**Dashboard variant (`PetCard`).** The same four phases also drive the age line under the pet name on the dashboard pet card, but with two differences:
+
+1. **Name-less labels.** The card heading is already the pet's name, so repeating it ("Buddy" then "Buddy is 8 years old" right below) is redundant. `useAgeMoment` exposes a `shortLabel` alongside `label` for this reason. Both share the same plural / leap-day / weeks-vs-months logic.
+
+   | Phase | Sticky-header `label` | Dashboard `shortLabel` |
+   |---|---|---|
+   | default | `Buddy is 8 years old` | `8 years old` |
+   | birthday | `🎂 Buddy is 9 today` | `🎂 9 today` |
+   | savor | `Buddy just turned 9` | `Just turned 9` |
+   | puppy (months) | `Buddy is 4 months old` | `4 months old` |
+   | puppy (weeks) | `Luna is 6 weeks old` | `6 weeks old` |
+
+2. **No festive pill treatment.** The dashboard age line is plain text (`text-footnote`), not a pill. The cake emoji on birthday is the only festive cue; for a tiny lift, the birthday-day text uses `text-accent` instead of `text-text-secondary`. No background, no border. Savor and puppy stay in the standard secondary gray. The dashboard is the calm overview surface — the celebratory pill belongs on the pet detail screen where the user has explicitly opted in.
+
+The same fallback applies: pets without `date_of_birth` show `calculateAge(...)` plain text. `PetCard` only invokes `useAgeMoment` when a precise dob is present.
+
 ---
 
 ## Destructive Action Patterns

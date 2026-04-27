@@ -22,8 +22,19 @@ export type AgeMomentPhase = 'puppy' | 'birthday' | 'savor' | 'default';
 
 export interface AgeMoment {
   phase: AgeMomentPhase;
-  /** Full pill copy including any emoji. Example: "🎂 Buddy is 9 today". */
+  /**
+   * Full pill copy including the pet's name and any emoji. Used by the pet
+   * detail sticky header where the pill stands alone (no surrounding name).
+   * Example: "🎂 Buddy is 9 today".
+   */
   label: string;
+  /**
+   * Name-less variant used in contexts where the pet's name is already the
+   * heading (e.g. dashboard `PetCard`). Mirrors `label` across all four
+   * phases and edge cases — same plural / leap-day / weeks-vs-months logic.
+   * Example: "🎂 9 today".
+   */
+  shortLabel: string;
   /** True only on birthday day — controls coral tint on the pill. */
   isFestive: boolean;
 }
@@ -106,15 +117,19 @@ export function useAgeMoment(petName: string, dob: Date | string): AgeMoment {
     // birthday → months copy. The spec's "weeks for under 8 weeks" cutoff
     // is the source of truth here.
     if (weeks < 8) {
+      const fragment = `${plural(weeks, 'week', 'weeks')} old`;
       return {
         phase: 'puppy',
-        label: `${petName} is ${plural(weeks, 'week', 'weeks')} old`,
+        label: `${petName} is ${fragment}`,
+        shortLabel: fragment,
         isFestive: false,
       };
     }
+    const fragment = `${plural(months, 'month', 'months')} old`;
     return {
       phase: 'puppy',
-      label: `${petName} is ${plural(months, 'month', 'months')} old`,
+      label: `${petName} is ${fragment}`,
+      shortLabel: fragment,
       isFestive: false,
     };
   }
@@ -125,6 +140,7 @@ export function useAgeMoment(petName: string, dob: Date | string): AgeMoment {
     return {
       phase: 'birthday',
       label: `🎂 ${petName} is ${years} today`,
+      shortLabel: `🎂 ${years} today`,
       isFestive: true,
     };
   }
@@ -145,14 +161,17 @@ export function useAgeMoment(petName: string, dob: Date | string): AgeMoment {
     return {
       phase: 'savor',
       label: `${petName} just turned ${years}`,
+      shortLabel: `Just turned ${years}`,
       isFestive: false,
     };
   }
 
   // Default state — the quiet ~330 days a year.
+  const fragment = `${plural(years, 'year', 'years')} old`;
   return {
     phase: 'default',
-    label: `${petName} is ${plural(years, 'year', 'years')} old`,
+    label: `${petName} is ${fragment}`,
+    shortLabel: fragment,
     isFestive: false,
   };
 }
