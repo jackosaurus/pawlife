@@ -97,9 +97,10 @@ describe('SettingsScreen (slimmed)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockGetDeletionContext.mockResolvedValue({
-      isSoleAdminOfMultiMemberFamily: false,
-      memberCount: 1,
-      petNames: ['Buddy'],
+      activePetCount: 1,
+      archivedPetCount: 0,
+      otherFamilyMemberCount: 0,
+      isSoleAdmin: false,
     });
     mockDeleteAccount.mockResolvedValue(undefined);
     mockSignOut.mockResolvedValue(undefined);
@@ -256,54 +257,112 @@ describe('SettingsScreen (slimmed)', () => {
 });
 
 describe('buildDeletionBody', () => {
-  it('falls back to "your pets" when no pet names are available', () => {
+  // Body copy must contain no hyphens of any kind. ASCII hyphens, em
+  // dashes, and en dashes are all forbidden as separators or sentence
+  // connectors.
+  function expectNoHyphens(body: string) {
+    expect(body).not.toMatch(/-/);
+    expect(body).not.toMatch(/—/);
+    expect(body).not.toMatch(/–/);
+  }
+
+  it('renders count-based copy for a sole user with no family and 2 active pets', () => {
+    const body = buildDeletionBody({
+      activePetCount: 2,
+      archivedPetCount: 0,
+      otherFamilyMemberCount: 0,
+      isSoleAdmin: false,
+    });
+    expect(body).toContain('This permanently deletes your account');
+    expect(body).toContain('• 2 active pets');
+    expect(body).not.toContain('archived');
+    expect(body).not.toContain('family');
+    expect(body).toContain('• All your health, food, and weight records');
+    expect(body).toContain('• All photos you have uploaded');
+    expect(body).toContain('This cannot be undone.');
+    expectNoHyphens(body);
+  });
+
+  it('renders sole-admin copy with mixed active/archived counts and 3 other members', () => {
+    const body = buildDeletionBody({
+      activePetCount: 1,
+      archivedPetCount: 4,
+      otherFamilyMemberCount: 3,
+      isSoleAdmin: true,
+    });
+    expect(body).toContain('• 1 active pet');
+    expect(body).toContain('• 4 archived pets');
+    expect(body).toContain(
+      '• Your family and the 3 other members you share it with',
+    );
+    expect(body).toContain('The family itself will be deleted.');
+    expectNoHyphens(body);
+  });
+
+  it('renders non-admin member copy with 0 pets', () => {
+    const body = buildDeletionBody({
+      activePetCount: 0,
+      archivedPetCount: 0,
+      otherFamilyMemberCount: 2,
+      isSoleAdmin: false,
+    });
+    expect(body).not.toContain('active pet');
+    expect(body).not.toContain('archived pet');
+    expect(body).toContain(
+      '• Your access to the family you share with 2 other members',
+    );
+    expect(body).not.toContain('The family itself will be deleted');
+    expectNoHyphens(body);
+  });
+
+  it('renders edge-case copy when account has 0 pets and no family', () => {
+    const body = buildDeletionBody({
+      activePetCount: 0,
+      archivedPetCount: 0,
+      otherFamilyMemberCount: 0,
+      isSoleAdmin: false,
+    });
+    expect(body).toContain('This permanently deletes your account');
+    expect(body).not.toContain('active pet');
+    expect(body).not.toContain('archived pet');
+    expect(body).not.toContain('family');
+    expect(body).toContain('• All your health, food, and weight records');
+    expect(body).toContain('• All photos you have uploaded');
+    expect(body).toContain('This cannot be undone.');
+    expectNoHyphens(body);
+  });
+
+  it('falls back gracefully when context is null', () => {
     const body = buildDeletionBody(null);
-    expect(body).toContain('your pets');
-    expect(body).toContain('cannot be undone');
+    expect(body).toContain('This permanently deletes your account');
+    expect(body).toContain('This cannot be undone.');
+    expectNoHyphens(body);
   });
 
-  it('lists pet names inline when available', () => {
+  it('uses singular pet wording when count is 1', () => {
     const body = buildDeletionBody({
-      isSoleAdminOfMultiMemberFamily: false,
-      memberCount: 1,
-      petNames: ['Buddy'],
+      activePetCount: 1,
+      archivedPetCount: 1,
+      otherFamilyMemberCount: 0,
+      isSoleAdmin: false,
     });
-    expect(body).toContain('your pets (Buddy)');
-  });
-
-  it('truncates long pet lists with "and N more"', () => {
-    const body = buildDeletionBody({
-      isSoleAdminOfMultiMemberFamily: false,
-      memberCount: 1,
-      petNames: ['A', 'B', 'C', 'D', 'E'],
-    });
-    expect(body).toContain('A, B, C, and 2 more');
-  });
-
-  it('warns about other family members losing access for sole admin', () => {
-    const body = buildDeletionBody({
-      isSoleAdminOfMultiMemberFamily: true,
-      memberCount: 3,
-      petNames: ['Buddy'],
-    });
-    expect(body).toContain('2 other family members will lose access');
-  });
-
-  it('always includes the shared-photo warning', () => {
-    const body = buildDeletionBody({
-      isSoleAdminOfMultiMemberFamily: false,
-      memberCount: 1,
-      petNames: ['Buddy'],
-    });
-    expect(body).toContain('photos of pets you share with family members');
+    expect(body).toContain('• 1 active pet');
+    expect(body).toContain('• 1 archived pet');
+    // Confirm we did NOT pluralize incorrectly
+    expect(body).not.toContain('1 active pets');
+    expect(body).not.toContain('1 archived pets');
+    expectNoHyphens(body);
   });
 
   it('uses singular member wording when only one other member', () => {
     const body = buildDeletionBody({
-      isSoleAdminOfMultiMemberFamily: true,
-      memberCount: 2,
-      petNames: ['Buddy'],
+      activePetCount: 0,
+      archivedPetCount: 0,
+      otherFamilyMemberCount: 1,
+      isSoleAdmin: true,
     });
-    expect(body).toContain('1 other family member will lose access');
+    expect(body).toContain('1 other member you share it with');
+    expect(body).not.toContain('1 other members');
+    expectNoHyphens(body);
   });
 });

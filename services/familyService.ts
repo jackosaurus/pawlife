@@ -185,29 +185,29 @@ export const familyService = {
 
   /**
    * Computes the data-loss context surfaced in the Delete Account
-   * confirmation modal:
+   * confirmation modal. Returns counts only (no names) so the UI can
+   * render concise, neutral body copy.
    *
-   * - `isSoleAdminOfMultiMemberFamily`: true when the user is the only
-   *   admin and there is at least one other family member. Other members
-   *   will lose access to shared pets.
-   * - `memberCount`: total members in the family (including the user).
-   * - `petNames`: names of active (non-archived) pets in the family.
-   *
-   * Used by the Settings screen to render dynamic body copy like
-   * "All photos you've uploaded (including those of pets shared with
-   * family members) will be removed."
+   * - `activePetCount`: pets in the user's family with `is_archived=false`.
+   * - `archivedPetCount`: pets in the user's family with `is_archived=true`.
+   * - `otherFamilyMemberCount`: family members excluding the user.
+   * - `isSoleAdmin`: true when the user is the only admin and there is at
+   *   least one other family member. Other members will lose access to
+   *   shared pets and the family itself will be deleted.
    */
   async getDeletionContext(): Promise<{
-    isSoleAdminOfMultiMemberFamily: boolean;
-    memberCount: number;
-    petNames: string[];
+    activePetCount: number;
+    archivedPetCount: number;
+    otherFamilyMemberCount: number;
+    isSoleAdmin: boolean;
   }> {
     const family = await familyService.getFamily();
     if (!family) {
       return {
-        isSoleAdminOfMultiMemberFamily: false,
-        memberCount: 0,
-        petNames: [],
+        activePetCount: 0,
+        archivedPetCount: 0,
+        otherFamilyMemberCount: 0,
+        isSoleAdmin: false,
       };
     }
 
@@ -218,22 +218,33 @@ export const familyService = {
     const otherAdmins = family.members.filter(
       (m) => m.user_id !== user.id && m.role === 'admin',
     );
-    const isSoleAdminOfMultiMemberFamily =
+    const otherFamilyMemberCount = family.members.length - 1;
+    const isSoleAdmin =
       myMembership?.role === 'admin' &&
-      family.members.length > 1 &&
+      otherFamilyMemberCount > 0 &&
       otherAdmins.length === 0;
 
     const { data: pets, error: petsErr } = await supabase
       .from('pets')
-      .select('name')
-      .eq('family_id', family.id)
-      .eq('is_archived', false);
+      .select('is_archived')
+      .eq('family_id', family.id);
     if (petsErr) throw petsErr;
 
+    let activePetCount = 0;
+    let archivedPetCount = 0;
+    for (const p of pets ?? []) {
+      if ((p as { is_archived: boolean }).is_archived) {
+        archivedPetCount += 1;
+      } else {
+        activePetCount += 1;
+      }
+    }
+
     return {
-      isSoleAdminOfMultiMemberFamily,
-      memberCount: family.members.length,
-      petNames: (pets ?? []).map((p) => p.name),
+      activePetCount,
+      archivedPetCount,
+      otherFamilyMemberCount,
+      isSoleAdmin,
     };
   },
 };

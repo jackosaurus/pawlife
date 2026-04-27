@@ -26,42 +26,66 @@ import { familyService } from '@/services/familyService';
 import { Colors } from '@/constants/colors';
 
 interface DeletionContext {
-  isSoleAdminOfMultiMemberFamily: boolean;
-  memberCount: number;
-  petNames: string[];
+  activePetCount: number;
+  archivedPetCount: number;
+  otherFamilyMemberCount: number;
+  isSoleAdmin: boolean;
 }
 
 /**
  * Compose the body copy for the Delete Account confirmation modal.
- * Two variants:
- *   - Generic (solo user or non-sole-admin): mentions pets + photos.
- *   - Sole-admin-of-multi-member-family: extra sentence calling out
- *     that other family members will lose access.
  *
- * Per reviewer amendment §5, we explicitly call out that photos uploaded
- * for shared pets will also be removed.
+ * The copy is intentionally count-based (never lists pet names) and uses
+ * no hyphens of any kind. Sentences are short. Lists use bullet points.
+ *
+ * Lines that would render with a count of 0 are omitted entirely.
  */
 export function buildDeletionBody(ctx: DeletionContext | null): string {
-  const petList = formatPetList(ctx?.petNames ?? []);
-  const sharedPhotoWarning =
-    'All photos you have uploaded — including photos of pets you share with family members — will be removed.';
-  const corePets = petList
-    ? `your pets (${petList})`
-    : 'your pets';
+  const activePetCount = ctx?.activePetCount ?? 0;
+  const archivedPetCount = ctx?.archivedPetCount ?? 0;
+  const otherFamilyMemberCount = ctx?.otherFamilyMemberCount ?? 0;
+  const isSoleAdmin = ctx?.isSoleAdmin ?? false;
 
-  if (ctx?.isSoleAdminOfMultiMemberFamily) {
-    const others = ctx.memberCount - 1;
-    const memberWord = others === 1 ? 'member' : 'members';
-    return `This permanently deletes your account, ${corePets}, all health and food records, your family, and any pending invites. ${others} other family ${memberWord} will lose access to these pets. ${sharedPhotoWarning} This cannot be undone.`;
+  const lines: string[] = [];
+
+  if (activePetCount > 0) {
+    lines.push(
+      `• ${activePetCount} active ${pluralize('pet', activePetCount)}`,
+    );
+  }
+  if (archivedPetCount > 0) {
+    lines.push(
+      `• ${archivedPetCount} archived ${pluralize('pet', archivedPetCount)}`,
+    );
+  }
+  lines.push('• All your health, food, and weight records');
+  lines.push('• All photos you have uploaded');
+
+  if (otherFamilyMemberCount > 0) {
+    const memberWord = pluralize('member', otherFamilyMemberCount);
+    if (isSoleAdmin) {
+      lines.push(
+        `• Your family and the ${otherFamilyMemberCount} other ${memberWord} you share it with. The family itself will be deleted.`,
+      );
+    } else {
+      lines.push(
+        `• Your access to the family you share with ${otherFamilyMemberCount} other ${memberWord}`,
+      );
+    }
   }
 
-  return `This permanently deletes your account, ${corePets}, all health and food records, your family, and any pending invites. ${sharedPhotoWarning} This cannot be undone.`;
+  return [
+    'This permanently deletes your account and everything in it.',
+    '',
+    'What gets deleted:',
+    ...lines,
+    '',
+    'This cannot be undone.',
+  ].join('\n');
 }
 
-function formatPetList(names: string[]): string {
-  if (names.length === 0) return '';
-  if (names.length <= 3) return names.join(', ');
-  return `${names.slice(0, 3).join(', ')}, and ${names.length - 3} more`;
+function pluralize(word: string, count: number): string {
+  return count === 1 ? word : `${word}s`;
 }
 
 export default function SettingsScreen() {

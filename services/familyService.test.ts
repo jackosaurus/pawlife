@@ -336,27 +336,31 @@ describe('familyService', () => {
       mockFrom.mockReturnValueOnce(chainMock({ data: null, error: null }));
       const result = await familyService.getDeletionContext();
       expect(result).toEqual({
-        isSoleAdminOfMultiMemberFamily: false,
-        memberCount: 0,
-        petNames: [],
+        activePetCount: 0,
+        archivedPetCount: 0,
+        otherFamilyMemberCount: 0,
+        isSoleAdmin: false,
       });
     });
 
-    it('returns isSoleAdminOfMultiMemberFamily=false for a solo admin', async () => {
+    it('returns isSoleAdmin=false for a solo admin (only one member)', async () => {
       mockGetFamilyChain('fam-1', [
         { id: 'm1', user_id: 'user-1', role: 'admin' },
       ]);
-      // pets query
+      // pets query: 1 active, 0 archived
       mockFrom.mockReturnValueOnce(
-        chainMock({ data: [{ name: 'Buddy' }], error: null }),
+        chainMock({ data: [{ is_archived: false }], error: null }),
       );
       const result = await familyService.getDeletionContext();
-      expect(result.isSoleAdminOfMultiMemberFamily).toBe(false);
-      expect(result.memberCount).toBe(1);
-      expect(result.petNames).toEqual(['Buddy']);
+      expect(result).toEqual({
+        activePetCount: 1,
+        archivedPetCount: 0,
+        otherFamilyMemberCount: 0,
+        isSoleAdmin: false,
+      });
     });
 
-    it('returns isSoleAdminOfMultiMemberFamily=true for a sole admin with members', async () => {
+    it('returns isSoleAdmin=true for a sole admin with other members', async () => {
       mockGetFamilyChain('fam-1', [
         { id: 'm1', user_id: 'user-1', role: 'admin' },
         { id: 'm2', user_id: 'user-2', role: 'member' },
@@ -364,52 +368,65 @@ describe('familyService', () => {
       ]);
       mockFrom.mockReturnValueOnce(
         chainMock({
-          data: [{ name: 'Buddy' }, { name: 'Whiskers' }],
+          data: [
+            { is_archived: false },
+            { is_archived: false },
+            { is_archived: true },
+          ],
           error: null,
         }),
       );
       const result = await familyService.getDeletionContext();
-      expect(result.isSoleAdminOfMultiMemberFamily).toBe(true);
-      expect(result.memberCount).toBe(3);
-      expect(result.petNames).toEqual(['Buddy', 'Whiskers']);
+      expect(result).toEqual({
+        activePetCount: 2,
+        archivedPetCount: 1,
+        otherFamilyMemberCount: 2,
+        isSoleAdmin: true,
+      });
     });
 
-    it('returns isSoleAdminOfMultiMemberFamily=false when a co-admin exists', async () => {
+    it('returns isSoleAdmin=false when a co-admin exists', async () => {
       mockGetFamilyChain('fam-1', [
         { id: 'm1', user_id: 'user-1', role: 'admin' },
         { id: 'm2', user_id: 'user-2', role: 'admin' },
       ]);
       mockFrom.mockReturnValueOnce(chainMock({ data: [], error: null }));
       const result = await familyService.getDeletionContext();
-      expect(result.isSoleAdminOfMultiMemberFamily).toBe(false);
-      expect(result.memberCount).toBe(2);
+      expect(result.isSoleAdmin).toBe(false);
+      expect(result.otherFamilyMemberCount).toBe(1);
+      expect(result.activePetCount).toBe(0);
+      expect(result.archivedPetCount).toBe(0);
     });
 
-    it('returns isSoleAdminOfMultiMemberFamily=false for a non-admin member', async () => {
+    it('returns isSoleAdmin=false for a non-admin member', async () => {
       mockGetFamilyChain('fam-1', [
         { id: 'm1', user_id: 'user-1', role: 'member' },
         { id: 'm2', user_id: 'user-2', role: 'admin' },
       ]);
       mockFrom.mockReturnValueOnce(chainMock({ data: [], error: null }));
       const result = await familyService.getDeletionContext();
-      expect(result.isSoleAdminOfMultiMemberFamily).toBe(false);
-      expect(result.memberCount).toBe(2);
+      expect(result.isSoleAdmin).toBe(false);
+      expect(result.otherFamilyMemberCount).toBe(1);
     });
 
-    it('omits archived pets from petNames (filtered by is_archived=false)', async () => {
+    it('counts active and archived pets separately', async () => {
       mockGetFamilyChain('fam-1', [
         { id: 'm1', user_id: 'user-1', role: 'admin' },
       ]);
-      // The pets query filters .eq('is_archived', false) so the mock
-      // already returns only active pets — verify the chain includes
-      // the filter call by inspecting that we received [{name: 'Active'}]
-      // (the test just confirms the contract: only what the query returns
-      // appears in petNames).
       mockFrom.mockReturnValueOnce(
-        chainMock({ data: [{ name: 'Active' }], error: null }),
+        chainMock({
+          data: [
+            { is_archived: false },
+            { is_archived: true },
+            { is_archived: true },
+            { is_archived: false },
+          ],
+          error: null,
+        }),
       );
       const result = await familyService.getDeletionContext();
-      expect(result.petNames).toEqual(['Active']);
+      expect(result.activePetCount).toBe(2);
+      expect(result.archivedPetCount).toBe(2);
     });
 
     it('throws when not authenticated', async () => {
