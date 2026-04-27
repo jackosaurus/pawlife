@@ -109,7 +109,19 @@ Round 1 candidates (in `/Users/jackdinh/Code/pawlife/docs/pawlife-rename-proposa
 | 5 | Boopadoo | Onomatopoeia wildcard | Round 1 runner-up. |
 | 6 | Boopa | Original founder pick (per v1 release plan #3) | Pre-empted; revisit only if round 2 fails. |
 
-**Round 2 status (at time of writing this plan):** in progress. Brief: cross-species (works for dogs, cats, rabbits, reptiles, birds), meme-energy, character-driven names. Whichever doc emerges (likely `/Users/jackdinh/Code/pawlife/docs/pawlife-rename-proposals-r2.md`), read it before locking.
+**Round 2 candidates** (in `/Users/jackdinh/Code/pawlife/docs/pawlife-rename-proposals-r2.md`):
+
+| # | Name | Strategy | Status |
+|---|---|---|---|
+| 7 | **Beastie** | Affectionate diminutive | **Round 2 top pick.** Only name that passes cross-species + App Store + brand voice + 10-year longevity simultaneously. Only conflict is a dormant 2012 RPG. |
+| 8 | Snooze | Universal behavior verb | Cleanest App Store landscape. Risk: slightly passive. |
+| 9 | Mlem | Universal pet meme | Only conflict is a Lemmy social client. Niche-feeling. |
+| 10 | Floof | Coined onomatopoeia | **Fails cross-species test** — excludes scaly/bald pets. |
+| 11 | Buddy | Wildcard | Most pronounceable English word; trademark distinctiveness real but workable. |
+
+**Round 2 disqualifications** (do not consider): Blep (Indian pet food brand + furry chat server), Sploot (4 active pet apps), Critter (working pet-care SaaS at critter.pet), Toebeans (4 separate pet brands), Bonk (violence connotations fight the warm voice), Borb (.com held for offer).
+
+**Strategist's strongest single piece of advice:** *drop the premium .com chase entirely, commit to `.pet` from day one* (`beastie.pet`, `snooze.pet`, `mlem.pet` are all $15-30/yr and read as tagline-as-URL). Indie budget play is `.pet` + a loaded App Store Connect name like "Beastie — Pet Health Tracker." Accept that any name with character carries a 5-10% "I don't get it" cost — that's the price of not being Pawlife.
 
 **Decision:** founder must select before any code change. There is no engineering reason to prefer one over another; this is purely a brand call. Once chosen, update the placeholders throughout this doc and proceed.
 
@@ -368,7 +380,7 @@ Memorise these. The audits surfaced them; this section restates with the "why" s
 ### Primary source documents
 - `/Users/jackdinh/Code/pawlife/docs/pawlife-rename-ops-audit.md` — external services audit (8 services, sequencing traps, time estimates).
 - `/Users/jackdinh/Code/pawlife/docs/pawlife-rename-proposals.md` — round 1 brand naming (Schnoot rejected).
-- `/Users/jackdinh/Code/pawlife/docs/pawlife-rename-proposals-r2.md` — **does not exist at time of writing; round 2 in progress.** Cross-species, meme-energy, character-driven names per the brief.
+- `/Users/jackdinh/Code/pawlife/docs/pawlife-rename-proposals-r2.md` — round 2 brand candidates, cross-species and meme-energy. Top pick: Beastie. Includes disqualification notes for blep/sploot/critter/toebeans/bonk/borb.
 - `/Users/jackdinh/Code/pawlife/docs/pawlife-v1-release-plan.md` — item #3 ("Rename product to Boopa") explains the "poor life" problem motivating this rename.
 - `/Users/jackdinh/Code/pawlife/CLAUDE.md` — project working agreements; rules 6 (DB review) and 7 (post-migration review) do NOT apply here (no migrations).
 
