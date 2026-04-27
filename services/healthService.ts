@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { analyticsService } from './analyticsService';
 import {
   Vaccination,
   VaccinationInsert,
@@ -54,6 +55,7 @@ export const healthService = {
       .select()
       .single();
     if (error) throw error;
+    analyticsService.track('vaccination_logged', { pet_id: data.pet_id });
     return data;
   },
 
@@ -433,6 +435,23 @@ export const healthService = {
       .select()
       .single();
     if (error) throw error;
+    // We need pet_id for the event; fetch from the parent medication.
+    // Single denormalized lookup — small price for analytics richness.
+    try {
+      const { data: medRow } = await supabase
+        .from('medications')
+        .select('pet_id')
+        .eq('id', dose.medication_id)
+        .single();
+      if (medRow?.pet_id) {
+        analyticsService.track('medication_dose_logged', {
+          pet_id: medRow.pet_id,
+          medication_id: dose.medication_id,
+        });
+      }
+    } catch {
+      /* analytics never blocks the dose write */
+    }
     return data;
   },
 
@@ -557,6 +576,7 @@ export const healthService = {
       .select()
       .single();
     if (error) throw error;
+    analyticsService.track('weight_entry_logged', { pet_id: data.pet_id });
     return data;
   },
 

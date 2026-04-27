@@ -1,5 +1,6 @@
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { supabase } from './supabase';
+import { analyticsService } from './analyticsService';
 import { Pet, PetInsert, PetUpdate } from '@/types';
 
 export const petService = {
@@ -34,6 +35,10 @@ export const petService = {
       .select()
       .single();
     if (error) throw error;
+    analyticsService.track('pet_created', {
+      pet_id: data.id,
+      species: data.pet_type ?? 'unknown',
+    });
     return data;
   },
 

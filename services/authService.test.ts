@@ -1,5 +1,7 @@
 import { authService } from './authService';
 import { supabase } from './supabase';
+import { observabilityService } from './observabilityService';
+import { analyticsService } from './analyticsService';
 
 jest.mock('./supabase', () => ({
   supabase: {
@@ -13,7 +15,23 @@ jest.mock('./supabase', () => ({
   },
 }));
 
+jest.mock('./observabilityService', () => ({
+  observabilityService: {
+    identify: jest.fn(),
+    reset: jest.fn(),
+  },
+}));
+
+jest.mock('./analyticsService', () => ({
+  analyticsService: {
+    track: jest.fn(),
+  },
+}));
+
 const mockAuth = supabase.auth as jest.Mocked<typeof supabase.auth>;
+const mockIdentify = observabilityService.identify as jest.Mock;
+const mockReset = observabilityService.reset as jest.Mock;
+const mockTrack = analyticsService.track as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -21,7 +39,7 @@ beforeEach(() => {
 
 describe('authService', () => {
   describe('signUp', () => {
-    it('returns data on success', async () => {
+    it('returns data on success and identifies the user', async () => {
       const mockData = { session: { access_token: 'abc' }, user: { id: '1' } };
       mockAuth.signUp.mockResolvedValue({ data: mockData, error: null } as any);
 
@@ -31,9 +49,17 @@ describe('authService', () => {
         email: 'test@example.com',
         password: 'pass1234',
       });
+      expect(mockIdentify).toHaveBeenCalledWith('1');
     });
 
-    it('throws on error', async () => {
+    it('emits auth_signup_started before the network call', async () => {
+      const mockData = { session: { access_token: 'abc' }, user: { id: '1' } };
+      mockAuth.signUp.mockResolvedValue({ data: mockData, error: null } as any);
+      await authService.signUp('test@example.com', 'pass1234');
+      expect(mockTrack).toHaveBeenCalledWith('auth_signup_started', {});
+    });
+
+    it('emits auth_signup_failed on network error and re-throws', async () => {
       mockAuth.signUp.mockResolvedValue({
         data: { user: null, session: null },
         error: new Error('User already registered'),
@@ -42,11 +68,29 @@ describe('authService', () => {
       await expect(
         authService.signUp('test@example.com', 'pass1234'),
       ).rejects.toThrow('User already registered');
+      expect(mockTrack).toHaveBeenCalledWith('auth_signup_failed', {
+        reason: 'User already registered',
+      });
+      expect(mockIdentify).not.toHaveBeenCalled();
+    });
+
+    it('emits auth_signup_failed (email_confirmation_pending) when session is null', async () => {
+      mockAuth.signUp.mockResolvedValue({
+        data: { user: { id: '1' }, session: null },
+        error: null,
+      } as any);
+      await expect(
+        authService.signUp('test@example.com', 'pass1234'),
+      ).rejects.toThrow('check your email');
+      expect(mockTrack).toHaveBeenCalledWith('auth_signup_failed', {
+        reason: 'email_confirmation_pending',
+      });
+      expect(mockIdentify).not.toHaveBeenCalled();
     });
   });
 
   describe('signIn', () => {
-    it('returns data on success', async () => {
+    it('returns data on success and identifies the user', async () => {
       const mockData = { session: { access_token: 'abc' }, user: { id: '1' } };
       mockAuth.signInWithPassword.mockResolvedValue({
         data: mockData,
@@ -59,9 +103,10 @@ describe('authService', () => {
         email: 'test@example.com',
         password: 'pass1234',
       });
+      expect(mockIdentify).toHaveBeenCalledWith('1');
     });
 
-    it('throws on invalid credentials', async () => {
+    it('throws on invalid credentials and does not identify', async () => {
       mockAuth.signInWithPassword.mockResolvedValue({
         data: { user: null, session: null },
         error: new Error('Invalid login credentials'),
@@ -70,20 +115,23 @@ describe('authService', () => {
       await expect(
         authService.signIn('test@example.com', 'wrong'),
       ).rejects.toThrow('Invalid login credentials');
+      expect(mockIdentify).not.toHaveBeenCalled();
     });
   });
 
   describe('signOut', () => {
-    it('resolves on success', async () => {
+    it('resolves on success and resets observability', async () => {
       mockAuth.signOut.mockResolvedValue({ error: null } as any);
       await expect(authService.signOut()).resolves.toBeUndefined();
+      expect(mockReset).toHaveBeenCalled();
     });
 
-    it('throws on error', async () => {
+    it('throws on error and does not reset', async () => {
       mockAuth.signOut.mockResolvedValue({
         error: new Error('Sign out failed'),
       } as any);
       await expect(authService.signOut()).rejects.toThrow('Sign out failed');
+      expect(mockReset).not.toHaveBeenCalled();
     });
   });
 

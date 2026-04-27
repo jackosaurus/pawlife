@@ -1,6 +1,10 @@
 import { foodService } from './foodService';
 import { supabase } from './supabase';
 
+jest.mock('./analyticsService', () => ({
+  analyticsService: { track: jest.fn() },
+}));
+
 jest.mock('./supabase', () => {
   const mockFrom = jest.fn();
   return {

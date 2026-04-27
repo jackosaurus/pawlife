@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { analyticsService } from './analyticsService';
 import {
   FoodEntry,
   FoodEntryInsert,
@@ -55,6 +56,7 @@ export const foodService = {
       .select()
       .single();
     if (error) throw error;
+    analyticsService.track('food_entry_logged', { pet_id: data.pet_id });
     return data;
   },
 

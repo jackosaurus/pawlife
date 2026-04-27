@@ -6,6 +6,10 @@ jest.mock('expo-image-manipulator', () => ({
   SaveFormat: { JPEG: 'jpeg' },
 }));
 
+jest.mock('./analyticsService', () => ({
+  analyticsService: { track: jest.fn() },
+}));
+
 jest.mock('./supabase', () => {
   const mockFrom = jest.fn();
   const mockStorage = {
@@ -104,13 +108,30 @@ describe('petService', () => {
       expect(result).toEqual(pet);
     });
 
-    it('throws on error', async () => {
+    it('emits pet_created event after successful insert', async () => {
+      const { analyticsService } = require('./analyticsService');
+      analyticsService.track.mockClear();
+      const pet = { id: '1', name: 'Luna', pet_type: 'cat' };
+      mockFrom.mockReturnValue(
+        chainMock({ data: pet, error: null }),
+      );
+      await petService.create({ family_id: 'fam-1', pet_type: 'cat', name: 'Luna' });
+      expect(analyticsService.track).toHaveBeenCalledWith('pet_created', {
+        pet_id: '1',
+        species: 'cat',
+      });
+    });
+
+    it('does not emit pet_created on error', async () => {
+      const { analyticsService } = require('./analyticsService');
+      analyticsService.track.mockClear();
       mockFrom.mockReturnValue(
         chainMock({ data: null, error: new Error('Insert failed') }),
       );
       await expect(
         petService.create({ family_id: 'fam-1', pet_type: 'dog', name: 'Rex' }),
       ).rejects.toThrow('Insert failed');
+      expect(analyticsService.track).not.toHaveBeenCalled();
     });
   });
 
