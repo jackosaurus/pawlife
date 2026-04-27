@@ -1,5 +1,7 @@
 # Pawlife — Screen Inventory & Design System (MVP)
 
+> **DEPRECATED.** Design system content has moved to [pawlife-design-system.md](pawlife-design-system.md). This file is kept for historical reference only — patterns described here (e.g. swipe-to-edit/delete, "Vet Visits" filter) no longer reflect the current app.
+
 ## Design Principles
 
 1. **Warm, not clinical.** This is about your pet family, not a medical chart. Soft corners, warm colors, generous whitespace. Think: the care of a premium baby tracking app, not a hospital portal.

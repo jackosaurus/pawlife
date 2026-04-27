@@ -45,39 +45,11 @@ utils/                  # Pure utility functions
 
 ## Design System
 
-- **Background:** `#FFF8E7` (pale warm yellow)
-- **Primary:** `#4A2157` (rich plum)
-- **Primary pressed:** `#341539` (deep plum)
-- **Accent:** `#E8735A` (soft coral)
-- **Cards:** `#FFFFFF` with rounded corners (16px) and subtle shadow
-- **Text primary:** `#2D2A26` (dark warm charcoal)
-- **Text secondary:** `#7A756E` (warm gray)
-- **Status green:** `#5BA67C`, **amber:** `#E5A84B`, **overdue:** `#E8735A`, **neutral:** `#9CA3AF`
-- **Input fill:** `#F5F3F0` (warm light gray for form input backgrounds inside cards)
-- **Borders:** `#EDE8DF` (warm border)
+The canonical design system lives in `docs/pawlife-design-system.md` — colors, typography, components, patterns, voice. Always check it before introducing a new pattern. When you change a pattern, update the doc.
 
-All colors are defined in `constants/colors.ts`. Always reference the constant, never hardcode hex values in components.
+Do not hardcode hex values, font sizes, or spacing — use the tokens in `constants/colors.ts`, `constants/typography.ts`, and the NativeWind theme.
 
-### UI Patterns
-
-- **Detail screens** use `DetailRow` (horizontal label/value) inside white `Card` wrappers. Group related fields into separate cards with a small uppercase section label (e.g. "TIMELINE" for date fields).
-- **Form screens** wrap all input fields inside a white `Card` with `px-5 pt-4`. Special controls (pet type selector, photo picker) stay outside the card.
-  - **Add screens** use a bottom `Button` for the primary submit action.
-  - **Edit screens** use a header bar with back arrow (left), title (center), and a "Save" text button (right, primary color). No bottom submit button.
-- **Form inputs** use white background with subtle `1px` border (`Colors.border`), highlighting to `Colors.primary` on focus.
-- **Record cards** use a date-left layout: large day number, 3-letter month, and year stacked on the left; title, subtitle, and optional detail line on the right. Status pill (when applicable) sits top-right. The `RecordCard` component supports `title`, `subtitle`, `detail`, `status`, and `statusLabel` props. Used for vaccinations, weight, and food.
-- **Medication cards** use a purpose-built `MedicationCard` component (`components/health/MedicationCard.tsx`) with no date column. Med info (name, dosage · frequency) on the left, status indicator + context text + "Log Dose" link on the right. Status indicators: green checkmark (done), amber/red fraction (partial/overdue), gray dot (new/finished). Context is time-aware ("Given 5m ago", "Due today").
-- **Record detail action buttons** use consistent labels: "Edit" (primary) and "Delete" (secondary). Never include the record type in the button label (e.g., "Edit" not "Edit Vaccination").
-- **Delete confirmations** use a bottom-sheet-style Modal with `animationType="fade"`, rounded top corners, and a dark overlay.
-- **Date fields** use native date pickers (`@react-native-community/datetimepicker`) via the `DateInput` component — never raw text input.
-- **Date format** is day-first: "15 Jan 2025" (en-GB locale).
-- **Screen component** accepts an optional `edges` prop to control SafeAreaView edges. Screens with their own white content area extending to the bottom should use `edges={['top', 'left', 'right']}` to avoid yellow background showing at the bottom.
-
-## Styling
-
-- Use NativeWind (Tailwind for React Native) for all styling.
-- Use custom color tokens via NativeWind theme config where possible.
-- For iOS glass/blur effects, use `expo-blur` as progressive enhancement — always provide a solid fallback.
+For destructive actions, follow the severity tiers in the design system doc — never use `Alert.alert` for destructive confirmations; use the `ConfirmationModal` component.
 
 ## Testing
 
@@ -152,7 +124,8 @@ Refer to `docs/pawlife-build-plan.md` for the full sequenced build plan.
 
 These are in the `docs/` directory:
 - `pawlife-roadmap.md` — Product vision, MVP scope, phased backlog
-- `pawlife-screen-inventory.md` — Design system, voice & tone, 28 screens, user flows
+- `pawlife-design-system.md` — Canonical design system: tokens, components, patterns, voice, destructive-action tiers
+- `pawlife-screen-inventory.md` — DEPRECATED; superseded by the design system doc, kept for history only
 - `pawlife-tech-stack.md` — Full tech stack with architecture and migration path
 - `pawlife-data-model.md` — Schema, RLS policies, storage, data flows, service layer examples
 - `pawlife-build-plan.md` — 11 sequenced units of work (MVP build, Units 1-10 complete)
