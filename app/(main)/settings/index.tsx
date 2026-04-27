@@ -80,6 +80,8 @@ export function buildDeletionBody(ctx: DeletionContext | null): string {
     'What gets deleted:',
     ...lines,
     '',
+    'Your account will no longer exist and you will not be able to sign back in.',
+    '',
     'This cannot be undone.',
   ].join('\n');
 }

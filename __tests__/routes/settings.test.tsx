@@ -279,6 +279,9 @@ describe('buildDeletionBody', () => {
     expect(body).not.toContain('family');
     expect(body).toContain('• All your health, food, and weight records');
     expect(body).toContain('• All photos you have uploaded');
+    expect(body).toContain(
+      'Your account will no longer exist and you will not be able to sign back in.',
+    );
     expect(body).toContain('This cannot be undone.');
     expectNoHyphens(body);
   });
@@ -328,6 +331,9 @@ describe('buildDeletionBody', () => {
     expect(body).not.toContain('family');
     expect(body).toContain('• All your health, food, and weight records');
     expect(body).toContain('• All photos you have uploaded');
+    expect(body).toContain(
+      'Your account will no longer exist and you will not be able to sign back in.',
+    );
     expect(body).toContain('This cannot be undone.');
     expectNoHyphens(body);
   });
@@ -335,6 +341,9 @@ describe('buildDeletionBody', () => {
   it('falls back gracefully when context is null', () => {
     const body = buildDeletionBody(null);
     expect(body).toContain('This permanently deletes your account');
+    expect(body).toContain(
+      'Your account will no longer exist and you will not be able to sign back in.',
+    );
     expect(body).toContain('This cannot be undone.');
     expectNoHyphens(body);
   });
