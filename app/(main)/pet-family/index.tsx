@@ -13,6 +13,8 @@ import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { TextInput } from '@/components/ui/TextInput';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
+import { useToast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/stores/authStore';
 import { useFamilyStore } from '@/stores/familyStore';
 import { petService } from '@/services/petService';
@@ -47,6 +49,16 @@ export default function PetFamilyScreen() {
   const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
   const [leavingFamily, setLeavingFamily] = useState(false);
   const [revokingInvite, setRevokingInvite] = useState(false);
+
+  // Confirmation modal state — one bag of state covering remove, leave, revoke.
+  const [removeMemberTarget, setRemoveMemberTarget] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [showLeaveFamily, setShowLeaveFamily] = useState(false);
+  const [showRevokeInvite, setShowRevokeInvite] = useState(false);
+
+  const { show: showToast } = useToast();
 
   const userId = session?.user.id;
   const email = session?.user.email ?? '';
@@ -113,103 +125,77 @@ export default function PetFamilyScreen() {
   };
 
   const handleRemoveMember = (memberId: string, memberName: string) => {
-    Alert.alert(
-      'Remove Member',
-      `Remove ${memberName} from the family?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Remove',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              setRemovingMemberId(memberId);
-              await familyService.removeMember(memberId);
-              await loadFamily();
-              await loadActiveInvite();
-            } catch {
-              Alert.alert('Error', 'Failed to remove member.');
-            } finally {
-              setRemovingMemberId(null);
-            }
-          },
-        },
-      ],
-    );
+    setRemoveMemberTarget({ id: memberId, name: memberName });
+  };
+
+  const handleConfirmRemoveMember = async () => {
+    if (!removeMemberTarget) return;
+    const { id: memberId } = removeMemberTarget;
+    try {
+      setRemovingMemberId(memberId);
+      await familyService.removeMember(memberId);
+      await loadFamily();
+      await loadActiveInvite();
+    } catch {
+      Alert.alert('Error', 'Failed to remove member.');
+    } finally {
+      setRemovingMemberId(null);
+      setRemoveMemberTarget(null);
+    }
   };
 
   const handleLeaveFamily = () => {
-    Alert.alert(
-      'Leave Family',
-      'Are you sure? Your pets will stay with this family.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Leave',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              setLeavingFamily(true);
-              await familyService.leaveFamily();
-              await loadFamily();
-              await loadPets();
-            } catch (err) {
-              const message =
-                err instanceof Error ? err.message : 'Failed to leave family';
-              Alert.alert('Error', message);
-            } finally {
-              setLeavingFamily(false);
-            }
-          },
-        },
-      ],
-    );
+    setShowLeaveFamily(true);
+  };
+
+  const handleConfirmLeaveFamily = async () => {
+    try {
+      setLeavingFamily(true);
+      await familyService.leaveFamily();
+      await loadFamily();
+      await loadPets();
+      setShowLeaveFamily(false);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Failed to leave family';
+      Alert.alert('Error', message);
+    } finally {
+      setLeavingFamily(false);
+    }
   };
 
   const handleRevokeInvite = () => {
     if (!activeInvite) return;
-    Alert.alert('Revoke Invite', 'This will invalidate the current invite code.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Revoke',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            setRevokingInvite(true);
-            await familyService.revokeInvite(activeInvite.id);
-            setActiveInvite(null);
-          } catch {
-            Alert.alert('Error', 'Failed to revoke invite.');
-          } finally {
-            setRevokingInvite(false);
-          }
-        },
-      },
-    ]);
+    setShowRevokeInvite(true);
   };
 
+  const handleConfirmRevokeInvite = async () => {
+    if (!activeInvite) return;
+    try {
+      setRevokingInvite(true);
+      await familyService.revokeInvite(activeInvite.id);
+      setActiveInvite(null);
+      setShowRevokeInvite(false);
+    } catch {
+      Alert.alert('Error', 'Failed to revoke invite.');
+    } finally {
+      setRevokingInvite(false);
+    }
+  };
+
+  // Restore is not destructive — instant action with a toast on success.
+  // No confirmation modal.
   const handleRestore = async (pet: Pet) => {
-    Alert.alert(
-      `Restore ${pet.name}?`,
-      `${pet.name} will be back in your active pet family.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Restore',
-          onPress: async () => {
-            try {
-              setRestoringId(pet.id);
-              await petService.restore(pet.id);
-              await loadPets();
-            } catch {
-              Alert.alert('Error', 'Failed to restore pet. Please try again.');
-            } finally {
-              setRestoringId(null);
-            }
-          },
-        },
-      ],
-    );
+    try {
+      setRestoringId(pet.id);
+      await petService.restore(pet.id);
+      await loadPets();
+      showToast(`${pet.name} restored`);
+    } catch {
+      Alert.alert('Error', 'Failed to restore pet. Please try again.');
+    } finally {
+      setRestoringId(null);
+    }
   };
 
   const renderSection = (title: string) => (
@@ -537,6 +523,43 @@ export default function PetFamilyScreen() {
           </>
         )}
       </View>
+
+      <ConfirmationModal
+        visible={removeMemberTarget !== null}
+        title="Remove member?"
+        message={
+          removeMemberTarget
+            ? `${removeMemberTarget.name} will lose access to this family's pets and records.`
+            : ''
+        }
+        confirmLabel="Remove"
+        severity="destructive"
+        onConfirm={handleConfirmRemoveMember}
+        onCancel={() => setRemoveMemberTarget(null)}
+        loading={removingMemberId !== null}
+      />
+
+      <ConfirmationModal
+        visible={showLeaveFamily}
+        title="Leave family?"
+        message="You'll lose access to this family's pets and records. Your pets will stay with the family."
+        confirmLabel="Leave family"
+        severity="destructive"
+        onConfirm={handleConfirmLeaveFamily}
+        onCancel={() => setShowLeaveFamily(false)}
+        loading={leavingFamily}
+      />
+
+      <ConfirmationModal
+        visible={showRevokeInvite}
+        title="Revoke invite?"
+        message="The current invite code will stop working. You can generate a new one anytime."
+        confirmLabel="Revoke"
+        severity="standard"
+        onConfirm={handleConfirmRevokeInvite}
+        onCancel={() => setShowRevokeInvite(false)}
+        loading={revokingInvite}
+      />
     </Screen>
   );
 }

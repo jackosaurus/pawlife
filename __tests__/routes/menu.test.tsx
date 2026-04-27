@@ -1,6 +1,5 @@
 import React from 'react';
 import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
-import { Alert } from 'react-native';
 import MenuScreen from '../../app/(main)/menu';
 import { userService } from '@/services/userService';
 
@@ -121,12 +120,15 @@ describe('MenuScreen', () => {
     );
   });
 
-  it('on confirmed sign out, calls router.back BEFORE signOut', async () => {
-    let alertButtons: Array<{ text: string; onPress?: () => void; style?: string }> = [];
-    jest.spyOn(Alert, 'alert').mockImplementation((_title, _msg, buttons) => {
-      alertButtons = (buttons ?? []) as typeof alertButtons;
-    });
+  it('opens the sign-out confirmation modal when Sign Out row pressed', () => {
+    const { getByTestId, queryByTestId } = render(<MenuScreen />);
+    // RN Modal renders nothing when visible=false in tests.
+    expect(queryByTestId('confirm-button')).toBeNull();
+    fireEvent.press(getByTestId('menu-row-signout'));
+    expect(getByTestId('confirm-button')).toBeTruthy();
+  });
 
+  it('on confirmed sign out, calls router.back BEFORE signOut', async () => {
     const callOrder: string[] = [];
     mockBack.mockImplementation(() => {
       callOrder.push('back');
@@ -137,27 +139,19 @@ describe('MenuScreen', () => {
 
     const { getByTestId } = render(<MenuScreen />);
     fireEvent.press(getByTestId('menu-row-signout'));
-
-    expect(Alert.alert).toHaveBeenCalled();
-    const confirmBtn = alertButtons.find((b) => b.text === 'Sign Out');
-    expect(confirmBtn).toBeTruthy();
-
     await act(async () => {
-      await confirmBtn!.onPress!();
+      fireEvent.press(getByTestId('confirm-button'));
     });
 
-    expect(callOrder).toEqual(['back', 'signOut']);
+    await waitFor(() => {
+      expect(callOrder).toEqual(['back', 'signOut']);
+    });
   });
 
-  it('cancel sign out does not call signOut', async () => {
-    let alertButtons: Array<{ text: string; onPress?: () => void; style?: string }> = [];
-    jest.spyOn(Alert, 'alert').mockImplementation((_title, _msg, buttons) => {
-      alertButtons = (buttons ?? []) as typeof alertButtons;
-    });
+  it('cancel sign out does not call signOut', () => {
     const { getByTestId } = render(<MenuScreen />);
     fireEvent.press(getByTestId('menu-row-signout'));
-    const cancelBtn = alertButtons.find((b) => b.text === 'Cancel');
-    expect(cancelBtn).toBeTruthy();
+    fireEvent.press(getByTestId('cancel-button'));
     expect(mockSignOut).not.toHaveBeenCalled();
   });
 });

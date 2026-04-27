@@ -1,6 +1,5 @@
 import React from 'react';
 import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
-import { Alert } from 'react-native';
 import PetFamilyScreen from '../../app/(main)/pet-family';
 import { petService } from '@/services/petService';
 import { familyService } from '@/services/familyService';
@@ -190,22 +189,19 @@ describe('PetFamilyScreen', () => {
       loading: false,
     };
 
-    let alertButtons: Array<{ text: string; onPress?: () => void }> = [];
-    jest.spyOn(Alert, 'alert').mockImplementation((_t, _m, buttons) => {
-      alertButtons = (buttons ?? []) as typeof alertButtons;
-    });
     (familyService.leaveFamily as jest.Mock).mockResolvedValue(undefined);
 
-    const { findByText } = render(<PetFamilyScreen />);
+    const { findByText, getByTestId } = render(<PetFamilyScreen />);
     const leaveBtn = await findByText('Leave Family');
     fireEvent.press(leaveBtn);
 
-    const confirm = alertButtons.find((b) => b.text === 'Leave');
-    expect(confirm).toBeTruthy();
+    // Confirmation modal opens — confirm button is the destructive ghost text
     await act(async () => {
-      await confirm!.onPress!();
+      fireEvent.press(getByTestId('confirm-button'));
     });
-    expect(familyService.leaveFamily).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(familyService.leaveFamily).toHaveBeenCalled();
+    });
   });
 
   it('admin: remove member triggers familyService.removeMember', async () => {
@@ -231,41 +227,31 @@ describe('PetFamilyScreen', () => {
       loading: false,
     };
 
-    let alertButtons: Array<{ text: string; onPress?: () => void }> = [];
-    jest.spyOn(Alert, 'alert').mockImplementation((_t, _m, buttons) => {
-      alertButtons = (buttons ?? []) as typeof alertButtons;
-    });
     (familyService.removeMember as jest.Mock).mockResolvedValue(undefined);
 
-    const { findByTestId } = render(<PetFamilyScreen />);
+    const { findByTestId, getByTestId } = render(<PetFamilyScreen />);
     const removeBtn = await findByTestId('remove-member-mem-2');
     fireEvent.press(removeBtn);
 
-    const confirm = alertButtons.find((b) => b.text === 'Remove');
-    expect(confirm).toBeTruthy();
     await act(async () => {
-      await confirm!.onPress!();
+      fireEvent.press(getByTestId('confirm-button'));
     });
-    expect(familyService.removeMember).toHaveBeenCalledWith('mem-2');
+    await waitFor(() => {
+      expect(familyService.removeMember).toHaveBeenCalledWith('mem-2');
+    });
   });
 
-  it('restore archived pet triggers petService.restore', async () => {
-    let alertButtons: Array<{ text: string; onPress?: () => void }> = [];
-    jest.spyOn(Alert, 'alert').mockImplementation((_t, _m, buttons) => {
-      alertButtons = (buttons ?? []) as typeof alertButtons;
-    });
+  it('restore archived pet triggers petService.restore immediately (no modal)', async () => {
     (petService.restore as jest.Mock).mockResolvedValue(undefined);
 
     const { findByTestId } = render(<PetFamilyScreen />);
     const restoreBtn = await findByTestId('restore-pet-archived-1');
-    fireEvent.press(restoreBtn);
-
-    const confirm = alertButtons.find((b) => b.text === 'Restore');
-    expect(confirm).toBeTruthy();
     await act(async () => {
-      await confirm!.onPress!();
+      fireEvent.press(restoreBtn);
     });
-    expect(petService.restore).toHaveBeenCalledWith('pet-archived-1');
+    await waitFor(() => {
+      expect(petService.restore).toHaveBeenCalledWith('pet-archived-1');
+    });
   });
 
   it('Add a pet CTA navigates to pets/add', async () => {

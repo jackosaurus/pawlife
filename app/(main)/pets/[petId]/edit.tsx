@@ -20,6 +20,7 @@ import { DateInput } from '@/components/ui/DateInput';
 import { Avatar } from '@/components/ui/Avatar';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { SearchableDropdown } from '@/components/ui/SearchableDropdown';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 import { addPetSchema, AddPetFormData } from '@/types/pet';
 import { petService } from '@/services/petService';
 import { allergyService } from '@/services/allergyService';
@@ -59,6 +60,8 @@ export default function EditPetScreen() {
     null,
   );
   const [allergiesSeeded, setAllergiesSeeded] = useState(false);
+  const [showArchive, setShowArchive] = useState(false);
+  const [archiving, setArchiving] = useState(false);
 
   useEffect(() => {
     // Seed pending state from the loaded list once. Subsequent refetches
@@ -341,28 +344,21 @@ export default function EditPetScreen() {
 
   const handleArchive = () => {
     if (!petId) return;
-    Alert.alert(
-      `Archive ${petName}?`,
-      `They'll be moved to your archived pets. You can restore them anytime from Settings.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Archive',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await petService.archive(petId);
-              router.navigate('/(main)');
-            } catch {
-              Alert.alert(
-                'Error',
-                'Failed to archive pet. Please try again.',
-              );
-            }
-          },
-        },
-      ],
-    );
+    setShowArchive(true);
+  };
+
+  const handleConfirmArchive = async () => {
+    if (!petId) return;
+    setArchiving(true);
+    try {
+      await petService.archive(petId);
+      setShowArchive(false);
+      router.navigate('/(main)');
+    } catch {
+      Alert.alert('Error', 'Failed to archive pet. Please try again.');
+    } finally {
+      setArchiving(false);
+    }
   };
 
   if (loading) {
@@ -728,6 +724,17 @@ export default function EditPetScreen() {
           </Text>
         </Pressable>
       </View>
+
+      <ConfirmationModal
+        visible={showArchive}
+        title={`Archive ${petName || 'pet'}?`}
+        message={`We'll keep all of ${petName || 'their'} records safe. You can restore ${petName || 'them'} anytime from Pet Family.`}
+        confirmLabel="Archive"
+        severity="standard"
+        onConfirm={handleConfirmArchive}
+        onCancel={() => setShowArchive(false)}
+        loading={archiving}
+      />
     </Screen>
   );
 }

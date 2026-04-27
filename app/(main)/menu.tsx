@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { View, Text, Alert } from 'react-native';
+import { View, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen } from '@/components/ui/Screen';
 import { MenuRow } from '@/components/ui/MenuRow';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 import { useAuthStore } from '@/stores/authStore';
 import { userService } from '@/services/userService';
 import { Colors } from '@/constants/colors';
@@ -17,6 +18,8 @@ export default function MenuScreen() {
   const email = session?.user.email ?? '';
 
   const [displayName, setDisplayName] = useState<string>('');
+  const [showSignOut, setShowSignOut] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,19 +45,20 @@ export default function MenuScreen() {
   };
 
   const handleSignOut = () => {
-    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Sign Out',
-        style: 'destructive',
-        onPress: async () => {
-          // Dismiss the sheet first so the root layout's auth redirect
-          // doesn't race with an open modal.
-          router.back();
-          await signOut();
-        },
-      },
-    ]);
+    setShowSignOut(true);
+  };
+
+  const handleConfirmSignOut = async () => {
+    setSigningOut(true);
+    try {
+      // Dismiss the sheet first so the root layout's auth redirect
+      // doesn't race with an open modal.
+      router.back();
+      await signOut();
+    } finally {
+      setSigningOut(false);
+      setShowSignOut(false);
+    }
   };
 
   const heading = displayName || email || 'Account';
@@ -130,6 +134,17 @@ export default function MenuScreen() {
           testID="menu-row-signout"
         />
       </View>
+
+      <ConfirmationModal
+        visible={showSignOut}
+        title="Sign out?"
+        message="You'll need to sign in again to access your pet family."
+        confirmLabel="Sign Out"
+        severity="standard"
+        onConfirm={handleConfirmSignOut}
+        onCancel={() => setShowSignOut(false)}
+        loading={signingOut}
+      />
     </Screen>
   );
 }
