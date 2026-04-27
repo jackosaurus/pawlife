@@ -189,6 +189,7 @@ All components live in `components/`. Test files (`*.test.tsx`) sit alongside. E
 | `SearchableDropdown.tsx` | Searchable picker. `strictMode` forces selection-only (used for medication frequency); `onSelect` accepts `string \| null`. |
 | `SegmentedControl.tsx` | Inline pill segmented control for binary/ternary form choices (Sex, Food Type). |
 | `SegmentedFilter.tsx` | Horizontal scrolling filter pills for list filters. Active = plum filled / white text. |
+| `StatusCardLayout.tsx` | Shared layout primitive for status-bearing cards (`MedicationCard`, `VaccinationCard`). Pins the status indicator to an absolute-positioned slot at top-right so it can't drift with variable left/right content. See "Status card layout invariant". |
 | `StatusPill.tsx` | Small status badge — supports `green`, `amber`, `overdue`, `neutral`. The **only** sanctioned place for status colors. |
 | `TextInput.tsx` | `forwardRef`-compatible input with white bg + 1px border, focus state highlights to plum. |
 
@@ -291,6 +292,24 @@ Context text is time-aware: `"Given 5m ago"`, `"Given 2h ago"`, `"Given yesterda
 **Frequency rules:** Frequency is **required** and selected from `MEDICATION_FREQUENCIES` (Zod-validated). `SearchableDropdown` is in `strictMode` here — no free text. "As needed" is the first option. Every med has dose tracking (no `isRecurring` toggle); end-date field is always shown.
 
 **Overdue resets immediately** — logging a dose today resets status based on today's reality. We don't punish missed past days.
+
+### Status card layout invariant
+
+`MedicationCard` and `VaccinationCard` (and any future variant that shows an at-a-glance status indicator next to a primary title) **must** render through the shared `components/ui/StatusCardLayout.tsx` primitive.
+
+The invariant: the **status indicator (dot, check circle, fraction) is rendered into an absolute-positioned slot anchored at the top-right of the card** (`position: 'absolute', top: 0, right: 0`, fixed width and height). Everything else — context text, "Log" / "Log Dose" pill, stale-prompt footer — lays out around it.
+
+Why: when the indicator is part of a normal flex column, its vertical position drifts per row depending on:
+
+- left-column content height (long vaccine / med names that wrap or differ in line count),
+- right-column content (with vs without a Log button, with vs without context text),
+- indicator size variance (a 10pt dot vs a 28pt check circle changes the column centroid under `justify-center`).
+
+This was visible on real-device builds in the Vaccinations and Medications lists before the refactor: the green checks and orange dots sat at slightly different y-coordinates per row, producing a ragged column. The absolute-anchored slot is the structural fix — the indicator's position is now decoupled from any sibling content.
+
+**Don't** introduce a new card with a right-side status indicator without using `StatusCardLayout`. If you need a different layout, extend the primitive (add a slot) rather than rebuilding the flex column from scratch.
+
+The invariant is enforced by tests in `components/ui/StatusCardLayout.test.tsx` and the `layout invariant — status indicator anchor` blocks in both card test files.
 
 ### Dashboard hierarchy (Option B)
 

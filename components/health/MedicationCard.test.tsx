@@ -246,4 +246,84 @@ describe('MedicationCard', () => {
       alertSpy.mockRestore();
     });
   });
+
+  /**
+   * Regression: status indicator must sit in an absolute-positioned slot at
+   * the same top-right offset across all card variants. Previously the
+   * indicator was inside a flex column that re-flowed per row, causing
+   * vertical drift in real-device lists.
+   */
+  describe('layout invariant — status indicator anchor', () => {
+    function getSlotStyle(node: { props: { style: unknown } }) {
+      const raw = node.props.style;
+      return Array.isArray(raw)
+        ? Object.assign({}, ...(raw as object[]))
+        : (raw as Record<string, unknown>);
+    }
+
+    it('anchors the indicator slot at top:0 right:0 regardless of variant', () => {
+      // Variant A: green check, no Log Dose, short name
+      const a = render(
+        <MedicationCard
+          medication={makeMed({
+            lastGivenDate: new Date().toISOString(),
+            todayDoseCount: 1,
+          })}
+          onPress={jest.fn()}
+          onLogDose={jest.fn()}
+        />,
+      );
+
+      // Variant B: gray dot, with Log Dose, longer name
+      const b = render(
+        <MedicationCard
+          medication={makeMed({
+            name: 'Some Very Long Medication Name For Testing',
+            lastGivenDate: null,
+          })}
+          onPress={jest.fn()}
+          onLogDose={jest.fn()}
+        />,
+      );
+
+      // Variant C: fraction indicator, multi-daily partial
+      const c = render(
+        <MedicationCard
+          medication={makeMed({
+            frequency: 'Twice daily',
+            dosesPerDay: 2,
+            todayDoseCount: 1,
+            lastGivenDate: new Date().toISOString(),
+          })}
+          onPress={jest.fn()}
+          onLogDose={jest.fn()}
+        />,
+      );
+
+      // Variant D: with stale-prompt footer
+      const d = render(
+        <MedicationCard
+          medication={makeMed({ end_date: '2020-01-01' })}
+          onPress={jest.fn()}
+          onArchive={jest.fn()}
+        />,
+      );
+
+      const styles = [a, b, c, d].map((tree) =>
+        getSlotStyle(tree.getByTestId('status-indicator-slot')),
+      );
+
+      for (const style of styles) {
+        expect(style.position).toBe('absolute');
+        expect(style.top).toBe(0);
+        expect(style.right).toBe(0);
+      }
+      // Dimensions match across every variant — same slot, same place.
+      const [first, ...rest] = styles;
+      for (const style of rest) {
+        expect(style.width).toBe(first.width);
+        expect(style.height).toBe(first.height);
+      }
+    });
+  });
 });

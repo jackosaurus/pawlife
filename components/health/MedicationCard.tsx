@@ -1,6 +1,6 @@
 import { View, Text, Pressable, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Card } from '@/components/ui/Card';
+import { StatusCardLayout } from '@/components/ui/StatusCardLayout';
 import { Colors } from '@/constants/colors';
 import { MedicationWithDoseInfo } from '@/hooks/useMedications';
 import { getRecurringMedicationStatus, getOneOffMedicationStatus } from '@/utils/status';
@@ -125,10 +125,10 @@ export function MedicationCard({
   };
 
   return (
-    <Card className="p-4 mb-3" onPress={onPress}>
-      <View className="flex-row">
-        {/* Left: medication info */}
-        <View className="flex-1 justify-center mr-3">
+    <StatusCardLayout
+      onPress={onPress}
+      left={
+        <>
           <Text
             className="text-headline text-text-primary"
             numberOfLines={1}
@@ -141,11 +141,11 @@ export function MedicationCard({
           >
             {[medication.dosage, medication.frequency].filter(Boolean).join(' · ')}
           </Text>
-        </View>
-
-        {/* Right: status indicator + context + Log Dose */}
-        <View className="items-center justify-center" style={{ minWidth: 96 }}>
-          <StatusIndicator indicator={indicator} />
+        </>
+      }
+      indicator={<StatusIndicator indicator={indicator} />}
+      rightBelow={
+        <>
           <Text
             className="text-footnote text-text-secondary mt-1 text-center"
             numberOfLines={1}
@@ -172,25 +172,26 @@ export function MedicationCard({
               )}
             </Pressable>
           ) : null}
-        </View>
-      </View>
-
-      {stalePromptText ? (
-        <Pressable
-          onPress={handleStalePromptPress}
-          hitSlop={4}
-          testID="stale-prompt"
-          className="mt-3"
-        >
-          <Text
-            style={{ color: Colors.textSecondary }}
-            className="text-footnote"
-            numberOfLines={2}
+        </>
+      }
+      footer={
+        stalePromptText ? (
+          <Pressable
+            onPress={handleStalePromptPress}
+            hitSlop={4}
+            testID="stale-prompt"
+            className="mt-3"
           >
-            {stalePromptText}
-          </Text>
-        </Pressable>
-      ) : null}
-    </Card>
+            <Text
+              style={{ color: Colors.textSecondary }}
+              className="text-footnote"
+              numberOfLines={2}
+            >
+              {stalePromptText}
+            </Text>
+          </Pressable>
+        ) : null
+      }
+    />
   );
 }

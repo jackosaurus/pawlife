@@ -1,6 +1,6 @@
 import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Card } from '@/components/ui/Card';
+import { StatusCardLayout } from '@/components/ui/StatusCardLayout';
 import { Colors } from '@/constants/colors';
 import { Vaccination } from '@/types';
 import { getVaccinationStatus } from '@/utils/status';
@@ -115,10 +115,10 @@ export function VaccinationCard({
     (status !== 'green' || !vaccination.date_administered) && !!onLog;
 
   return (
-    <Card className="p-4 mb-3" onPress={onPress}>
-      <View className="flex-row">
-        {/* Left: vaccination info */}
-        <View className="flex-1 justify-center mr-3">
+    <StatusCardLayout
+      onPress={onPress}
+      left={
+        <>
           <Text
             className="text-headline text-text-primary"
             numberOfLines={1}
@@ -131,11 +131,13 @@ export function VaccinationCard({
           >
             {getIntervalLabel(vaccination.interval_months)}
           </Text>
-        </View>
-
-        {/* Right: status indicator + context + Log */}
-        <View className="items-center justify-center" style={{ minWidth: 96 }}>
-          <StatusIndicator type={indicator.type} color={indicator.color} />
+        </>
+      }
+      indicator={
+        <StatusIndicator type={indicator.type} color={indicator.color} />
+      }
+      rightBelow={
+        <>
           <Text
             className="text-footnote text-text-secondary mt-1 text-center"
             numberOfLines={1}
@@ -162,8 +164,8 @@ export function VaccinationCard({
               )}
             </Pressable>
           ) : null}
-        </View>
-      </View>
-    </Card>
+        </>
+      }
+    />
   );
 }

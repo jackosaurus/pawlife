@@ -153,4 +153,62 @@ describe('VaccinationCard', () => {
     expect(getByTestId('log-button')).toBeTruthy();
     expect(queryByText('Log')).toBeNull();
   });
+
+  /**
+   * Regression: status indicator must sit in an absolute-positioned slot at
+   * the same top-right offset across all card variants. This prevents the
+   * vertical drift the user spotted on real-device builds when cards in a
+   * list have different right-column content (with vs without Log button,
+   * different indicator types, different left-column lengths).
+   */
+  describe('layout invariant — status indicator anchor', () => {
+    function getSlotStyle(node: { props: { style: unknown } }) {
+      const raw = node.props.style;
+      return Array.isArray(raw)
+        ? Object.assign({}, ...(raw as object[]))
+        : (raw as Record<string, unknown>);
+    }
+
+    it('anchors the indicator slot at top:0 right:0 regardless of variant', () => {
+      mockedGetVaccinationStatus.mockReturnValue('green');
+      const greenCheck = render(
+        <VaccinationCard vaccination={makeVaccination()} onPress={jest.fn()} />,
+      );
+
+      mockedGetVaccinationStatus.mockReturnValue('amber');
+      const amberWithLog = render(
+        <VaccinationCard
+          vaccination={makeVaccination({ vaccine_name: 'Cytopoint' })}
+          onPress={jest.fn()}
+          onLog={jest.fn()}
+        />,
+      );
+
+      mockedGetVaccinationStatus.mockReturnValue('overdue');
+      const overdueLong = render(
+        <VaccinationCard
+          vaccination={makeVaccination({
+            vaccine_name: 'Some Extremely Long Vaccine Name That Truncates',
+          })}
+          onPress={jest.fn()}
+          onLog={jest.fn()}
+        />,
+      );
+
+      const a = getSlotStyle(greenCheck.getByTestId('status-indicator-slot'));
+      const b = getSlotStyle(amberWithLog.getByTestId('status-indicator-slot'));
+      const c = getSlotStyle(overdueLong.getByTestId('status-indicator-slot'));
+
+      for (const style of [a, b, c]) {
+        expect(style.position).toBe('absolute');
+        expect(style.top).toBe(0);
+        expect(style.right).toBe(0);
+      }
+      // And dimensions match — same slot, same place, every time.
+      expect(a.width).toBe(b.width);
+      expect(b.width).toBe(c.width);
+      expect(a.height).toBe(b.height);
+      expect(b.height).toBe(c.height);
+    });
+  });
 });
