@@ -1,15 +1,20 @@
-import { View, Text } from 'react-native';
+import { useState } from 'react';
+import { View, Text, Pressable } from 'react-native';
 import { Link } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import * as WebBrowser from 'expo-web-browser';
 import { signUpSchema, SignUpFormData } from '@/types/auth';
 import { useAuthStore } from '@/stores/authStore';
 import { Screen } from '@/components/ui/Screen';
 import { TextInput } from '@/components/ui/TextInput';
 import { Button } from '@/components/ui/Button';
+import { Colors } from '@/constants/colors';
+import { PRIVACY_POLICY_URL } from '@/constants/legal';
 
 export default function SignUpScreen() {
   const { signUp, loading, error, clearError } = useAuthStore();
+  const [consented, setConsented] = useState(false);
   const {
     control,
     handleSubmit,
@@ -22,6 +27,10 @@ export default function SignUpScreen() {
   const onSubmit = async (data: SignUpFormData) => {
     clearError();
     await signUp(data.email, data.password);
+  };
+
+  const openPrivacyPolicy = () => {
+    void WebBrowser.openBrowserAsync(PRIVACY_POLICY_URL);
   };
 
   return (
@@ -88,11 +97,46 @@ export default function SignUpScreen() {
           )}
         />
 
+        {/* Explicit consent — reviewer amendment §8. Unchecked by default;
+            sign-up button disabled until checked. */}
+        <Pressable
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: consented }}
+          accessibilityLabel="I agree to the Privacy Policy"
+          onPress={() => setConsented((v) => !v)}
+          testID="privacy-consent-checkbox"
+          className="flex-row items-center mt-4"
+        >
+          <View
+            className="w-6 h-6 rounded-md mr-3 items-center justify-center"
+            style={{
+              borderWidth: 1.5,
+              borderColor: consented ? Colors.primary : Colors.border,
+              backgroundColor: consented ? Colors.primary : Colors.card,
+            }}
+          >
+            {consented && (
+              <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>✓</Text>
+            )}
+          </View>
+          <Text className="text-sm text-text-secondary flex-1">
+            I agree to the{' '}
+            <Text
+              testID="privacy-policy-link"
+              onPress={openPrivacyPolicy}
+              className="text-primary font-medium underline"
+            >
+              Privacy Policy
+            </Text>
+          </Text>
+        </Pressable>
+
         <View className="mt-4">
           <Button
             title="Create Account"
             onPress={handleSubmit(onSubmit)}
             loading={loading}
+            disabled={!consented}
           />
         </View>
 
