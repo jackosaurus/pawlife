@@ -11,6 +11,10 @@ jest.mock('./supabase', () => ({
       signOut: jest.fn(),
       getSession: jest.fn(),
       resetPasswordForEmail: jest.fn(),
+      updateUser: jest.fn(),
+    },
+    functions: {
+      invoke: jest.fn(),
     },
   },
 }));
@@ -170,6 +174,41 @@ describe('authService', () => {
       expect(mockAuth.resetPasswordForEmail).toHaveBeenCalledWith(
         'test@example.com',
       );
+    });
+  });
+
+  describe('deleteAccount', () => {
+    const mockInvoke = (supabase as any).functions.invoke as jest.Mock;
+
+    it('invokes the delete-account Edge Function and resolves on success', async () => {
+      mockInvoke.mockResolvedValue({ data: { success: true }, error: null });
+      await expect(authService.deleteAccount()).resolves.toBeUndefined();
+      expect(mockInvoke).toHaveBeenCalledWith('delete-account', {
+        method: 'POST',
+      });
+    });
+
+    it('throws when the Edge Function transport returns an error', async () => {
+      mockInvoke.mockResolvedValue({
+        data: null,
+        error: new Error('Network error'),
+      });
+      await expect(authService.deleteAccount()).rejects.toThrow('Network error');
+    });
+
+    it('throws when the response body contains an error string (e.g. 429)', async () => {
+      mockInvoke.mockResolvedValue({
+        data: { error: 'Too many deletion attempts. Try again tomorrow.' },
+        error: null,
+      });
+      await expect(authService.deleteAccount()).rejects.toThrow(
+        'Too many deletion attempts',
+      );
+    });
+
+    it('does not throw on success body without an error key', async () => {
+      mockInvoke.mockResolvedValue({ data: { success: true }, error: null });
+      await expect(authService.deleteAccount()).resolves.toBeUndefined();
     });
   });
 });

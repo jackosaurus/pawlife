@@ -16,15 +16,59 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { TextInput } from '@/components/ui/TextInput';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
+import { useToast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/stores/authStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { authService } from '@/services/authService';
 import { userService } from '@/services/userService';
+import { familyService } from '@/services/familyService';
 import { Colors } from '@/constants/colors';
+
+interface DeletionContext {
+  isSoleAdminOfMultiMemberFamily: boolean;
+  memberCount: number;
+  petNames: string[];
+}
+
+/**
+ * Compose the body copy for the Delete Account confirmation modal.
+ * Two variants:
+ *   - Generic (solo user or non-sole-admin): mentions pets + photos.
+ *   - Sole-admin-of-multi-member-family: extra sentence calling out
+ *     that other family members will lose access.
+ *
+ * Per reviewer amendment §5, we explicitly call out that photos uploaded
+ * for shared pets will also be removed.
+ */
+export function buildDeletionBody(ctx: DeletionContext | null): string {
+  const petList = formatPetList(ctx?.petNames ?? []);
+  const sharedPhotoWarning =
+    'All photos you have uploaded — including photos of pets you share with family members — will be removed.';
+  const corePets = petList
+    ? `your pets (${petList})`
+    : 'your pets';
+
+  if (ctx?.isSoleAdminOfMultiMemberFamily) {
+    const others = ctx.memberCount - 1;
+    const memberWord = others === 1 ? 'member' : 'members';
+    return `This permanently deletes your account, ${corePets}, all health and food records, your family, and any pending invites. ${others} other family ${memberWord} will lose access to these pets. ${sharedPhotoWarning} This cannot be undone.`;
+  }
+
+  return `This permanently deletes your account, ${corePets}, all health and food records, your family, and any pending invites. ${sharedPhotoWarning} This cannot be undone.`;
+}
+
+function formatPetList(names: string[]): string {
+  if (names.length === 0) return '';
+  if (names.length <= 3) return names.join(', ');
+  return `${names.slice(0, 3).join(', ')}, and ${names.length - 3} more`;
+}
 
 export default function SettingsScreen() {
   const router = useRouter();
   const session = useAuthStore((s) => s.session);
+  const signOut = useAuthStore((s) => s.signOut);
+  const { show: showToast } = useToast();
   const weightUnit = useSettingsStore((s) => s.weightUnit);
   const setWeightUnit = useSettingsStore((s) => s.setWeightUnit);
   const remindersEnabled = useSettingsStore((s) => s.remindersEnabled);
@@ -58,6 +102,13 @@ export default function SettingsScreen() {
   const [editingDisplayName, setEditingDisplayName] = useState(false);
   const [savingDisplayName, setSavingDisplayName] = useState(false);
 
+  // Account deletion state
+  const [deletionModalVisible, setDeletionModalVisible] = useState(false);
+  const [deletionLoading, setDeletionLoading] = useState(false);
+  const [deletionError, setDeletionError] = useState<string | null>(null);
+  const [deletionContext, setDeletionContext] =
+    useState<DeletionContext | null>(null);
+
   const userId = session?.user.id;
   const email = session?.user.email ?? '';
   const appVersion = Constants.expoConfig?.version ?? '1.0.0';
@@ -72,12 +123,57 @@ export default function SettingsScreen() {
     }
   }, [userId]);
 
+  const loadDeletionContext = useCallback(async () => {
+    if (!userId) return;
+    try {
+      const ctx = await familyService.getDeletionContext();
+      setDeletionContext(ctx);
+    } catch {
+      // Silently degrade — body copy will use the generic fallback.
+      setDeletionContext(null);
+    }
+  }, [userId]);
+
   useEffect(() => {
     if (userId) {
       initializeSettings(userId);
       loadDisplayName();
+      loadDeletionContext();
     }
-  }, [userId, initializeSettings, loadDisplayName]);
+  }, [userId, initializeSettings, loadDisplayName, loadDeletionContext]);
+
+  const handleOpenDeleteModal = () => {
+    setDeletionError(null);
+    setDeletionModalVisible(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setDeletionLoading(true);
+    setDeletionError(null);
+    try {
+      await authService.deleteAccount();
+      // Cascade has already removed the public.users row. Sign the user
+      // out so the auth listener in the root layout routes back to
+      // /(auth)/welcome.
+      await signOut();
+      setDeletionModalVisible(false);
+      showToast('Account deleted.');
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : 'Could not delete account. Please try again.';
+      setDeletionError(message);
+    } finally {
+      setDeletionLoading(false);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    if (deletionLoading) return;
+    setDeletionModalVisible(false);
+    setDeletionError(null);
+  };
 
   const handleSaveDisplayName = async () => {
     if (!userId) return;
@@ -431,6 +527,47 @@ export default function SettingsScreen() {
           )}
         </Card>
 
+        {/* Account Management — destructive section, last */}
+        {renderSection('Account Management')}
+        <Pressable
+          onPress={handleOpenDeleteModal}
+          testID="delete-account-button"
+        >
+          <Card className="p-4 flex-row items-center justify-between">
+            <View className="flex-row items-center flex-1">
+              <Ionicons
+                name="trash-outline"
+                size={20}
+                color={Colors.destructive}
+              />
+              <Text
+                className="text-base font-medium ml-3"
+                style={{ color: Colors.destructive }}
+              >
+                Delete Account
+              </Text>
+            </View>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={Colors.textSecondary}
+            />
+          </Card>
+        </Pressable>
+
+        {/* Inline error after a failed delete attempt — modal closes
+            on success, but on error it stays open so the user can retry.
+            We also show the error here for accessibility / visibility
+            after the modal closes (e.g. if ConfirmationModal in a future
+            iteration auto-dismisses on cancel). */}
+        {deletionError && !deletionModalVisible && (
+          <View className="mt-3 bg-status-overdue/10 rounded-xl px-4 py-2">
+            <Text className="text-status-overdue text-sm">
+              {deletionError}
+            </Text>
+          </View>
+        )}
+
         {/* App Version */}
         <View className="mt-8 items-center">
           <Text className="text-text-secondary text-xs">
@@ -438,6 +575,43 @@ export default function SettingsScreen() {
           </Text>
         </View>
       </View>
+
+      <ConfirmationModal
+        visible={deletionModalVisible}
+        title="Delete Account"
+        message={buildDeletionBody(deletionContext)}
+        confirmLabel="Delete Account"
+        severity="irreversible"
+        typedConfirmationWord="DELETE"
+        loading={deletionLoading}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
+
+      {/* Inline error displayed inside the modal context — the
+          ConfirmationModal does not yet support an errorMessage prop, so
+          we render it adjacent in the screen. The modal stays open so
+          the user can retry. */}
+      {deletionError && deletionModalVisible && (
+        <View
+          pointerEvents="box-none"
+          style={{
+            position: 'absolute',
+            left: 24,
+            right: 24,
+            bottom: 200,
+          }}
+        >
+          <View className="bg-status-overdue rounded-xl px-4 py-3">
+            <Text
+              className="text-white text-sm font-medium text-center"
+              testID="deletion-error"
+            >
+              {deletionError}
+            </Text>
+          </View>
+        </View>
+      )}
     </Screen>
   );
 }

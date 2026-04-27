@@ -69,4 +69,28 @@ export const authService = {
     });
     if (error) throw error;
   },
+
+  /**
+   * Hard-deletes the calling user's account by invoking the
+   * `delete-account` Edge Function. The function reads the user from
+   * the JWT alone — no body parameters — and runs storage cleanup, PII
+   * scrubbing, then `auth.admin.deleteUser`, which triggers the cascade
+   * configured in migration 013.
+   *
+   * On success, the caller should immediately call `signOut()` so the
+   * auth listener in the root layout routes to the welcome screen. The
+   * cascade has already removed the public.users row by the time we
+   * return, so any further authenticated calls would fail anyway.
+   */
+  async deleteAccount(): Promise<void> {
+    const { data, error } = await supabase.functions.invoke('delete-account', {
+      method: 'POST',
+    });
+    if (error) throw error;
+    // Edge Function may return a 200 with { error: '...' } in edge
+    // cases; surface as a thrown error for the caller.
+    if (data && typeof data === 'object' && 'error' in data && data.error) {
+      throw new Error(String(data.error));
+    }
+  },
 };

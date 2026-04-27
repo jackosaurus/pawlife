@@ -182,4 +182,58 @@ export const familyService = {
     if (error) throw error;
     return data.role;
   },
+
+  /**
+   * Computes the data-loss context surfaced in the Delete Account
+   * confirmation modal:
+   *
+   * - `isSoleAdminOfMultiMemberFamily`: true when the user is the only
+   *   admin and there is at least one other family member. Other members
+   *   will lose access to shared pets.
+   * - `memberCount`: total members in the family (including the user).
+   * - `petNames`: names of active (non-archived) pets in the family.
+   *
+   * Used by the Settings screen to render dynamic body copy like
+   * "All photos you've uploaded (including those of pets shared with
+   * family members) will be removed."
+   */
+  async getDeletionContext(): Promise<{
+    isSoleAdminOfMultiMemberFamily: boolean;
+    memberCount: number;
+    petNames: string[];
+  }> {
+    const family = await familyService.getFamily();
+    if (!family) {
+      return {
+        isSoleAdminOfMultiMemberFamily: false,
+        memberCount: 0,
+        petNames: [],
+      };
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const myMembership = family.members.find((m) => m.user_id === user.id);
+    const otherAdmins = family.members.filter(
+      (m) => m.user_id !== user.id && m.role === 'admin',
+    );
+    const isSoleAdminOfMultiMemberFamily =
+      myMembership?.role === 'admin' &&
+      family.members.length > 1 &&
+      otherAdmins.length === 0;
+
+    const { data: pets, error: petsErr } = await supabase
+      .from('pets')
+      .select('name')
+      .eq('family_id', family.id)
+      .eq('is_archived', false);
+    if (petsErr) throw petsErr;
+
+    return {
+      isSoleAdminOfMultiMemberFamily,
+      memberCount: family.members.length,
+      petNames: (pets ?? []).map((p) => p.name),
+    };
+  },
 };
