@@ -198,8 +198,9 @@ All components live in `components/`. Test files (`*.test.tsx`) sit alongside. E
 | Component | One-liner |
 |---|---|
 | `AddRecordCard.tsx` | "Add record" empty-section CTA card — dashed/muted styling. |
+| `AgePill.tsx` | Smart age indicator on the pet detail sticky header. Resolves to one of four phases via `useAgeMoment` (default / birthday / savor / puppy). Coral-tinted on birthday day; otherwise the standard white-pill treatment. **No senior phase** — see [Pet age indicator](#pet-age-indicator). |
 | `CutenessGauge.tsx` | Playful pet header decoration. |
-| `MetadataPill.tsx` | Small pill for inline pet metadata (age, sex, weight). Use instead of comma-separated text. |
+| `MetadataPill.tsx` | Small pill for inline pet metadata (sex, weight). For age, use `AgePill` instead — the static metadata pill is now reserved for sex/weight and is the fallback for pets recorded with `approximate_age_months` only. |
 | `PetCard.tsx` | Dashboard pet row — round photo, name, breed/age, status summary. |
 | `PetDetailSection.tsx` | Section wrapper inside the pet detail screen — title + (optional) "See all" link + content slot. |
 | `QuickAddSheet.tsx` | Bottom sheet from FAB. Grid of add options for the active pet. |
@@ -391,6 +392,25 @@ Your Pet Family               [paw]              ← largeTitle
 ### Pet detail tab structure
 
 Pet detail screen tabs (left to right): **Food · Medicines · Vaccinations · Weight**. Vet Visits is intentionally hidden from UI; the route and service code are retained behind the scenes.
+
+### Pet age indicator
+
+The pet detail sticky header replaces the static "8 years, 1 month" age pill with `AgePill`, a smart indicator backed by `useAgeMoment(petName, dob)`. The hook resolves the pet's relationship to today's date into one of four phases:
+
+| Phase | Trigger | Copy | Visual |
+|---|---|---|---|
+| `default` | The quiet ~330 days a year | `{petName} is {N} years old` (singular/plural) | Standard white pill, same as sex / weight pills |
+| `birthday` | Today is the dob day-of-month (Feb 29 dobs fire on Feb 28 in non-leap years; uses local timezone) | `🎂 {petName} is {N} today` | Soft coral tint (`Colors.accent` @ 15%) with coral border. One cake emoji, exactly. |
+| `savor` | 1–30 days after the most recent birthday | `{petName} just turned {N}` | Standard white pill — the past-tense framing is the warm part, no special treatment |
+| `puppy` | Pet is under 12 months old | `{petName} is {N} weeks old` (under 8 weeks) or `{petName} is {N} months old` (8 weeks – 12 months) | Standard white pill |
+
+**No senior phase.** This was an explicit product decision: the senior threshold is breed-dependent, the topic is sensitive (owners of older pets are often bracing for loss), and a "Golden years" sticker risks reading as either infantilizing or grim. We do not build the capability — no flag, no stub, no test. If we revisit, it becomes a separate research-led project.
+
+**Voice:** warm, with surgical emoji use. The cake (🎂) appears on the birthday day only and exactly once. Every other state is a typographic treatment, not a graphical one. We are not a confetti app. (See `docs/pawlife-pet-age-indicator-pm.md` for the full product positioning.)
+
+**Long pet names + Dynamic Type:** the pill enforces `numberOfLines={1}` with tail-ellipsis. Combined with the global `maxFontSizeMultiplier = 1.3` clamp, a name like "Sir Reginald" with the birthday copy stays in a single row. The pet name truncates first if anything has to give — the age info is the load-bearing part.
+
+**Fallback:** pets recorded with `approximate_age_months` only (no precise `date_of_birth`) get the legacy static `MetadataPill` via `calculateAge`. There's no birthday to celebrate without a real date, and `AgePill` requires a dob.
 
 ---
 

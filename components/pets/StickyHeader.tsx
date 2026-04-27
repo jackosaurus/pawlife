@@ -2,6 +2,7 @@ import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Avatar } from '@/components/ui/Avatar';
 import { MetadataPill } from '@/components/pets/MetadataPill';
+import { AgePill } from '@/components/pets/AgePill';
 import { calculateAge } from '@/utils/dates';
 import { Colors } from '@/constants/colors';
 import { Pet } from '@/types';
@@ -13,7 +14,13 @@ interface StickyHeaderProps {
 }
 
 export function StickyHeader({ pet, onBack, latestWeight }: StickyHeaderProps) {
-  const age = calculateAge(pet.date_of_birth, pet.approximate_age_months);
+  // Pets with a precise date_of_birth get the smart AgePill (default /
+  // birthday / savor / puppy). Pets recorded only with an approximate age
+  // in months fall back to the legacy static MetadataPill — there's no
+  // birthday to celebrate without a real date.
+  const fallbackAge = !pet.date_of_birth
+    ? calculateAge(pet.date_of_birth, pet.approximate_age_months)
+    : null;
 
   const sexLabel =
     pet.sex === 'male' ? '♂ Male' : pet.sex === 'female' ? '♀ Female' : null;
@@ -44,7 +51,11 @@ export function StickyHeader({ pet, onBack, latestWeight }: StickyHeaderProps) {
       </View>
 
       <View className="flex-row flex-wrap gap-2 mt-3">
-        <MetadataPill label={age} />
+        {pet.date_of_birth ? (
+          <AgePill petName={pet.name} dob={pet.date_of_birth} />
+        ) : fallbackAge ? (
+          <MetadataPill label={fallbackAge} />
+        ) : null}
         {sexLabel ? <MetadataPill label={sexLabel} /> : null}
         {latestWeight != null ? (
           <MetadataPill label={`${Number(latestWeight.toFixed(1))} kg`} />

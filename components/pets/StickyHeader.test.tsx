@@ -93,4 +93,21 @@ it('truncates weight to 1 decimal place', () => {
     expect(screen.queryByText(/Male/)).toBeNull();
     expect(screen.queryByText(/Female/)).toBeNull();
   });
+
+  it('renders the smart AgePill when date_of_birth is set', () => {
+    const pet = {
+      ...mockPet,
+      name: 'Luna',
+      date_of_birth: '2018-03-14',
+      approximate_age_months: null,
+    };
+    render(<StickyHeader pet={pet} onBack={jest.fn()} />);
+    expect(screen.getByTestId('age-pill')).toBeTruthy();
+  });
+
+  it('falls back to static MetadataPill when only approximate_age_months is set', () => {
+    render(<StickyHeader pet={mockPet} onBack={jest.fn()} />);
+    expect(screen.queryByTestId('age-pill')).toBeNull();
+    expect(screen.getByText('2 years')).toBeTruthy();
+  });
 });
