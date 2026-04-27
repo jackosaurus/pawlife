@@ -77,6 +77,10 @@ interface PushMessage {
 
 interface PushTicket {
   status: 'ok' | 'error';
+  // Expo's push API returns an `id` on tickets that succeeded the send
+  // phase — this is the "ticket ID" we persist in notification_tickets
+  // so a future receipt-poller can call GetReceipts. Absent on errors.
+  id?: string;
   details?: { error?: string };
 }
 
@@ -466,6 +470,44 @@ Deno.serve(async (req) => {
 
       // Send all notifications for this user
       const tickets = await sendPushNotifications(allMessages);
+
+      // Persist ticket IDs for the future receipt-poller (migration 014).
+      // Best-effort: if the insert fails, log but do not interrupt the
+      // send loop. Tickets are diagnostic data; missing rows are
+      // acceptable.
+      const ticketRows = tickets
+        .map((ticket, i) => {
+          const message = allMessages[i];
+          const refId =
+            (message.data?.vaccinationId as string | undefined) ??
+            (message.data?.petId as string | undefined) ??
+            null;
+          if (!refId) return null;
+          return {
+            user_id: user.id,
+            ticket_id: ticket.id ?? null,
+            push_token: message.to,
+            notification_type: message.data?.type as
+              | 'medication'
+              | 'vaccination',
+            reference_id: refId,
+            status: ticket.status,
+            error_code: ticket.details?.error ?? null,
+          };
+        })
+        .filter((row): row is NonNullable<typeof row> => row !== null);
+
+      if (ticketRows.length > 0) {
+        const { error: ticketErr } = await supabase
+          .from('notification_tickets')
+          .insert(ticketRows);
+        if (ticketErr) {
+          console.error(
+            'notification_tickets insert failed:',
+            ticketErr.message,
+          );
+        }
+      }
 
       // Handle stale tokens
       const staleTokens: string[] = [];
