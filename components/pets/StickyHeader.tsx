@@ -34,10 +34,10 @@ export function StickyHeader({ pet, onBack, latestWeight }: StickyHeaderProps) {
           petType={pet.pet_type}
         />
         <View className="ml-4 flex-1">
-          <Text className="text-3xl font-bold text-text-primary">
+          <Text className="text-largeTitle text-text-primary">
             {pet.name}
           </Text>
-          <Text className="text-base text-text-secondary mt-0.5">
+          <Text className="text-callout text-text-secondary mt-0.5">
             {pet.breed ?? 'Mixed / Unknown'}
           </Text>
         </View>

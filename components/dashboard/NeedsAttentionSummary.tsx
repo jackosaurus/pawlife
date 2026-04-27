@@ -36,7 +36,7 @@ export function NeedsAttentionSummary({ items }: NeedsAttentionSummaryProps) {
         style={{ width: 8, height: 8, backgroundColor: badgeColor }}
         testID="needs-attention-summary-dot"
       />
-      <Text className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
+      <Text className="text-eyebrow uppercase text-text-secondary">
         {label}
       </Text>
     </View>

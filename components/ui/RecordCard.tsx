@@ -35,7 +35,7 @@ export function RecordCard({
     <Card className="p-4 mb-3" onPress={onPress}>
       <View className="flex-row">
         <View className="items-center mr-4" style={{ width: 44 }}>
-          <Text className="text-2xl font-bold text-primary leading-tight">
+          <Text className="text-title font-bold text-primary leading-tight">
             {day}
           </Text>
           <Text className="text-footnote font-semibold text-text-secondary uppercase">

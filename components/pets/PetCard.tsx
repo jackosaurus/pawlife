@@ -22,15 +22,15 @@ export function PetCard({ pet, onPress }: PetCardProps) {
           petType={pet.pet_type}
         />
         <View className="ml-4 flex-1">
-          <Text className="text-lg font-semibold text-text-primary">
+          <Text className="text-headline text-text-primary">
             {pet.name}
           </Text>
-          <Text className="text-callout text-text-secondary">
+          <Text className="text-footnote text-text-secondary">
             {pet.breed ?? 'Mixed / Unknown'}
           </Text>
-          <Text className="text-callout text-text-secondary">{age}</Text>
+          <Text className="text-footnote text-text-secondary">{age}</Text>
         </View>
-        <Text className="text-2xl text-text-secondary">
+        <Text className="text-title text-text-secondary">
           {pet.pet_type === 'dog' ? '🐕' : '🐈'}
         </Text>
       </View>

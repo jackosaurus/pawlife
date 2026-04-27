@@ -93,7 +93,7 @@ export function CutenessGauge() {
 
   return (
     <View className="mb-4">
-      <Text className="text-text-secondary text-sm mb-1.5 ml-1">
+      <Text className="text-text-secondary text-footnote mb-1.5 ml-1">
         Cuteness Level
       </Text>
       <Pressable
@@ -103,11 +103,11 @@ export function CutenessGauge() {
         testID="cuteness-gauge"
       >
         <View className="flex-row items-center justify-between mb-2">
-          <Text className="text-base text-text-primary">
+          <Text className="text-callout text-text-primary">
             {activated ? 'Off the charts!' : 'Tap to measure...'}
           </Text>
           <Animated.Text
-            className="text-base font-bold"
+            className="text-callout font-bold"
             style={[
               { color: activated ? Colors.accent : Colors.textSecondary },
               { transform: [{ scale: labelScale }] },

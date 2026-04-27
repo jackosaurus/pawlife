@@ -22,7 +22,7 @@ export function StatusPill({ label, status }: StatusPillProps) {
       className="px-3 py-1 rounded-full"
       testID={`status-pill-${status}`}
     >
-      <Text style={{ color: text }} className="text-xs font-semibold">
+      <Text style={{ color: text }} className="text-caption font-semibold">
         {label}
       </Text>
     </View>

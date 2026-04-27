@@ -33,7 +33,7 @@ export function MenuRow({
         </View>
       ) : null}
       <Text
-        className={`flex-1 text-base ${destructive ? 'font-semibold' : ''}`}
+        className={`flex-1 ${destructive ? 'text-headline' : 'text-body'}`}
         style={{ color: labelColor }}
       >
         {label}

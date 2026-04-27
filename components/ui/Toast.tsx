@@ -103,7 +103,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             }}
           >
             <Text
-              className="text-text-primary text-base font-medium text-center"
+              className="text-text-primary text-callout font-medium text-center"
               testID="toast-message"
             >
               {message}

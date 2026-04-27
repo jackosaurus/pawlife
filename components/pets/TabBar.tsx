@@ -177,7 +177,7 @@ export function TabBar({ tabs, activeTab, onTabPress }: TabBarProps) {
               testID={`tab-${tab.key}`}
             >
               <Text
-                className={`text-base font-semibold ${
+                className={`text-callout font-semibold ${
                   isActive ? 'text-primary' : 'text-text-secondary'
                 }`}
               >

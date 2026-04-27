@@ -28,11 +28,11 @@ export function SectionHeader({
           size={20}
           color={Colors.textSecondary}
         />
-        <Text className="text-xl font-semibold text-text-primary ml-2">
+        <Text className="text-title font-semibold text-text-primary ml-2">
           {title}
         </Text>
         {count != null && count > 0 ? (
-          <Text className="text-base text-text-secondary ml-1.5">
+          <Text className="text-callout text-text-secondary ml-1.5">
             ({count})
           </Text>
         ) : null}
@@ -43,7 +43,7 @@ export function SectionHeader({
             testID="alert-badge"
           >
             <Text
-              className="text-xs font-semibold"
+              className="text-caption font-semibold"
               style={{ color: Colors.statusOverdue }}
             >
               {alertCount}

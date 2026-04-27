@@ -30,18 +30,18 @@ export function RecordRow({
     >
       <View className="flex-row items-center justify-between">
         <View className="flex-1 mr-3">
-          <Text className="text-lg font-medium text-text-primary">
+          <Text className="text-headline text-text-primary">
             {title}
           </Text>
           {subtitle ? (
-            <Text className="text-base text-text-secondary mt-0.5">
+            <Text className="text-callout text-text-secondary mt-0.5">
               {subtitle}
             </Text>
           ) : null}
         </View>
         <View className="flex-row items-center gap-2">
           {trailing ? (
-            <Text className="text-base text-text-secondary">{trailing}</Text>
+            <Text className="text-callout text-text-secondary">{trailing}</Text>
           ) : null}
           {status && statusLabel ? (
             <StatusPill label={statusLabel} status={status} />

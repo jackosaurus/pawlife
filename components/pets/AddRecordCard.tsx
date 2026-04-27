@@ -38,7 +38,7 @@ export function AddRecordCard({ label, onPress, variant = 'add' }: AddRecordCard
       >
         <Ionicons name={iconName} size={iconSize} color={Colors.primary} />
       </View>
-      <Text className="text-base font-medium text-primary">{label}</Text>
+      <Text className="text-callout font-medium text-primary">{label}</Text>
     </Pressable>
   );
 }

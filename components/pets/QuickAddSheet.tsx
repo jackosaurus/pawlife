@@ -33,7 +33,7 @@ export function QuickAddSheet({ bottomSheetRef, onSelect }: QuickAddSheetProps) 
       handleIndicatorStyle={{ backgroundColor: Colors.border }}
     >
       <BottomSheetView className="px-6 pt-2 pb-4">
-        <Text className="text-lg font-semibold text-text-primary mb-4">
+        <Text className="text-headline text-text-primary mb-4">
           Add Record
         </Text>
         <View className="flex-row flex-wrap">
@@ -54,7 +54,7 @@ export function QuickAddSheet({ bottomSheetRef, onSelect }: QuickAddSheetProps) 
                   color={Colors.primary}
                 />
               </View>
-              <Text className="text-xs text-text-secondary text-center">
+              <Text className="text-caption text-text-secondary text-center">
                 {label}
               </Text>
             </Pressable>

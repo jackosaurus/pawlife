@@ -43,15 +43,15 @@ export function ActionItemCard({
 
       {/* Content */}
       <View className="flex-1 mr-3">
-        <Text className="text-sm text-text-primary" numberOfLines={1}>
-          <Text className="font-medium">{item.title}</Text>
+        <Text className="text-footnote text-text-primary" numberOfLines={1}>
+          <Text className="font-semibold">{item.title}</Text>
           <Text className="text-text-secondary"> · {item.subtitle}</Text>
         </Text>
       </View>
 
       {/* Action button */}
       <Pressable onPress={handleAction} hitSlop={8} testID="action-button">
-        <Text className="text-sm font-medium text-primary">Log</Text>
+        <Text className="text-button-sm text-primary">Log</Text>
       </Pressable>
     </View>
   );

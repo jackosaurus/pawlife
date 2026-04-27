@@ -59,7 +59,7 @@ export function DateInput({
 
   return (
     <View className="mb-4">
-      <Text className="text-text-secondary text-base mb-1.5">{label}</Text>
+      <Text className="text-text-secondary text-body mb-1.5">{label}</Text>
       <Pressable
         onPress={() => setShow(true)}
         style={{ borderColor, borderWidth: 1, borderRadius: 12 }}
@@ -67,7 +67,7 @@ export function DateInput({
         testID="date-input-trigger"
       >
         <Text
-          className={`flex-1 text-base ${
+          className={`flex-1 text-body ${
             isValidDate ? 'text-text-primary' : 'text-text-secondary'
           }`}
         >
@@ -80,7 +80,7 @@ export function DateInput({
         />
       </Pressable>
       {error ? (
-        <Text className="text-status-overdue text-sm mt-1">{error}</Text>
+        <Text className="text-status-overdue text-footnote mt-1">{error}</Text>
       ) : null}
       {show && (
         <View testID="date-picker">
@@ -98,7 +98,7 @@ export function DateInput({
               className="items-center py-2"
               testID="date-picker-done"
             >
-              <Text className="text-primary font-semibold text-base">Done</Text>
+              <Text className="text-primary text-headline">Done</Text>
             </Pressable>
           )}
         </View>

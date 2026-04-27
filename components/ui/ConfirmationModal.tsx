@@ -106,17 +106,17 @@ export function ConfirmationModal({
           </View>
 
           <View className="items-center mb-5">
-            <Text className="text-lg font-bold text-text-primary text-center">
+            <Text className="text-headline text-text-primary text-center">
               {title}
             </Text>
-            <Text className="text-base text-text-secondary text-center mt-2">
+            <Text className="text-body text-text-secondary text-center mt-2">
               {message}
             </Text>
           </View>
 
           {isIrreversible && typedConfirmationWord && (
             <View className="mb-4">
-              <Text className="text-text-secondary text-sm mb-2">
+              <Text className="text-text-secondary text-footnote mb-2">
                 Type <Text className="font-bold">{typedConfirmationWord}</Text> to
                 confirm.
               </Text>
@@ -163,7 +163,7 @@ export function ConfirmationModal({
                   testID="confirm-loading"
                 />
               ) : (
-                <Text className="text-white font-semibold text-base">
+                <Text className="text-white text-headline">
                   {confirmLabel}
                 </Text>
               )}
@@ -187,7 +187,7 @@ export function ConfirmationModal({
                 />
               ) : (
                 <Text
-                  className="font-semibold text-base"
+                  className="text-headline"
                   style={{
                     color: isDestructiveTone
                       ? Colors.destructive
@@ -208,7 +208,7 @@ export function ConfirmationModal({
             style={{ opacity: loading ? 0.5 : 1 }}
             testID="cancel-button"
           >
-            <Text className="text-text-primary font-semibold text-base">
+            <Text className="text-text-primary text-headline">
               {cancelLabel}
             </Text>
           </Pressable>

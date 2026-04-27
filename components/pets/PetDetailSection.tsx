@@ -42,7 +42,7 @@ export function PetDetailSection({
       <Card className="px-5">
         {count === 0 ? (
           <View className="py-5">
-            <Text className="text-base text-text-secondary">
+            <Text className="text-body text-text-secondary">
               {emptyMessage ?? `No ${title.toLowerCase()} yet`}
             </Text>
           </View>
@@ -55,7 +55,7 @@ export function PetDetailSection({
                 className="py-4 flex-row items-center justify-center border-t border-border"
                 testID="see-all"
               >
-                <Text className="text-base font-medium text-primary">
+                <Text className="text-callout font-medium text-primary">
                   See all {title.toLowerCase()}
                 </Text>
                 <Ionicons

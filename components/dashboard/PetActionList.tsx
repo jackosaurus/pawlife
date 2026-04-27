@@ -34,7 +34,7 @@ export function PetActionList({
       {/* Pet name header */}
       <View className="px-4 pt-3 pb-1">
         <Text
-          className="text-xs font-semibold uppercase tracking-wider text-text-secondary"
+          className="text-eyebrow uppercase text-text-secondary"
           testID="pet-group-header"
         >
           {petName}
@@ -48,10 +48,10 @@ export function PetActionList({
           className="px-4 py-3"
           testID="overflow-link"
         >
-          <Text className="text-sm text-text-primary">
+          <Text className="text-footnote text-text-primary">
             {items.length} items need attention
           </Text>
-          <Text className="text-sm text-primary font-medium mt-0.5">
+          <Text className="text-button-sm text-primary mt-0.5">
             View all
           </Text>
         </Pressable>

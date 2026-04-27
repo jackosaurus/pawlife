@@ -30,7 +30,7 @@ export function SegmentedControl({
             testID={`segment-${option.value}`}
           >
             <Text
-              className={`text-sm font-medium ${
+              className={`text-button-sm ${
                 isSelected ? 'text-white' : 'text-text-primary'
               }`}
             >

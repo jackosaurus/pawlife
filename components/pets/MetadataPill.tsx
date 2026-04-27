@@ -16,7 +16,7 @@ export function MetadataPill({ label }: MetadataPillProps) {
         elevation: 1,
       }}
     >
-      <Text className="text-base font-medium text-text-primary">{label}</Text>
+      <Text className="text-footnote font-semibold text-text-primary">{label}</Text>
     </View>
   );
 }

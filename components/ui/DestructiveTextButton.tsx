@@ -38,7 +38,7 @@ export function DestructiveTextButton({
       testID={testID ?? 'destructive-text-button'}
     >
       <Text
-        className="text-base font-semibold"
+        className="text-headline"
         style={{ color: Colors.destructive }}
       >
         {label}

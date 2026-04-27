@@ -26,7 +26,7 @@ export const TextInput = React.forwardRef<RNTextInput, TextInputProps>(
 
     return (
       <View className="mb-4">
-        <Text className="text-text-secondary text-base mb-1.5">
+        <Text className="text-text-secondary text-body mb-1.5">
           {label}
         </Text>
         <View
@@ -35,7 +35,7 @@ export const TextInput = React.forwardRef<RNTextInput, TextInputProps>(
         >
           <RNTextInput
             ref={ref}
-            className="flex-1 py-3.5 text-base text-text-primary"
+            className="flex-1 py-3.5 text-body text-text-primary"
             placeholderTextColor={Colors.textSecondary}
             secureTextEntry={hidden}
             onFocus={(e) => {
@@ -55,14 +55,14 @@ export const TextInput = React.forwardRef<RNTextInput, TextInputProps>(
               hitSlop={8}
               testID="toggle-password"
             >
-              <Text className="text-text-secondary text-sm">
+              <Text className="text-text-secondary text-button-sm">
                 {hidden ? 'Show' : 'Hide'}
               </Text>
             </Pressable>
           )}
         </View>
         {error && (
-          <Text className="text-status-overdue text-sm mt-1">
+          <Text className="text-status-overdue text-footnote mt-1">
             {error}
           </Text>
         )}

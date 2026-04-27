@@ -43,7 +43,7 @@ export function Button({
         />
       ) : (
         <Text
-          className={`text-lg font-semibold ${
+          className={`text-headline ${
             variant === 'primary'
               ? 'text-white'
               : variant === 'secondary'
