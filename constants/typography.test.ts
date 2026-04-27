@@ -1,7 +1,7 @@
 import { Typography } from './typography';
 
 describe('Typography tokens', () => {
-  it('exposes the expected semantic tokens', () => {
+  it('exposes the 10-token semantic scale', () => {
     expect(Object.keys(Typography).sort()).toEqual(
       [
         'body',
@@ -9,15 +9,26 @@ describe('Typography tokens', () => {
         'callout',
         'caption',
         'display',
+        'eyebrow',
         'footnote',
         'headline',
+        'largeTitle',
         'title',
       ].sort(),
     );
   });
 
   it('matches the values shipped in tailwind.config.js', () => {
-    expect(Typography.display).toEqual({ fontSize: 30, lineHeight: 36 });
+    expect(Typography.display).toEqual({
+      fontSize: 36,
+      lineHeight: 40,
+      fontWeight: '700',
+    });
+    expect(Typography.largeTitle).toEqual({
+      fontSize: 30,
+      lineHeight: 36,
+      fontWeight: '700',
+    });
     expect(Typography.title).toEqual({ fontSize: 22, lineHeight: 28 });
     expect(Typography.headline).toEqual({
       fontSize: 17,
@@ -33,6 +44,12 @@ describe('Typography tokens', () => {
       lineHeight: 20,
       fontWeight: '600',
     });
+    expect(Typography.eyebrow).toEqual({
+      fontSize: 13,
+      lineHeight: 16,
+      fontWeight: '600',
+      letterSpacing: 0.5,
+    });
   });
 
   it('all tokens have positive sizes and lineHeight >= fontSize', () => {
@@ -46,5 +63,15 @@ describe('Typography tokens', () => {
       // Avoid an unused-variable warning while keeping the loop readable.
       void name;
     }
+  });
+
+  it('largeTitle and display are distinct (largeTitle for screen titles, display for hero only)', () => {
+    expect(Typography.display.fontSize).toBeGreaterThan(
+      Typography.largeTitle.fontSize,
+    );
+  });
+
+  it('eyebrow has letter-spacing for tracked-uppercase feel', () => {
+    expect(Typography.eyebrow.letterSpacing).toBeGreaterThan(0);
   });
 });

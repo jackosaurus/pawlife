@@ -117,26 +117,37 @@ Source-of-truth precedence when this doc is silent:
 
 Source of truth: `constants/typography.ts` + `tailwind.config.js`. Use the Tailwind class wherever possible (`text-headline`, `text-body`, etc.) and import from `constants/typography.ts` only where you must set `style={{ fontSize: ... }}` inline.
 
-### Semantic scale
+### Semantic scale (10 tokens)
 
 | Token | Tailwind class | Size / line-height | Weight | Use for |
 |---|---|---|---|---|
-| `display` | `text-display` | 30 / 36 | regular | Pet name on detail header, "Your Pet Family" dashboard heading |
-| `title` | `text-title` | 22 / 28 | regular | Screen headings, big card titles |
-| `headline` | `text-headline` | 17 / 22 | semibold | Section headers, card titles, list-row primary text |
-| `body` | `text-body` | 17 / 24 | regular | Default body, form inputs, detail values |
-| `callout` | `text-callout` | 16 / 22 | regular | Slightly tightened body in dense areas |
-| `footnote` | `text-footnote` | 13 / 18 | regular | Helper text under inputs, secondary card detail lines |
-| `caption` | `text-caption` | 12 / 16 | regular | Uppercase section labels ("TIMELINE"), date-column day-labels, smallest metadata |
-| `button-sm` | `text-button-sm` | 15 / 20 | semibold | Compact button labels (filter pills, log-dose pills) |
+| `display` | `text-display` | 36 / 40 | bold (700) | Hero-only — welcome screen title, invite-code display. **Reserve for one or two screens.** |
+| `largeTitle` | `text-largeTitle` | 30 / 36 | bold (700) | **Top-of-screen titles on every primary screen** — Pet Family, Add/Edit forms, record detail headers, sign-in, dashboard "Your Pet Family", pet sticky header pet name. |
+| `title` | `text-title` | 22 / 28 | regular | Section headings within a screen, big card titles, "things need your attention" dashboard sub-heading. |
+| `headline` | `text-headline` | 17 / 22 | semibold | Card titles, list-row primary text (PetCard name, family name, MedicationCard title, RecordCard title, menu sheet display name). |
+| `body` | `text-body` | 17 / 24 | regular | Default body, form input text, detail values, modal body, MenuRow labels. |
+| `callout` | `text-callout` | 16 / 22 | regular | Subtitles inside cards (PetCard breed, RecordCard subtitle, MedicationCard frequency), header-bar text buttons ("Save"/"Edit"), AddRecordCard CTA. |
+| `button-sm` | `text-button-sm` | 15 / 20 | semibold | Compact button labels — filter pills, "Log Dose", "Restore", "View all", inline tappable text. |
+| `footnote` | `text-footnote` | 13 / 18 | regular | Secondary metadata (member role/joined-at, MedicationCard context "Given 5m ago"), helper text under inputs, inline error text, RecordCard year. |
+| `eyebrow` | `text-eyebrow` | 13 / 16 | semibold + tracking | Uppercase section labels — "TIMELINE", "OPTIONAL", "ABOUT", "ALLERGIES", "FAMILY", "PETS", "ARCHIVED". One token, replaces every copy-pasted `text-xs font-semibold uppercase tracking-wider` block. |
+| `caption` | `text-caption` | 12 / 16 | regular | StatusPill content, date-column month/year, smallest metadata. **Reserved for inline pill content** where space is tight. |
 
 ### Rules
 
 - **Never set raw `fontSize` numbers in component code.** Use a class or the `Typography` constant.
-- **Pet names are large.** `text-display` on detail screens, `text-title` in a card.
-- **Section labels are uppercase + caption.** Tracked-out, warm gray (e.g. "TIMELINE", "OPTIONAL").
+- **Never use raw Tailwind sizes (`text-xs`/`text-sm`/`text-base`/`text-lg`/`text-xl`/`text-2xl`/`text-3xl`/`text-4xl`).** Always pick a semantic token. Phase 2 sweep migrated every prior raw-size call site; new code stays on tokens.
+- **One headline-weight thing per card.** Don't ship a card with two `text-headline` lines competing — pick one primary, demote the rest.
+- **Screen titles always use `largeTitle`.** The dashboard, pet detail header, every Add/Edit form, every record detail screen — they all share one role and one token.
+- **Section eyebrows always use `eyebrow`.** The 6+ copy-pasted `uppercase tracking-wider` strings are now one token. If you don't want the tracked-uppercase treatment, don't use this token — drop the label entirely or pick `headline`/`title` instead.
 - **Metadata pills** (age, sex, weight, breed) use a `MetadataPill` component, not free-floating text.
 - **Default font weight is regular.** Reserve semibold for headlines, primary names, and buttons.
+
+### Phase 2 migration note
+
+The Phase 2 sweep (April 2026) migrated every hardcoded `text-*` class site
+to a semantic token. Snapshots were rebaselined en masse. Going forward,
+**a PR introducing a raw size class should be rejected at review** — pick
+a token, or argue for adding a token to the scale.
 
 ### Dynamic Type clamp
 

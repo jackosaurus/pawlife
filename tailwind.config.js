@@ -29,7 +29,8 @@ module.exports = {
         card: '16px',
       },
       fontSize: {
-        display: ['30px', '36px'],
+        display: ['36px', { lineHeight: '40px', fontWeight: '700' }],
+        largeTitle: ['30px', { lineHeight: '36px', fontWeight: '700' }],
         title: ['22px', '28px'],
         headline: ['17px', { lineHeight: '22px', fontWeight: '600' }],
         body: ['17px', '24px'],
@@ -37,6 +38,10 @@ module.exports = {
         footnote: ['13px', '18px'],
         caption: ['12px', '16px'],
         'button-sm': ['15px', { lineHeight: '20px', fontWeight: '600' }],
+        eyebrow: [
+          '13px',
+          { lineHeight: '16px', fontWeight: '600', letterSpacing: '0.5px' },
+        ],
       },
     },
   },
