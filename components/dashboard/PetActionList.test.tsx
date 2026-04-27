@@ -50,13 +50,14 @@ describe('PetActionList', () => {
     expect(toJSON()).toBeNull();
   });
 
-  it('renders pet name header in uppercase styling', () => {
+  it('does not render a separate pet-name eyebrow header (vestigial in Option B)', () => {
     render(
       <PetActionList {...defaultProps} items={[makeItem('1')]} />,
     );
 
-    const header = screen.getByTestId('pet-group-header');
-    expect(header.props.children).toBe('Buddy');
+    // Pet name lives inline within ActionItemCard ("For Buddy · ...") —
+    // no separate eyebrow above the list.
+    expect(screen.queryByTestId('pet-group-header')).toBeNull();
   });
 
   it('renders inline action items when there are 1-3 items', () => {
@@ -73,7 +74,7 @@ describe('PetActionList', () => {
 
     expect(screen.queryAllByTestId('action-item-card')).toHaveLength(0);
     expect(screen.getByTestId('overflow-link')).toBeTruthy();
-    expect(screen.getByText('4 items need attention')).toBeTruthy();
+    expect(screen.getByText('4 items need attention for Buddy')).toBeTruthy();
     expect(screen.getByText('View all')).toBeTruthy();
   });
 

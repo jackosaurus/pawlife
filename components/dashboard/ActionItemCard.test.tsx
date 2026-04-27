@@ -33,12 +33,13 @@ describe('ActionItemCard', () => {
     jest.clearAllMocks();
   });
 
-  it('renders title and subtitle', () => {
+  it('renders title at headline weight and pet-named subtitle', () => {
     const item = makeItem();
     render(<ActionItemCard item={item} {...defaultProps} />);
 
     expect(screen.getByText('Heartgard')).toBeTruthy();
-    expect(screen.getByText(/Due today/)).toBeTruthy();
+    // Subtitle now names the pet inline: "For Buddy · Due today"
+    expect(screen.getByText('For Buddy · Due today')).toBeTruthy();
   });
 
   it('renders vaccination item correctly', () => {
@@ -46,12 +47,13 @@ describe('ActionItemCard', () => {
       type: 'vaccination',
       title: 'Rabies',
       subtitle: 'Due in 7 days',
+      petName: 'Beau',
       medicationId: undefined,
     });
     render(<ActionItemCard item={item} {...defaultProps} />);
 
     expect(screen.getByText('Rabies')).toBeTruthy();
-    expect(screen.getByText(/Due in 7 days/)).toBeTruthy();
+    expect(screen.getByText('For Beau · Due in 7 days')).toBeTruthy();
   });
 
   it('shows consistent "Log" action for both types', () => {

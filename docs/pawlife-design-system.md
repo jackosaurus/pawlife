@@ -292,6 +292,56 @@ Context text is time-aware: `"Given 5m ago"`, `"Given 2h ago"`, `"Given yesterda
 
 **Overdue resets immediately** — logging a dose today resets status based on today's reality. We don't punish missed past days.
 
+### Dashboard hierarchy (Option B)
+
+The dashboard's information hierarchy is a deliberate Option B from the
+Phase 2 review:
+
+```
+Your Pet Family               [paw]              ← largeTitle
+[welcome hero illustration]
+3 things need your attention                     ← title + colored dot
+┌──────────────────────────────────┐
+│ [photo]  Beau                    │              ← PetCard (unchanged)
+│          Cocker Spaniel          │
+│          8 years, 1 month        │
+└──────────────────────────────────┘
+┌──────────────────────────────────┐
+│ ●  Heartgard Plus       Log      │              ← Per-pet action card
+│    For Beau · Due today          │
+│ ─────────────────────────────    │
+│ ●  Cytopoint            Log      │              ← Multiple stack with
+│    For Beau · Overdue            │                 dividers in one card
+└──────────────────────────────────┘
+┌──────────────────────────────────┐
+│ [photo]  Remy                    │              ← Next pet's PetCard
+│          Border Collie           │
+└──────────────────────────────────┘
+```
+
+**Rules:**
+
+- **`NeedsAttentionSummary` is a section heading**, not a pill. Uses
+  `text-title` (22pt) so the highest-value info on the screen reads
+  loudly. Empty state is celebratory: "All caught up 🎉".
+- **No BEAU / REMY uppercase eyebrows on the dashboard.** They were
+  vestigial — the pet card immediately above already names the pet.
+  The action card's subtitle ("For Beau · Due today") carries the pet
+  reference inline.
+- **PetCard is unchanged.** Anchor of each pet's section. Same visual
+  treatment as before Phase 2 (rounded card, photo, headline name,
+  footnote breed/age).
+- **Per-pet action items render in a single white card.** Same visual
+  treatment (rounded-2xl, white bg, soft border) as PetCard so the two
+  read as a paired unit. Multiple actions inside one card stack with a
+  `bg-border` divider between rows.
+- **4+ items collapses to a "View all" link** that navigates to the
+  pet detail screen. Prevents the dashboard from growing unbounded for
+  pets with lots of overdue records.
+- **If a pet has no action items, no card appears** — only the PetCard.
+  The relationship is "PetCard, optionally followed by an action card,
+  then the next PetCard."
+
 ### Status pills
 
 - Use `StatusPill` and only `StatusPill` for status colors.

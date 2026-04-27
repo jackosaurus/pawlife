@@ -23,20 +23,21 @@ function makeItem(
 }
 
 describe('NeedsAttentionSummary', () => {
-  it('returns null when items array is empty', () => {
-    const { toJSON } = render(<NeedsAttentionSummary items={[]} />);
-    expect(toJSON()).toBeNull();
+  it('renders celebratory empty state when items array is empty', () => {
+    render(<NeedsAttentionSummary items={[]} />);
+    expect(screen.getByText('All caught up')).toBeTruthy();
+    expect(screen.getByTestId('needs-attention-summary')).toBeTruthy();
   });
 
-  it('renders singular label when there is one item', () => {
+  it('renders singular warm-tone label when there is one item', () => {
     render(<NeedsAttentionSummary items={[makeItem('1')]} />);
-    expect(screen.getByText('1 item needs attention')).toBeTruthy();
+    expect(screen.getByText('1 thing needs your attention')).toBeTruthy();
   });
 
-  it('renders plural label with count when there are multiple items', () => {
+  it('renders plural warm-tone label with count when there are multiple items', () => {
     const items = [makeItem('1'), makeItem('2'), makeItem('3')];
     render(<NeedsAttentionSummary items={items} />);
-    expect(screen.getByText('3 items need attention')).toBeTruthy();
+    expect(screen.getByText('3 things need your attention')).toBeTruthy();
   });
 
   it('uses overdue color when any item is overdue', () => {
@@ -82,5 +83,10 @@ describe('NeedsAttentionSummary', () => {
   it('renders the summary container with testID', () => {
     render(<NeedsAttentionSummary items={[makeItem('1')]} />);
     expect(screen.getByTestId('needs-attention-summary')).toBeTruthy();
+  });
+
+  it('does not render a status dot in the empty state', () => {
+    render(<NeedsAttentionSummary items={[]} />);
+    expect(screen.queryByTestId('needs-attention-summary-dot')).toBeNull();
   });
 });
