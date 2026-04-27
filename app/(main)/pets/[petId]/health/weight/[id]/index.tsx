@@ -6,7 +6,8 @@ import { Screen } from '@/components/ui/Screen';
 import { Card } from '@/components/ui/Card';
 import { DetailRow } from '@/components/ui/DetailRow';
 import { Button } from '@/components/ui/Button';
-import { DeleteConfirmation } from '@/components/ui/DeleteConfirmation';
+import { DestructiveTextButton } from '@/components/ui/DestructiveTextButton';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 import { healthService } from '@/services/healthService';
 import { formatDate } from '@/utils/dates';
 import { Colors } from '@/constants/colors';
@@ -107,17 +108,19 @@ export default function WeightEntryDetailScreen() {
               )
             }
           />
-          <Button
-            title="Delete"
-            variant="secondary"
+          <DestructiveTextButton
+            label="Delete"
             onPress={() => setShowDelete(true)}
+            testID="delete-button"
           />
         </View>
 
-        <DeleteConfirmation
+        <ConfirmationModal
           visible={showDelete}
-          title="Delete Weight Entry"
-          message="Are you sure you want to delete this weight entry? This action cannot be undone."
+          title="Delete weight entry?"
+          message="This will permanently remove the entry from this pet's history. This can't be undone."
+          confirmLabel="Delete"
+          severity="destructive"
           onConfirm={handleDelete}
           onCancel={() => setShowDelete(false)}
           loading={deleting}

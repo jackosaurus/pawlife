@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, Text, Pressable, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen } from '@/components/ui/Screen';
@@ -7,7 +7,9 @@ import { Card } from '@/components/ui/Card';
 import { DetailRow } from '@/components/ui/DetailRow';
 import { StatusPill } from '@/components/ui/StatusPill';
 import { Button } from '@/components/ui/Button';
-import { DeleteConfirmation } from '@/components/ui/DeleteConfirmation';
+import { DestructiveTextButton } from '@/components/ui/DestructiveTextButton';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
+import { useToast } from '@/components/ui/Toast';
 import { healthService } from '@/services/healthService';
 import { useMedicationDoses } from '@/hooks/useMedicationDoses';
 import { isRecurringFrequency, getDosesPerDay } from '@/constants/frequencies';
@@ -24,9 +26,11 @@ export default function MedicationDetailScreen() {
   const [error, setError] = useState<string | null>(null);
   const [showDelete, setShowDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showArchive, setShowArchive] = useState(false);
   const [loggingDose, setLoggingDose] = useState(false);
   const [deletingDoseId, setDeletingDoseId] = useState<string | null>(null);
   const [archiving, setArchiving] = useState(false);
+  const { show: showToast } = useToast();
 
   const isRecurring = isRecurringFrequency(medication?.frequency);
   const { doses, refresh: refreshDoses } = useMedicationDoses(id!);
@@ -110,15 +114,19 @@ export default function MedicationDetailScreen() {
       setError('Failed to archive medication');
     } finally {
       setArchiving(false);
+      setShowArchive(false);
     }
   };
 
-  const performRestore = async () => {
-    if (!id) return;
+  // Restore is not destructive — instant action with a toast on success.
+  // No confirmation modal.
+  const handleRestorePress = async () => {
+    if (!id || !medication) return;
     setArchiving(true);
     try {
       await healthService.restoreMedication(id);
       await loadMedication();
+      showToast(`${medication.name} restored`);
     } catch {
       setError('Failed to restore medication');
     } finally {
@@ -128,26 +136,7 @@ export default function MedicationDetailScreen() {
 
   const handleArchivePress = () => {
     if (!medication) return;
-    Alert.alert(
-      'Archive medication?',
-      `Archive ${medication.name}? It'll move out of active medications. You can restore it anytime.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Archive', onPress: performArchive },
-      ],
-    );
-  };
-
-  const handleRestorePress = () => {
-    if (!medication) return;
-    Alert.alert(
-      'Restore medication?',
-      `Restore ${medication.name}? It'll move back to active medications.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Restore', onPress: performRestore },
-      ],
-    );
+    setShowArchive(true);
   };
 
   if (loading) {
@@ -307,14 +296,11 @@ export default function MedicationDetailScreen() {
                   )
                 }
               />
-              <Pressable
+              <DestructiveTextButton
+                label="Delete"
                 onPress={() => setShowDelete(true)}
-                hitSlop={8}
-                className="items-center py-2"
-                testID="delete-link"
-              >
-                <Text className="text-sm text-text-secondary">Delete</Text>
-              </Pressable>
+                testID="delete-button"
+              />
             </>
           ) : (
             <>
@@ -340,25 +326,35 @@ export default function MedicationDetailScreen() {
                 onPress={handleArchivePress}
                 loading={archiving}
               />
-              <Pressable
+              <DestructiveTextButton
+                label="Delete"
                 onPress={() => setShowDelete(true)}
-                hitSlop={8}
-                className="items-center py-2"
-                testID="delete-link"
-              >
-                <Text className="text-sm text-text-secondary">Delete</Text>
-              </Pressable>
+                testID="delete-button"
+              />
             </>
           )}
         </View>
 
-        <DeleteConfirmation
+        <ConfirmationModal
           visible={showDelete}
-          title="Delete Medication"
-          message="Are you sure you want to delete this medication record? This action cannot be undone."
+          title="Delete medication?"
+          message="This will permanently remove the medication and its dose history. This can't be undone."
+          confirmLabel="Delete"
+          severity="destructive"
           onConfirm={handleDelete}
           onCancel={() => setShowDelete(false)}
           loading={deleting}
+        />
+
+        <ConfirmationModal
+          visible={showArchive}
+          title={`Archive ${medication.name}?`}
+          message={`It'll move out of active medications. You can restore ${medication.name} anytime.`}
+          confirmLabel="Archive"
+          severity="standard"
+          onConfirm={performArchive}
+          onCancel={() => setShowArchive(false)}
+          loading={archiving}
         />
       </View>
     </Screen>

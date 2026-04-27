@@ -6,7 +6,8 @@ import { Screen } from '@/components/ui/Screen';
 import { Card } from '@/components/ui/Card';
 import { DetailRow } from '@/components/ui/DetailRow';
 import { Button } from '@/components/ui/Button';
-import { DeleteConfirmation } from '@/components/ui/DeleteConfirmation';
+import { DestructiveTextButton } from '@/components/ui/DestructiveTextButton';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 import { healthService } from '@/services/healthService';
 import { formatDate } from '@/utils/dates';
 import { Colors } from '@/constants/colors';
@@ -114,17 +115,19 @@ export default function VetVisitDetailScreen() {
               )
             }
           />
-          <Button
-            title="Delete"
-            variant="secondary"
+          <DestructiveTextButton
+            label="Delete"
             onPress={() => setShowDelete(true)}
+            testID="delete-button"
           />
         </View>
 
-        <DeleteConfirmation
+        <ConfirmationModal
           visible={showDelete}
-          title="Delete Vet Visit"
-          message="Are you sure you want to delete this vet visit record? This action cannot be undone."
+          title="Delete vet visit?"
+          message="This will permanently remove the record from this pet's history. This can't be undone."
+          confirmLabel="Delete"
+          severity="destructive"
           onConfirm={handleDelete}
           onCancel={() => setShowDelete(false)}
           loading={deleting}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +7,8 @@ import { Screen } from '@/components/ui/Screen';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { DetailRow } from '@/components/ui/DetailRow';
+import { DestructiveTextButton } from '@/components/ui/DestructiveTextButton';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 import { foodService } from '@/services/foodService';
 import { Colors } from '@/constants/colors';
 import { formatDate } from '@/utils/dates';
@@ -26,6 +28,8 @@ export default function FoodDetailScreen() {
   const [entry, setEntry] = useState<FoodEntry | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showDelete, setShowDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const loadEntry = useCallback(async () => {
     try {
@@ -57,26 +61,18 @@ export default function FoodDetailScreen() {
     router.push(`/pets/${petId}/food/${id}/edit`);
   };
 
-  const handleDelete = () => {
-    Alert.alert(
-      'Delete Food Entry',
-      'Are you sure you want to delete this food entry? This cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await foodService.delete(id!);
-              router.back();
-            } catch {
-              Alert.alert('Error', 'Failed to delete food entry');
-            }
-          },
-        },
-      ],
-    );
+  const handleConfirmDelete = async () => {
+    if (!id) return;
+    setDeleting(true);
+    try {
+      await foodService.delete(id);
+      router.back();
+    } catch {
+      setError('Failed to delete food entry');
+    } finally {
+      setDeleting(false);
+      setShowDelete(false);
+    }
   };
 
   if (loading) {
@@ -163,12 +159,23 @@ export default function FoodDetailScreen() {
             title="Edit"
             onPress={handleEdit}
           />
-          <Button
-            title="Delete"
-            variant="secondary"
-            onPress={handleDelete}
+          <DestructiveTextButton
+            label="Delete"
+            onPress={() => setShowDelete(true)}
+            testID="delete-button"
           />
         </View>
+
+        <ConfirmationModal
+          visible={showDelete}
+          title="Delete food entry?"
+          message="This will permanently remove the entry from this pet's food history. This can't be undone."
+          confirmLabel="Delete"
+          severity="destructive"
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setShowDelete(false)}
+          loading={deleting}
+        />
       </View>
     </Screen>
   );

@@ -7,7 +7,8 @@ import { Card } from '@/components/ui/Card';
 import { DetailRow } from '@/components/ui/DetailRow';
 import { StatusPill } from '@/components/ui/StatusPill';
 import { Button } from '@/components/ui/Button';
-import { DeleteConfirmation } from '@/components/ui/DeleteConfirmation';
+import { DestructiveTextButton } from '@/components/ui/DestructiveTextButton';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 import { healthService } from '@/services/healthService';
 import { getVaccinationStatus } from '@/utils/status';
 import { getIntervalLabel } from '@/constants/vaccines';
@@ -186,17 +187,19 @@ export default function VaccinationDetailScreen() {
               )
             }
           />
-          <Button
-            title="Delete"
-            variant="secondary"
+          <DestructiveTextButton
+            label="Delete"
             onPress={() => setShowDelete(true)}
+            testID="delete-button"
           />
         </View>
 
-        <DeleteConfirmation
+        <ConfirmationModal
           visible={showDelete}
-          title="Delete Vaccination"
-          message="Are you sure you want to delete this vaccination record? This action cannot be undone."
+          title="Delete vaccination?"
+          message="This will permanently remove the record from this pet's history. This can't be undone."
+          confirmLabel="Delete"
+          severity="destructive"
           onConfirm={handleDelete}
           onCancel={() => setShowDelete(false)}
           loading={deleting}
