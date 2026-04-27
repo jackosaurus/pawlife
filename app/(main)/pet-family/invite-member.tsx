@@ -79,34 +79,34 @@ export default function InviteMemberScreen() {
           <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </Pressable>
 
-        <Text className="text-3xl font-bold text-text-primary mb-2">
+        <Text className="text-largeTitle text-text-primary mb-2">
           Invite Member
         </Text>
-        <Text className="text-text-secondary text-base mb-6">
+        <Text className="text-text-secondary text-body mb-6">
           Share this code with the person you'd like to invite.
         </Text>
 
         {loading ? (
           <View className="py-12 items-center">
             <ActivityIndicator size="large" color={Colors.primary} />
-            <Text className="text-text-secondary text-sm mt-3">
+            <Text className="text-text-secondary text-footnote mt-3">
               Generating invite code...
             </Text>
           </View>
         ) : error ? (
           <Card className="p-4 items-center">
-            <Text className="text-status-overdue text-sm">{error}</Text>
+            <Text className="text-status-overdue text-footnote">{error}</Text>
           </Card>
         ) : invite ? (
           <>
             <Card className="p-6 items-center mb-6">
               <Text
-                className="text-text-primary text-4xl font-bold tracking-widest"
+                className="text-text-primary text-display tracking-widest"
                 selectable
               >
                 {formattedCode}
               </Text>
-              <Text className="text-text-secondary text-sm mt-3">
+              <Text className="text-text-secondary text-footnote mt-3">
                 Expires in {daysUntilExpiry} {daysUntilExpiry === 1 ? 'day' : 'days'}
               </Text>
             </Card>

@@ -136,11 +136,11 @@ export default function HealthRecordsScreen() {
   const renderEmpty = () => (
     <View className="items-center py-12">
       <Ionicons name="medical-outline" size={48} color={Colors.textSecondary} />
-      <Text className="text-text-secondary text-base text-center mt-3">
+      <Text className="text-text-secondary text-body text-center mt-3">
         No health records yet.
       </Text>
       <Pressable onPress={handleAdd} className="mt-3">
-        <Text className="text-primary font-medium text-sm">
+        <Text className="text-primary text-button-sm">
           Add first record
         </Text>
       </Pressable>
@@ -159,7 +159,7 @@ export default function HealthRecordsScreen() {
                 color={Colors.textPrimary}
               />
             </Pressable>
-            <Text className="text-2xl font-bold text-text-primary ml-3">
+            <Text className="text-largeTitle text-text-primary ml-3">
               Health Records
             </Text>
           </View>

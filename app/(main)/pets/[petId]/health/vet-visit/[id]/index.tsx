@@ -67,7 +67,7 @@ export default function VetVisitDetailScreen() {
     return (
       <Screen>
         <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-text-secondary text-base text-center mb-4">
+          <Text className="text-text-secondary text-body text-center mb-4">
             {error ?? 'Vet visit not found'}
           </Text>
           <View className="w-full">
@@ -85,7 +85,7 @@ export default function VetVisitDetailScreen() {
           <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </Pressable>
 
-        <Text className="text-3xl font-bold text-text-primary mb-6">
+        <Text className="text-largeTitle text-text-primary mb-6">
           Vet Visit
         </Text>
 

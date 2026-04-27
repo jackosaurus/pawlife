@@ -379,7 +379,7 @@ export default function EditPetScreen() {
           <Pressable onPress={() => router.back()} hitSlop={8} className="py-1">
             <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </Pressable>
-          <Text className="text-lg font-bold text-text-primary">
+          <Text className="text-headline text-text-primary">
             Edit {petName || 'Pet'}
           </Text>
           <Pressable
@@ -391,19 +391,19 @@ export default function EditPetScreen() {
             {submitting ? (
               <ActivityIndicator size="small" color={Colors.primary} />
             ) : (
-              <Text className="text-primary text-base font-bold">Save</Text>
+              <Text className="text-primary text-callout font-bold">Save</Text>
             )}
           </Pressable>
         </View>
 
         {serverError && (
           <View className="bg-status-overdue/10 rounded-xl px-4 py-3 mb-4">
-            <Text className="text-status-overdue text-sm">{serverError}</Text>
+            <Text className="text-status-overdue text-footnote">{serverError}</Text>
           </View>
         )}
 
         {/* Pet Type */}
-        <Text className="text-text-secondary text-base mb-2">
+        <Text className="text-text-secondary text-body mb-2">
           What kind of pet?
         </Text>
         <Controller
@@ -424,7 +424,7 @@ export default function EditPetScreen() {
                       : 'border-border bg-white'
                   }`}
                 >
-                  <Text className="text-3xl mb-1">
+                  <Text className="text-largeTitle mb-1">
                     {type === 'dog' ? '🐕' : '🐈'}
                   </Text>
                   <Text
@@ -456,7 +456,7 @@ export default function EditPetScreen() {
               />
             </View>
           )}
-          <Text className="text-primary text-sm font-medium mt-2">
+          <Text className="text-primary text-button-sm mt-2">
             {photoUri ? 'Change Photo' : 'Add Photo'}
           </Text>
         </Pressable>
@@ -495,7 +495,7 @@ export default function EditPetScreen() {
           />
 
           {/* Sex */}
-          <Text className="text-text-secondary text-base mb-2">Sex</Text>
+          <Text className="text-text-secondary text-body mb-2">Sex</Text>
           <Controller
             control={control}
             name="sex"
@@ -516,7 +516,7 @@ export default function EditPetScreen() {
 
           {/* Age Toggle */}
           <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-text-secondary text-base">
+            <Text className="text-text-secondary text-body">
               I don't know the exact date of birth
             </Text>
             <Switch
@@ -583,7 +583,7 @@ export default function EditPetScreen() {
         </Card>
 
         {/* Insurance */}
-        <Text className="text-xs font-semibold text-text-secondary mb-2 tracking-wider">
+        <Text className="text-eyebrow uppercase text-text-secondary mb-2">
           INSURANCE
         </Text>
         <Card className="px-5 pt-4 mb-4">
@@ -618,7 +618,7 @@ export default function EditPetScreen() {
         </Card>
 
         {/* Allergies */}
-        <Text className="text-xs font-semibold text-text-secondary mb-2 tracking-wider">
+        <Text className="text-eyebrow uppercase text-text-secondary mb-2">
           ALLERGIES
         </Text>
         <Card className="px-5 pt-4 mb-4">
@@ -635,7 +635,7 @@ export default function EditPetScreen() {
                   >
                     <Text
                       style={{ color: Colors.textPrimary }}
-                      className="text-sm font-medium mr-1.5"
+                      className="text-button-sm mr-1.5"
                     >
                       {a.allergen}
                     </Text>
@@ -656,7 +656,7 @@ export default function EditPetScreen() {
             </View>
           )}
           <View className="mb-4">
-            <Text className="text-text-secondary text-base mb-1.5">
+            <Text className="text-text-secondary text-body mb-1.5">
               Add allergen
             </Text>
             <View
@@ -680,7 +680,7 @@ export default function EditPetScreen() {
                 placeholderTextColor={Colors.textSecondary}
                 returnKeyType="done"
                 autoCapitalize="none"
-                className="flex-1 py-3.5 text-base text-text-primary"
+                className="flex-1 py-3.5 text-body text-text-primary"
                 testID="allergy-input"
               />
               <Pressable
@@ -696,14 +696,14 @@ export default function EditPetScreen() {
                         ? Colors.textSecondary
                         : Colors.primary,
                   }}
-                  className="text-base font-bold"
+                  className="text-callout font-bold"
                 >
                   Add
                 </Text>
               </Pressable>
             </View>
             {allergyInlineError && (
-              <Text className="text-status-overdue text-sm mt-1">
+              <Text className="text-status-overdue text-footnote mt-1">
                 {allergyInlineError}
               </Text>
             )}
@@ -719,7 +719,7 @@ export default function EditPetScreen() {
           hitSlop={8}
           testID="archive-button"
         >
-          <Text className="text-status-overdue text-base font-medium">
+          <Text className="text-status-overdue text-body font-medium">
             Archive {petName || 'Pet'}
           </Text>
         </Pressable>

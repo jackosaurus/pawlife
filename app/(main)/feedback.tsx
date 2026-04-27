@@ -76,7 +76,7 @@ export default function FeedbackScreen() {
           <Pressable onPress={() => router.back()} hitSlop={8}>
             <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </Pressable>
-          <Text className="text-lg font-semibold text-text-primary">
+          <Text className="text-headline text-text-primary">
             Send Feedback
           </Text>
           {submitting ? (
@@ -89,7 +89,7 @@ export default function FeedbackScreen() {
               testID="send-button"
             >
               <Text
-                className={`text-base font-semibold ${
+                className={`text-callout font-semibold ${
                   canSubmit ? 'text-primary' : 'text-text-secondary opacity-40'
                 }`}
               >
@@ -101,7 +101,7 @@ export default function FeedbackScreen() {
 
         {/* Form */}
         <Card className="px-5 pt-4 pb-5">
-          <Text className="text-text-secondary text-base mb-1.5">
+          <Text className="text-text-secondary text-body mb-1.5">
             Category
           </Text>
           <SegmentedControl
@@ -114,7 +114,7 @@ export default function FeedbackScreen() {
           />
 
           <View className="mt-4">
-            <Text className="text-text-secondary text-base mb-1.5">
+            <Text className="text-text-secondary text-body mb-1.5">
               Description
             </Text>
             <View
@@ -129,7 +129,7 @@ export default function FeedbackScreen() {
                 multiline
                 textAlignVertical="top"
                 style={{ minHeight: 120, paddingTop: 14, paddingBottom: 14 }}
-                className="text-base text-text-primary"
+                className="text-body text-text-primary"
                 onFocus={() => setFocused(true)}
                 onBlur={() => setFocused(false)}
                 testID="description-input"
@@ -138,7 +138,7 @@ export default function FeedbackScreen() {
           </View>
         </Card>
 
-        <Text className="text-text-secondary text-xs mt-3 ml-1">
+        <Text className="text-text-secondary text-caption mt-3 ml-1">
           We'll automatically include device info to help us investigate.
         </Text>
       </View>

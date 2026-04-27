@@ -153,7 +153,7 @@ export default function MedicationDetailScreen() {
     return (
       <Screen>
         <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-text-secondary text-base text-center mb-4">
+          <Text className="text-text-secondary text-body text-center mb-4">
             {error ?? 'Medication not found'}
           </Text>
           <View className="w-full">
@@ -201,14 +201,14 @@ export default function MedicationDetailScreen() {
         </Pressable>
 
         <View className="flex-row items-center justify-between mb-2">
-          <Text className="text-3xl font-bold text-text-primary flex-1 mr-3">
+          <Text className="text-largeTitle text-text-primary flex-1 mr-3">
             {medication.name}
           </Text>
           <StatusPill label={statusLabel} status={statusForPill} />
         </View>
 
         {isArchived && medication.archived_at ? (
-          <Text className="text-text-secondary text-sm mb-4">
+          <Text className="text-text-secondary text-footnote mb-4">
             Archived {formatDate(medication.archived_at)}
           </Text>
         ) : (
@@ -227,7 +227,7 @@ export default function MedicationDetailScreen() {
           ) : null}
         </Card>
 
-        <Text className="text-sm font-medium text-text-secondary uppercase tracking-wide ml-1 mb-2">
+        <Text className="text-eyebrow uppercase text-text-secondary ml-1 mb-2">
           Timeline
         </Text>
         <Card className="px-5 mb-4">
@@ -247,7 +247,7 @@ export default function MedicationDetailScreen() {
 
         {doses.length > 0 ? (
           <>
-            <Text className="text-sm font-medium text-text-secondary uppercase tracking-wide ml-1 mb-2">
+            <Text className="text-eyebrow uppercase text-text-secondary ml-1 mb-2">
               Dose History
             </Text>
             <Card className="px-5 mb-4">
@@ -258,7 +258,7 @@ export default function MedicationDetailScreen() {
                     idx === doses.length - 1 ? '' : 'border-b border-border'
                   }`}
                 >
-                  <Text className="text-base text-text-primary flex-1 mr-3">
+                  <Text className="text-body text-text-primary flex-1 mr-3">
                     {formatDateTime(dose.given_at)}
                   </Text>
                   <Pressable

@@ -85,7 +85,7 @@ export default function PetDetailScreen() {
     return (
       <Screen>
         <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-text-secondary text-base text-center mb-4">
+          <Text className="text-text-secondary text-body text-center mb-4">
             {error ?? 'Pet not found'}
           </Text>
           <View className="w-full">
@@ -214,11 +214,11 @@ export default function PetDetailScreen() {
                   }
                 >
                   <View className="flex-row items-center justify-between">
-                    <Text className="text-base text-text-primary">
+                    <Text className="text-body text-text-primary">
                       Archived medications
                     </Text>
                     <View className="flex-row items-center">
-                      <Text className="text-sm text-text-secondary mr-2">
+                      <Text className="text-footnote text-text-secondary mr-2">
                         {archivedMeds.length}
                       </Text>
                       <Ionicons
@@ -353,7 +353,7 @@ function AboutCard({ pet }: AboutCardProps) {
 
   return (
     <View className="px-6 mb-4">
-      <Text className="text-xs font-semibold text-text-secondary mb-2 tracking-wider">
+      <Text className="text-eyebrow uppercase text-text-secondary mb-2">
         ABOUT
       </Text>
       <Card className="px-5 py-1">
@@ -388,12 +388,12 @@ function AboutRow({
         isLast ? '' : 'border-b border-border'
       }`}
     >
-      <Text className="text-base text-text-secondary flex-shrink-0 mr-4">
+      <Text className="text-body text-text-secondary flex-shrink-0 mr-4">
         {label}
       </Text>
       <Text
         style={{ color: Colors.textSecondary }}
-        className="text-base text-right flex-1 flex-shrink"
+        className="text-body text-right flex-1 flex-shrink"
       >
         Not added
       </Text>
@@ -408,12 +408,12 @@ interface AllergiesCardProps {
 function AllergiesCard({ allergies }: AllergiesCardProps) {
   return (
     <View className="px-6 mb-4">
-      <Text className="text-xs font-semibold text-text-secondary mb-2 tracking-wider">
+      <Text className="text-eyebrow uppercase text-text-secondary mb-2">
         ALLERGIES
       </Text>
       <Card className="px-5 py-4">
         {allergies.length === 0 ? (
-          <Text className="text-base text-text-secondary">
+          <Text className="text-body text-text-secondary">
             No known allergies.
           </Text>
         ) : (
@@ -427,7 +427,7 @@ function AllergiesCard({ allergies }: AllergiesCardProps) {
               >
                 <Text
                   style={{ color: Colors.textPrimary }}
-                  className="text-sm font-medium"
+                  className="text-button-sm"
                 >
                   {a.allergen}
                 </Text>
@@ -450,7 +450,7 @@ function InsuranceCard({ provider, policyNumber, onAddOrEdit }: InsuranceCardPro
   const hasInsurance = Boolean(provider || policyNumber);
   return (
     <View className="px-6 mb-4">
-      <Text className="text-xs font-semibold text-text-secondary mb-2 tracking-wider">
+      <Text className="text-eyebrow uppercase text-text-secondary mb-2">
         INSURANCE
       </Text>
       <Card className="px-5 py-3">
@@ -470,7 +470,7 @@ function InsuranceCard({ provider, policyNumber, onAddOrEdit }: InsuranceCardPro
             className="py-2"
             testID="add-insurance-link"
           >
-            <Text className="text-primary text-base font-medium">
+            <Text className="text-primary text-callout font-medium">
               Add insurance details
             </Text>
           </Pressable>
@@ -490,7 +490,7 @@ function EmptyState({ message, illustration }: { message: string; illustration?:
           resizeMode="contain"
         />
       )}
-      <Text className="text-base text-text-secondary text-center mt-4">{message}</Text>
+      <Text className="text-body text-text-secondary text-center mt-4">{message}</Text>
     </View>
   );
 }

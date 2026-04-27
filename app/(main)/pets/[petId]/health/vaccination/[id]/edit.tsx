@@ -107,7 +107,7 @@ export default function EditVaccinationScreen() {
           <Pressable onPress={() => router.back()} hitSlop={8}>
             <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </Pressable>
-          <Text className="text-lg font-semibold text-text-primary">
+          <Text className="text-headline text-text-primary">
             Edit Vaccination
           </Text>
           <Pressable
@@ -115,7 +115,7 @@ export default function EditVaccinationScreen() {
             disabled={submitting}
             hitSlop={8}
           >
-            <Text className="text-base font-semibold text-primary">
+            <Text className="text-callout font-semibold text-primary">
               {submitting ? 'Saving...' : 'Save'}
             </Text>
           </Pressable>
@@ -123,7 +123,7 @@ export default function EditVaccinationScreen() {
 
         {serverError && (
           <View className="bg-status-overdue/10 rounded-xl px-4 py-3 mb-4">
-            <Text className="text-status-overdue text-sm">{serverError}</Text>
+            <Text className="text-status-overdue text-footnote">{serverError}</Text>
           </View>
         )}
 
@@ -150,7 +150,7 @@ export default function EditVaccinationScreen() {
             name="intervalMonths"
             render={({ field: { onChange, value }, fieldState: { error } }) => (
               <View className="mb-4">
-                <Text className="text-sm font-medium text-text-primary mb-2">Schedule</Text>
+                <Text className="text-footnote font-medium text-text-primary mb-2">Schedule</Text>
                 <View className="flex-row flex-wrap gap-2">
                   {VACCINATION_INTERVALS.map((interval) => (
                     <Pressable
@@ -163,7 +163,7 @@ export default function EditVaccinationScreen() {
                       }`}
                     >
                       <Text
-                        className={`text-sm font-medium ${
+                        className={`text-button-sm ${
                           value === interval.value ? 'text-white' : 'text-text-primary'
                         }`}
                       >
@@ -172,7 +172,7 @@ export default function EditVaccinationScreen() {
                     </Pressable>
                   ))}
                 </View>
-                {error && <Text className="text-status-overdue text-xs mt-1">{error.message}</Text>}
+                {error && <Text className="text-status-overdue text-footnote mt-1">{error.message}</Text>}
               </View>
             )}
           />

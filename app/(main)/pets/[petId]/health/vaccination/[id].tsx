@@ -103,7 +103,7 @@ export default function VaccinationDetailScreen() {
     return (
       <Screen>
         <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-text-secondary text-base text-center mb-4">
+          <Text className="text-text-secondary text-body text-center mb-4">
             {error ?? 'Vaccination not found'}
           </Text>
           <View className="w-full">
@@ -125,7 +125,7 @@ export default function VaccinationDetailScreen() {
         </Pressable>
 
         <View className="flex-row items-center justify-between mb-6">
-          <Text className="text-3xl font-bold text-text-primary flex-1 mr-3">
+          <Text className="text-largeTitle text-text-primary flex-1 mr-3">
             {vaccination.vaccine_name}
           </Text>
           <StatusPill label={STATUS_LABELS[status]} status={status} />
@@ -154,7 +154,7 @@ export default function VaccinationDetailScreen() {
         {/* Dose History */}
         {doses.length > 0 && (
           <>
-            <Text className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2 px-1">
+            <Text className="text-eyebrow uppercase text-text-secondary mb-2 px-1">
               Dose History
             </Text>
             <Card className="px-5 mb-4">

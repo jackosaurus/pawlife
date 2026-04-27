@@ -7,10 +7,10 @@ export default function WelcomeScreen() {
 
   return (
     <View className="flex-1 items-center justify-center bg-background px-8">
-      <Text className="text-4xl font-bold text-text-primary mb-4">
+      <Text className="text-display text-text-primary mb-4">
         Pawlife
       </Text>
-      <Text className="text-lg text-text-secondary text-center mb-12">
+      <Text className="text-body text-text-secondary text-center mb-12">
         A digital home for your pet family
       </Text>
       <View className="w-full mb-4">
@@ -20,7 +20,7 @@ export default function WelcomeScreen() {
         />
       </View>
       <Link href="/(auth)/sign-in">
-        <Text className="text-primary text-base font-medium">Sign In</Text>
+        <Text className="text-primary text-callout font-medium">Sign In</Text>
       </Link>
     </View>
   );

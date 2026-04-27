@@ -180,18 +180,18 @@ export default function AddPetScreen() {
           <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </Pressable>
 
-        <Text className="text-3xl font-bold text-text-primary mb-6">
+        <Text className="text-largeTitle text-text-primary mb-6">
           Add a Pet
         </Text>
 
         {serverError && (
           <View className="bg-status-overdue/10 rounded-xl px-4 py-3 mb-4">
-            <Text className="text-status-overdue text-sm">{serverError}</Text>
+            <Text className="text-status-overdue text-footnote">{serverError}</Text>
           </View>
         )}
 
         {/* Pet Type */}
-        <Text className="text-text-secondary text-base mb-2">
+        <Text className="text-text-secondary text-body mb-2">
           What kind of pet?
         </Text>
         <Controller
@@ -212,7 +212,7 @@ export default function AddPetScreen() {
                       : 'border-border bg-white'
                   }`}
                 >
-                  <Text className="text-3xl mb-1">
+                  <Text className="text-largeTitle mb-1">
                     {type === 'dog' ? '🐕' : '🐈'}
                   </Text>
                   <Text
@@ -244,7 +244,7 @@ export default function AddPetScreen() {
               />
             </View>
           )}
-          <Text className="text-primary text-sm font-medium mt-2">
+          <Text className="text-primary text-button-sm mt-2">
             {photoUri ? 'Change Photo' : 'Add Photo'}
           </Text>
         </Pressable>
@@ -283,7 +283,7 @@ export default function AddPetScreen() {
           />
 
           {/* Sex */}
-          <Text className="text-text-secondary text-base mb-2">Sex</Text>
+          <Text className="text-text-secondary text-body mb-2">Sex</Text>
           <Controller
             control={control}
             name="sex"
@@ -304,7 +304,7 @@ export default function AddPetScreen() {
 
           {/* Age Toggle */}
           <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-text-secondary text-base">
+            <Text className="text-text-secondary text-body">
               I don't know the exact date of birth
             </Text>
             <Switch
@@ -371,12 +371,12 @@ export default function AddPetScreen() {
         </Card>
 
         {/* Allergies */}
-        <Text className="text-xs font-semibold text-text-secondary mb-2 tracking-wider">
+        <Text className="text-eyebrow uppercase text-text-secondary mb-2">
           ALLERGIES
         </Text>
         <Card className="px-5 py-4 mb-4">
           {allergens.length === 0 && !allergenInputOpen ? (
-            <Text className="text-base text-text-secondary mb-2">
+            <Text className="text-body text-text-secondary mb-2">
               No allergies added yet.
             </Text>
           ) : null}
@@ -387,7 +387,7 @@ export default function AddPetScreen() {
               className="flex-row items-center justify-between py-2"
               testID={`allergen-row-${idx}`}
             >
-              <Text className="text-base text-text-primary flex-1 mr-3">
+              <Text className="text-body text-text-primary flex-1 mr-3">
                 {a}
               </Text>
               <Pressable
@@ -422,7 +422,7 @@ export default function AddPetScreen() {
                   className="py-1"
                   testID="save-allergen-button"
                 >
-                  <Text className="text-primary text-base font-semibold">
+                  <Text className="text-primary text-callout font-semibold">
                     Save
                   </Text>
                 </Pressable>
@@ -436,7 +436,7 @@ export default function AddPetScreen() {
                   className="py-1"
                   testID="cancel-allergen-button"
                 >
-                  <Text className="text-text-secondary text-base font-medium">
+                  <Text className="text-text-secondary text-callout font-medium">
                     Cancel
                   </Text>
                 </Pressable>
@@ -449,7 +449,7 @@ export default function AddPetScreen() {
               className="mt-1 py-1"
               testID="open-allergen-input"
             >
-              <Text className="text-primary text-base font-medium">
+              <Text className="text-primary text-callout font-medium">
                 + Add allergy
               </Text>
             </Pressable>
@@ -457,7 +457,7 @@ export default function AddPetScreen() {
         </Card>
 
         {/* Insurance */}
-        <Text className="text-xs font-semibold text-text-secondary mb-2 tracking-wider">
+        <Text className="text-eyebrow uppercase text-text-secondary mb-2">
           INSURANCE
         </Text>
         <Card className="px-5 pt-4 mb-4">

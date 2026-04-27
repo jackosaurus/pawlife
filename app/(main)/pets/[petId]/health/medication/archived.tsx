@@ -28,7 +28,7 @@ export default function ArchivedMedicationsScreen() {
         <Pressable onPress={() => router.back()} hitSlop={8} className="mr-3">
           <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </Pressable>
-        <Text className="text-xl font-bold text-text-primary">
+        <Text className="text-title font-bold text-text-primary">
           Archived medications
         </Text>
       </View>
@@ -39,13 +39,13 @@ export default function ArchivedMedicationsScreen() {
         </View>
       ) : error ? (
         <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-text-secondary text-base text-center">
+          <Text className="text-text-secondary text-body text-center">
             {error}
           </Text>
         </View>
       ) : data.length === 0 ? (
         <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-text-secondary text-base text-center">
+          <Text className="text-text-secondary text-body text-center">
             No archived medications
           </Text>
         </View>
@@ -68,13 +68,13 @@ export default function ArchivedMedicationsScreen() {
                 <View className="flex-1 justify-center mr-3">
                   <Text
                     style={{ opacity: 0.6 }}
-                    className="text-base font-semibold text-text-primary"
+                    className="text-headline text-text-primary"
                     numberOfLines={1}
                   >
                     {med.name}
                   </Text>
                   <Text
-                    className="text-sm text-text-secondary mt-0.5"
+                    className="text-footnote text-text-secondary mt-0.5"
                     numberOfLines={1}
                   >
                     {[med.dosage, med.frequency].filter(Boolean).join(' · ')}
@@ -90,7 +90,7 @@ export default function ArchivedMedicationsScreen() {
                     }}
                   />
                   <Text
-                    className="text-xs text-text-secondary mt-1 text-center"
+                    className="text-caption text-text-secondary mt-1 text-center"
                     numberOfLines={1}
                   >
                     {med.archived_at

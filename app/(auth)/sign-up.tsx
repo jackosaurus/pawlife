@@ -36,16 +36,16 @@ export default function SignUpScreen() {
   return (
     <Screen scroll>
       <View className="flex-1 px-8 pt-16">
-        <Text className="text-3xl font-bold text-text-primary mb-2">
+        <Text className="text-largeTitle text-text-primary mb-2">
           Create Account
         </Text>
-        <Text className="text-base text-text-secondary mb-8">
+        <Text className="text-body text-text-secondary mb-8">
           Sign up to start tracking your pet's health
         </Text>
 
         {error && (
           <View className="bg-status-overdue/10 rounded-xl px-4 py-3 mb-4">
-            <Text className="text-status-overdue text-sm">{error}</Text>
+            <Text className="text-status-overdue text-footnote">{error}</Text>
           </View>
         )}
 
@@ -119,7 +119,7 @@ export default function SignUpScreen() {
               <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>✓</Text>
             )}
           </View>
-          <Text className="text-sm text-text-secondary flex-1">
+          <Text className="text-footnote text-text-secondary flex-1">
             I agree to the{' '}
             <Text
               testID="privacy-policy-link"
@@ -142,7 +142,7 @@ export default function SignUpScreen() {
 
         <View className="items-center mt-6">
           <Link href="/(auth)/sign-in">
-            <Text className="text-primary text-base font-medium">
+            <Text className="text-primary text-callout font-medium">
               Already have an account? Sign In
             </Text>
           </Link>

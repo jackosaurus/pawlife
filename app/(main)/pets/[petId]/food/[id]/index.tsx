@@ -89,7 +89,7 @@ export default function FoodDetailScreen() {
     return (
       <Screen>
         <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-text-secondary text-base text-center mb-4">
+          <Text className="text-text-secondary text-body text-center mb-4">
             {error ?? 'Food entry not found'}
           </Text>
           <View className="w-full">
@@ -110,14 +110,14 @@ export default function FoodDetailScreen() {
             color={Colors.textPrimary}
             onPress={() => router.back()}
           />
-          <Text className="text-3xl font-bold text-text-primary ml-3">
+          <Text className="text-largeTitle text-text-primary ml-3">
             Food Details
           </Text>
         </View>
 
         {isCurrent && (
           <View className="bg-primary/10 rounded-xl px-4 py-2 mb-4 self-start">
-            <Text className="text-primary font-medium text-sm">
+            <Text className="text-primary text-button-sm">
               Current Food
             </Text>
           </View>
@@ -139,7 +139,7 @@ export default function FoodDetailScreen() {
           })()}
         </Card>
 
-        <Text className="text-sm font-medium text-text-secondary uppercase tracking-wide ml-1 mb-2">
+        <Text className="text-eyebrow uppercase text-text-secondary ml-1 mb-2">
           Timeline
         </Text>
         <Card className="px-5 mb-4">

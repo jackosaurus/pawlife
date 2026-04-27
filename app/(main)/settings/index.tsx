@@ -268,7 +268,7 @@ export default function SettingsScreen() {
   };
 
   const renderSection = (title: string) => (
-    <Text className="text-text-secondary text-xs font-semibold uppercase tracking-wider mb-2 ml-1 mt-6">
+    <Text className="text-text-secondary text-eyebrow uppercase mb-2 ml-1 mt-6">
       {title}
     </Text>
   );
@@ -280,7 +280,7 @@ export default function SettingsScreen() {
           <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </Pressable>
 
-        <Text className="text-3xl font-bold text-text-primary mb-2">
+        <Text className="text-largeTitle text-text-primary mb-2">
           Settings
         </Text>
 
@@ -289,8 +289,8 @@ export default function SettingsScreen() {
         <Card className="p-4 mb-1">
           <View className="flex-row items-center justify-between">
             <View>
-              <Text className="text-text-secondary text-sm">Signed in as</Text>
-              <Text className="text-text-primary text-base font-medium">
+              <Text className="text-text-secondary text-footnote">Signed in as</Text>
+              <Text className="text-text-primary text-body font-medium">
                 {email}
               </Text>
             </View>
@@ -340,9 +340,9 @@ export default function SettingsScreen() {
           >
             <Card className="p-4 flex-row items-center justify-between">
               <View>
-                <Text className="text-text-secondary text-sm">Display Name</Text>
+                <Text className="text-text-secondary text-footnote">Display Name</Text>
                 <Text
-                  className={`text-base ${displayName ? 'text-text-primary font-medium' : 'text-text-secondary'}`}
+                  className={`text-body ${displayName ? 'text-text-primary font-medium' : 'text-text-secondary'}`}
                 >
                   {displayName || 'Set your name'}
                 </Text>
@@ -358,12 +358,12 @@ export default function SettingsScreen() {
         {/* Change Password */}
         {showChangePassword ? (
           <Card className="p-4 mt-3">
-            <Text className="text-text-primary text-base font-medium mb-3">
+            <Text className="text-text-primary text-headline mb-3">
               Change Password
             </Text>
             {passwordError && (
               <View className="bg-status-overdue/10 rounded-xl px-4 py-2 mb-3">
-                <Text className="text-status-overdue text-sm">{passwordError}</Text>
+                <Text className="text-status-overdue text-footnote">{passwordError}</Text>
               </View>
             )}
             <TextInput
@@ -409,7 +409,7 @@ export default function SettingsScreen() {
             testID="change-password-button"
           >
             <Card className="p-4 flex-row items-center justify-between">
-              <Text className="text-text-primary text-base">Change Password</Text>
+              <Text className="text-text-primary text-body">Change Password</Text>
               <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
             </Card>
           </Pressable>
@@ -418,7 +418,7 @@ export default function SettingsScreen() {
         {/* Preferences Section */}
         {renderSection('Preferences')}
         <Card className="p-4">
-          <Text className="text-text-primary text-base font-medium mb-3">
+          <Text className="text-text-primary text-headline mb-3">
             Weight Unit
           </Text>
           <SegmentedControl
@@ -437,10 +437,10 @@ export default function SettingsScreen() {
           {/* Master toggle */}
           <View className="flex-row items-center justify-between mb-4">
             <View className="flex-1 mr-3">
-              <Text className="text-text-primary text-base font-medium">
+              <Text className="text-text-primary text-headline">
                 Push Reminders
               </Text>
-              <Text className="text-text-secondary text-sm">
+              <Text className="text-text-secondary text-footnote">
                 Get notified about medications and vaccinations
               </Text>
             </View>
@@ -459,10 +459,10 @@ export default function SettingsScreen() {
               <View className="border-t border-border pt-4 mb-4">
                 <View className="flex-row items-center justify-between">
                   <View className="flex-1 mr-3">
-                    <Text className="text-text-primary text-base font-medium">
+                    <Text className="text-text-primary text-headline">
                       Medication Reminder Time
                     </Text>
-                    <Text className="text-text-secondary text-sm">
+                    <Text className="text-text-secondary text-footnote">
                       Daily reminder to log medications
                     </Text>
                   </View>
@@ -482,7 +482,7 @@ export default function SettingsScreen() {
                         testID="reminder-time-button"
                       >
                         <View className="bg-input-fill rounded-xl px-4 py-3">
-                          <Text className="text-text-primary text-base">
+                          <Text className="text-text-primary text-body">
                             {formatTime(medicationReminderTime)}
                           </Text>
                         </View>
@@ -500,17 +500,17 @@ export default function SettingsScreen() {
                     </>
                   )}
                 </View>
-                <Text className="text-text-secondary text-xs mt-2">
+                <Text className="text-text-secondary text-caption mt-2">
                   Reminders fire at the top of the hour.
                 </Text>
               </View>
 
               {/* Vaccination advance notice */}
               <View className="border-t border-border pt-4">
-                <Text className="text-text-primary text-base font-medium mb-1">
+                <Text className="text-text-primary text-headline mb-1">
                   Vaccination Advance Notice
                 </Text>
-                <Text className="text-text-secondary text-sm mb-2">
+                <Text className="text-text-secondary text-footnote mb-2">
                   How early to remind about upcoming vaccinations
                 </Text>
                 <SegmentedControl
@@ -541,7 +541,7 @@ export default function SettingsScreen() {
                 color={Colors.destructive}
               />
               <Text
-                className="text-base font-medium ml-3"
+                className="text-body font-medium ml-3"
                 style={{ color: Colors.destructive }}
               >
                 Delete Account
@@ -562,7 +562,7 @@ export default function SettingsScreen() {
             iteration auto-dismisses on cancel). */}
         {deletionError && !deletionModalVisible && (
           <View className="mt-3 bg-status-overdue/10 rounded-xl px-4 py-2">
-            <Text className="text-status-overdue text-sm">
+            <Text className="text-status-overdue text-footnote">
               {deletionError}
             </Text>
           </View>
@@ -570,7 +570,7 @@ export default function SettingsScreen() {
 
         {/* App Version */}
         <View className="mt-8 items-center">
-          <Text className="text-text-secondary text-xs">
+          <Text className="text-text-secondary text-caption">
             Pawlife v{appVersion}
           </Text>
         </View>
@@ -604,7 +604,7 @@ export default function SettingsScreen() {
         >
           <View className="bg-status-overdue rounded-xl px-4 py-3">
             <Text
-              className="text-white text-sm font-medium text-center"
+              className="text-white text-footnote font-medium text-center"
               testID="deletion-error"
             >
               {deletionError}

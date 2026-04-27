@@ -96,13 +96,13 @@ export default function AddFoodScreen() {
           <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </Pressable>
 
-        <Text className="text-3xl font-bold text-text-primary mb-6">
+        <Text className="text-largeTitle text-text-primary mb-6">
           {isChange ? 'Change Food' : 'Add Food'}
         </Text>
 
         {serverError && (
           <View className="bg-status-overdue/10 rounded-xl px-4 py-3 mb-4">
-            <Text className="text-status-overdue text-sm">{serverError}</Text>
+            <Text className="text-status-overdue text-footnote">{serverError}</Text>
           </View>
         )}
 
@@ -114,11 +114,11 @@ export default function AddFoodScreen() {
                 size={20}
                 color={Colors.primary}
               />
-              <Text className="text-sm font-medium text-primary ml-2">
+              <Text className="text-footnote font-medium text-primary ml-2">
                 Changing from current food
               </Text>
             </View>
-            <Text className="text-sm text-text-secondary">
+            <Text className="text-footnote text-text-secondary">
               {currentFood.brand}
               {currentFood.product_name
                 ? ` - ${currentFood.product_name}`
@@ -161,7 +161,7 @@ export default function AddFoodScreen() {
           />
 
           {/* Food Type */}
-          <Text className="text-text-secondary text-base mb-2">
+          <Text className="text-text-secondary text-body mb-2">
             Food Type
           </Text>
           <Controller

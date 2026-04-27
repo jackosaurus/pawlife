@@ -199,7 +199,7 @@ export default function PetFamilyScreen() {
   };
 
   const renderSection = (title: string) => (
-    <Text className="text-text-secondary text-xs font-semibold uppercase tracking-wider mb-2 ml-1 mt-6">
+    <Text className="text-text-secondary text-eyebrow uppercase mb-2 ml-1 mt-6">
       {title}
     </Text>
   );
@@ -212,7 +212,7 @@ export default function PetFamilyScreen() {
           <Pressable onPress={() => router.back()} hitSlop={8} className="mr-3" testID="back-button">
             <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </Pressable>
-          <Text className="text-3xl font-bold text-text-primary">
+          <Text className="text-largeTitle text-text-primary">
             Pet Family
           </Text>
         </View>
@@ -253,7 +253,7 @@ export default function PetFamilyScreen() {
               </View>
             ) : (
               <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-text-primary text-lg font-semibold">
+                <Text className="text-text-primary text-headline">
                   {family.name}
                 </Text>
                 {isAdmin && (
@@ -302,12 +302,12 @@ export default function PetFamilyScreen() {
                   />
                   <View className="ml-2 flex-1">
                     <Text
-                      className="text-text-primary text-sm font-medium"
+                      className="text-text-primary text-body font-medium"
                       numberOfLines={1}
                     >
                       {nameWithYou}
                     </Text>
-                    <Text className="text-text-secondary text-xs">
+                    <Text className="text-text-secondary text-footnote">
                       {roleLabel}{joinedLabel ? ` · ${joinedLabel}` : ''}
                     </Text>
                   </View>
@@ -342,11 +342,11 @@ export default function PetFamilyScreen() {
             {isAdmin && activeInvite && (
               <View className="flex-row items-center justify-between mt-3 bg-input-fill rounded-xl px-3 py-2">
                 <View className="flex-1">
-                  <Text className="text-text-secondary text-xs">Active invite</Text>
-                  <Text className="text-text-primary text-sm font-medium">
+                  <Text className="text-text-secondary text-caption">Active invite</Text>
+                  <Text className="text-text-primary text-headline">
                     {formatInviteCode(activeInvite.invite_code)}
                   </Text>
-                  <Text className="text-text-secondary text-xs">
+                  <Text className="text-text-secondary text-caption">
                     Expires {new Date(activeInvite.expires_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                   </Text>
                 </View>
@@ -425,7 +425,7 @@ export default function PetFamilyScreen() {
           <>
             {activePets.length === 0 ? (
               <Card className="p-4 items-center">
-                <Text className="text-text-secondary text-sm">
+                <Text className="text-text-secondary text-body">
                   No active pets yet
                 </Text>
               </Card>
@@ -446,10 +446,10 @@ export default function PetFamilyScreen() {
                       petType={pet.pet_type}
                     />
                     <View className="ml-3 flex-1">
-                      <Text className="text-text-primary text-base font-medium">
+                      <Text className="text-text-primary text-headline">
                         {pet.name}
                       </Text>
-                      <Text className="text-text-secondary text-sm">
+                      <Text className="text-text-secondary text-footnote">
                         {pet.breed ?? 'Mixed / Unknown'}
                       </Text>
                     </View>
@@ -477,10 +477,10 @@ export default function PetFamilyScreen() {
                         petType={pet.pet_type}
                       />
                       <View className="ml-3 flex-1">
-                        <Text className="text-text-primary text-base font-medium opacity-60">
+                        <Text className="text-text-primary text-headline opacity-60">
                           {pet.name}
                         </Text>
-                        <Text className="text-text-secondary text-sm opacity-60">
+                        <Text className="text-text-secondary text-footnote opacity-60">
                           {pet.breed ?? 'Mixed / Unknown'}
                         </Text>
                       </View>
@@ -496,7 +496,7 @@ export default function PetFamilyScreen() {
                             color={Colors.primary}
                           />
                         ) : (
-                          <Text className="text-primary text-sm font-semibold">
+                          <Text className="text-primary text-button-sm">
                             Restore
                           </Text>
                         )}
@@ -515,7 +515,7 @@ export default function PetFamilyScreen() {
             >
               <Card className="p-4 items-center border border-dashed border-border">
                 <Ionicons name="add" size={24} color={Colors.textSecondary} />
-                <Text className="text-text-secondary text-sm mt-1">
+                <Text className="text-text-secondary text-button-sm mt-1">
                   Add a pet
                 </Text>
               </Card>

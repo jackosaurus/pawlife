@@ -71,16 +71,16 @@ export default function JoinFamilyScreen() {
           <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </Pressable>
 
-        <Text className="text-3xl font-bold text-text-primary mb-2">
+        <Text className="text-largeTitle text-text-primary mb-2">
           Join a Family
         </Text>
-        <Text className="text-text-secondary text-base mb-6">
+        <Text className="text-text-secondary text-body mb-6">
           Enter the invite code shared with you by a family admin.
         </Text>
 
         {error && (
           <View className="bg-status-overdue/10 rounded-xl px-4 py-3 mb-4">
-            <Text className="text-status-overdue text-sm">{error}</Text>
+            <Text className="text-status-overdue text-footnote">{error}</Text>
           </View>
         )}
 
@@ -112,16 +112,16 @@ export default function JoinFamilyScreen() {
         {preview && (
           <>
             <Card className="p-4 mb-4">
-              <Text className="text-text-secondary text-xs uppercase tracking-wider mb-2">
+              <Text className="text-eyebrow uppercase text-text-secondary mb-2">
                 You're joining
               </Text>
-              <Text className="text-text-primary text-lg font-semibold">
+              <Text className="text-text-primary text-headline">
                 "{preview.family_name}"
               </Text>
             </Card>
 
             <View className="bg-status-amber/10 rounded-xl px-4 py-3 mb-4">
-              <Text className="text-text-secondary text-sm">
+              <Text className="text-text-secondary text-footnote">
                 Your existing pets will move to this family.
               </Text>
             </View>

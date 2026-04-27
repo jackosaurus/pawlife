@@ -80,7 +80,7 @@ export default function MenuScreen() {
           </View>
           <View className="flex-1">
             <Text
-              className="text-text-primary text-base font-semibold"
+              className="text-text-primary text-headline"
               numberOfLines={1}
               testID="menu-display-name"
             >
@@ -88,7 +88,7 @@ export default function MenuScreen() {
             </Text>
             {displayName && email ? (
               <Text
-                className="text-text-secondary text-sm"
+                className="text-text-secondary text-footnote"
                 numberOfLines={1}
                 testID="menu-email"
               >

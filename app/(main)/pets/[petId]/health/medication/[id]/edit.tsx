@@ -116,13 +116,13 @@ export default function EditMedicationScreen() {
           <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </Pressable>
 
-        <Text className="text-3xl font-bold text-text-primary mb-6">
+        <Text className="text-largeTitle text-text-primary mb-6">
           Edit Medication
         </Text>
 
         {serverError && (
           <View className="bg-status-overdue/10 rounded-xl px-4 py-3 mb-4">
-            <Text className="text-status-overdue text-sm">{serverError}</Text>
+            <Text className="text-status-overdue text-footnote">{serverError}</Text>
           </View>
         )}
 
@@ -202,7 +202,7 @@ export default function EditMedicationScreen() {
           />
 
           <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-base font-medium text-text-primary">
+            <Text className="text-body font-medium text-text-primary">
               Ongoing medication
             </Text>
             <Switch

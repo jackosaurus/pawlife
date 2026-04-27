@@ -70,7 +70,7 @@ export default function FoodOverviewScreen() {
     return (
       <Screen>
         <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-text-secondary text-base text-center mb-4">
+          <Text className="text-text-secondary text-body text-center mb-4">
             {error}
           </Text>
           <View className="w-full">
@@ -106,7 +106,7 @@ export default function FoodOverviewScreen() {
               color={Colors.textPrimary}
             />
           </Pressable>
-          <Text className="text-xl font-bold text-text-primary ml-3">
+          <Text className="text-largeTitle text-text-primary ml-3">
             {pet?.name ? `${pet.name}'s Food` : 'Food & Diet'}
           </Text>
         </View>
@@ -123,28 +123,28 @@ export default function FoodOverviewScreen() {
               onPress={() => handleFoodPress(currentFood)}
             >
               <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-lg font-semibold text-text-primary">
+                <Text className="text-headline text-text-primary">
                   Current Food
                 </Text>
                 <Pressable
                   onPress={() => router.push(`/pets/${petId}/food/add?change=true`)}
                   hitSlop={8}
                 >
-                  <Text className="text-sm font-medium text-primary">
+                  <Text className="text-button-sm text-primary">
                     Change
                   </Text>
                 </Pressable>
               </View>
-              <Text className="text-base font-medium text-text-primary">
+              <Text className="text-body font-medium text-text-primary">
                 {currentFood.brand}
               </Text>
               {currentFood.product_name ? (
-                <Text className="text-sm text-text-secondary mt-0.5">
+                <Text className="text-footnote text-text-secondary mt-0.5">
                   {currentFood.product_name}
                 </Text>
               ) : null}
               {foodDetails.length > 0 ? (
-                <Text className="text-sm text-text-secondary mt-1">
+                <Text className="text-footnote text-text-secondary mt-1">
                   {foodDetails.join(' · ')}
                 </Text>
               ) : null}
@@ -156,11 +156,11 @@ export default function FoodOverviewScreen() {
                 size={48}
                 color={Colors.textSecondary}
               />
-              <Text className="text-text-secondary text-sm text-center mt-3">
+              <Text className="text-text-secondary text-body text-center mt-3">
                 What's {pet?.name ?? 'your pet'} eating?
               </Text>
               <Pressable onPress={handleAddFood} className="mt-3">
-                <Text className="text-primary font-medium text-sm">
+                <Text className="text-primary text-button-sm">
                   Add food
                 </Text>
               </Pressable>
@@ -170,7 +170,7 @@ export default function FoodOverviewScreen() {
           {/* Food History */}
           {pastEntries.length > 0 ? (
             <View>
-              <Text className="text-base font-semibold text-text-primary mb-3">
+              <Text className="text-headline text-text-primary mb-3">
                 Food History
               </Text>
               {pastEntries.map((entry) => (
