@@ -101,6 +101,12 @@ Implementation agents commit and push their work as part of the task. Don't leav
 ### Status dashboard for parallel work
 When multiple agents are running, end responses with a brief status table of all active threads so the user can see what's in flight at a glance.
 
+### Worktree isolation for parallel committers
+When running multiple background agents in parallel that will each `git commit`, launch them with `isolation: "worktree"` so they don't fight over the shared git index. Sequential agents in the same tree are fine. The failure mode is two parallel agents staging different files and one of their commits accidentally picking up both stagings — corrupts commit boundaries (split work into two clean commits later requires `git reset` + restage, which is messy if either has already been pushed).
+
+### Verify external-state assumptions before executing on a plan
+When a plan doc claims something about external state (a URL resolves, a slug is cosmetic, an account is owned, a service has a particular feature), verify it with one command before building on it. Plans go stale and confidently-written docs are easy to take at face value. A single `curl -I`, `gh repo view`, or `eas project:info` upfront beats discovering the assumption was wrong at execution time and re-doing work mid-flight.
+
 ## Common Commands
 
 ```bash
