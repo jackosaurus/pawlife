@@ -93,7 +93,7 @@ Rows = the auth method the user **just tapped**. Columns = the prior state of th
 **Implementation-agent reading of this table:**
 
 - The "two accounts get created" cells are **not bugs**. They are the documented v1 behaviour. Do not add pre-flight email-existence checks.
-- The "Supabase rejects" cell for email-on-email is the only error path that needs explicit copy. The string lives in `app/(auth)/sign-up.tsx` error block (line 46-50) — already wired to display `error` from the store. No changes needed if Supabase's default message is acceptable; if not, intercept in `authService.signUp` and rethrow with friendlier copy.
+- The "Supabase rejects" cell for email-on-email is the only error path that needs explicit copy. The string lives in `app/(auth)/sign-up.tsx` error block (line 46-50) — already wired to display `error` from the store. **Founder confirmed:** intercept in `authService.signUp` and rethrow with friendlier copy: `"An account with this email already exists. Sign in instead."` (Supabase's default `User already registered` is too terse and doesn't suggest the recovery path.)
 - All "session returned, lands in `(main)`" cells use the same code path: the `onAuthStateChange` listener at `stores/authStore.ts:32` fires, `_layout.tsx` redirect logic routes the user.
 
 ### 4.2 The 5 collision scenarios — explicit decision per scenario
@@ -117,7 +117,7 @@ For each, the implementation agent's job is to **match the listed behaviour exac
 - **What the user sees AFTER:** generic "Invalid login credentials" / "No account found" toast. They are most likely to interpret this as "I forgot my password," tap reset, and confuse themselves further (Supabase will email a reset link that, when followed, sets a password and creates a `provider=email` row — yielding two accounts).
 - **Decision:** **ALLOW (separate accounts), but ship a v1 nudge.** Do not block. Do not auto-link.
 - **Reasoning:** blocking would require the same pre-flight check as C1 and is rejected for the same reason. However, the C2 confusion ceiling is higher than C1 (user goes through password-reset flow before realising), so we ship the **mitigation in §4.5** — "Use the same method you signed up with" caption on the welcome screen, plus remembered-last-method on this device.
-- **Implementation note:** the welcome-screen caption + last-method memory live in `app/(auth)/welcome.tsx`. Storage backend: `expo-secure-store` (already a dep — verify in `package.json`; if not, fall back to AsyncStorage). Key: `bemy.lastAuthMethod`. Values: `email` / `apple` / `google` / null. Write on every successful sign-in. Read on welcome screen mount. Visually emphasize last-used (e.g. soft border highlight or "Last used" badge).
+- **Implementation note:** the welcome-screen caption + last-method memory live in `app/(auth)/welcome.tsx`. Storage backend: `AsyncStorage` (the same storage the Supabase client already uses — see `services/supabase.ts:10`; founder confirmed this choice over `expo-secure-store` since the value is a non-sensitive UX hint, not a credential). Key: `bemy.lastAuthMethod`. Values: `email` / `apple` / `google` / null. Write on every successful sign-in. Read on welcome screen mount. Visually emphasize last-used (e.g. soft border highlight or "Last used" badge).
 - **Recovery path (founder):** if the user opened a reset-password email and now has two accounts: pick canonical, reassign FKs, delete abandoned. §4.4.
 
 #### C3 — Apple signup → later Google sign-in with same email
@@ -147,7 +147,7 @@ For each, the implementation agent's job is to **match the listed behaviour exac
 - **What the user sees AFTER:** empty `(main)`. No data leakage from user A — RLS scoped to `user_id` ensures the second user sees none of the first user's pets.
 - **Decision:** **ALLOW (this is the desired behaviour, not a collision).**
 - **Reasoning:** matching by Apple `sub` is the security boundary. Two different `sub`s = two different humans (per Apple's contract). We must not link them.
-- **Implementation note:** confirm sign-out fully clears `expo-secure-store` Supabase session keys (Supabase's RN adapter should handle this; verify in `services/supabase.ts`). The `bemy.lastAuthMethod` key from §4.5 should also be cleared on explicit sign-out (so the new user isn't shown the previous user's preferred method).
+- **Implementation note:** confirm sign-out fully clears the Supabase session in `AsyncStorage` (Supabase's RN adapter should handle this; verify in `services/supabase.ts`). The `bemy.lastAuthMethod` key from §4.5 should also be cleared on explicit sign-out (so the new user isn't shown the previous user's preferred method).
 - **Recovery path:** none — this is correct. If a user complains "my data is gone" after this, the support response is: "Sign out, then sign back in with your original Apple ID (the one with `XYZ` email)."
 
 **Summary of decisions (TL;DR for the implementation agent):**
@@ -248,14 +248,14 @@ One-line caption directly below the SSO buttons:
 
 #### 4.5.2 Remembered last-method on this device — **[ship v1]**
 
-Read/write a single string from `expo-secure-store` (already a dep for the Supabase session adapter — verify in `services/supabase.ts`). Key `bemy.lastAuthMethod`, values `email | apple | google | null`.
+Read/write a single string from `AsyncStorage` (the same storage the Supabase client uses; see `services/supabase.ts:10`). Key `bemy.lastAuthMethod`, values `email | apple | google | null`.
 
 - Write: in `authService.signIn`, `signInWithApple`, `signInWithGoogle`, on success.
 - Read: in `welcome.tsx` on mount.
 - Render: visually emphasise the last-used button (e.g. a small "Last used" pill above it, or a soft brand-coloured border). Do **not** auto-tap it — the user must press deliberately.
 - Clear: in `authService.signOut` (so the next user on a shared device isn't nudged toward the previous user's method).
 
-Cost: ~30 lines across the service + welcome screen. Tests: easy (mock secure-store).
+Cost: ~30 lines across the service + welcome screen. Tests: easy (mock `@react-native-async-storage/async-storage`).
 
 #### 4.5.3 Soft warning on email→SSO collision — **[defer v1.x]**
 
@@ -297,7 +297,7 @@ Existing flow (`app/(main)/settings/index.tsx:171-202`): "Delete Account" → co
 
 ### 4.8 Token refresh, expiry, and silent logout
 
-Supabase RN client default: access token TTL = 1 hour, refresh token TTL = 60 days (sliding). The client auto-refreshes in the background. The session is persisted via `expo-secure-store` (Supabase RN adapter).
+Supabase RN client default: access token TTL = 1 hour, refresh token TTL = 60 days (sliding). The client auto-refreshes in the background. The session is persisted via `AsyncStorage` (Supabase RN adapter — see `services/supabase.ts:10`).
 
 **Failure modes:**
 
@@ -792,8 +792,8 @@ The collision-handling debt that was previously open here (what to do for C1–C
 2. **Apple verification of email-claim audience.** Supabase verifies the Apple identity token's `aud` claim against the Services ID. If the Services ID is misconfigured (wrong domain, wrong return URL), all Apple sign-ins fail with a cryptic 400. **Mitigation:** test on the preview build before commit-push lands; capture the exact error message in `observabilityService` for fast triage.
 3. **Google "unverified app" warning** during the verification window. Real users will see "Google hasn't verified this app." Founder needs to know this is normal and clears in 1–2 weeks. Listed as an open question because the founder might not want to ship until verified.
 4. **`isAvailableAsync` on Apple** — the JS API is available cross-platform but the native module only exists on iOS 13+. Android users will see only the Google + email options (per §4.10 spec). Confirm this is acceptable to the founder (Android-only Apple Sign In via web flow is possible but adds complexity disproportionate to value).
-5. **Privacy-consent UX on the SSO path.** §8.2 + §4.12 propose that tapping the SSO button = consent because of the persistent footnote, with **no DB write** for either flow (consistent with current email behaviour). This may not satisfy strict GDPR readings of "explicit consent." **Open question for the founder:** do you want to keep the explicit checkbox on the welcome screen as well, AND/OR add the deferred `privacy_consent_at` column from §4.12? Recommendation: no on both — friction is the enemy here, the footnote is industry-standard, and the DB asymmetry argument means we'd want both paths writing consent or neither (and "neither" is the existing state).
-6. **Soft warning on email→SSO collision (§4.5.3).** Deferred to v1.x with a defined trip-wire (5+ manual merges). Not blocking v1, but the founder should know the trip-wire so the support burden doesn't silently grow.
+5. **Privacy-consent UX on the SSO path.** **Resolved:** founder confirmed footnote-only on the welcome screen — no checkbox on the SSO path, no `privacy_consent_at` DB column. The persistent "By continuing you agree to the Privacy Policy" footnote sits below the SSO buttons; tapping a button = consent. The email-fallback flow (`sign-up.tsx`) keeps its existing checkbox unchanged. Symmetry is maintained: neither flow writes consent to the DB.
+6. **Soft warning on email→SSO collision (§4.5.3).** Deferred. Founder direction: revisit if/when manual account merges become a recurring support burden — no artificial threshold. If at any point a duplicate-account support email becomes a routine occurrence (or the founder finds themselves running the recovery SQL more than once or twice a quarter), revisit the §4.5.3 plan and decide whether the email-enumeration tradeoff is worth shipping the soft warning. Until then, accept the §4.4 manual-recovery path as sufficient.
 
 ---
 
