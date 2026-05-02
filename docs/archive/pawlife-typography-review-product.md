@@ -145,7 +145,7 @@ The app's stated voice is **"warm pet family, not clinical."** Three places typo
 **Where typography is on-voice and should not be touched:**
 
 - The display-weight pet name on the detail screen is exactly the right register: it's a *name*, not a *title*. Light weight, generous size, plenty of air around it.
-- The microcopy in profile sheet ("jacksangdinh@gmail.com" in warm gray under "Jack") — quiet, intimate, correct.
+- The microcopy in profile sheet ("sam@example.com" in warm gray under "Sam") — quiet, intimate, correct.
 - The empty illustration of the dog + cat at the dashboard top is doing emotional work that no amount of typography can do. Keep.
 
 ---

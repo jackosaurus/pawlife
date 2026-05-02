@@ -6,7 +6,7 @@ This privacy policy explains how the Bemy mobile application ("Bemy", "we", "us"
 
 ## 1. Who runs Bemy
 
-Bemy is built and operated by Jack Dinh. You can reach us at **jacksangdinh@gmail.com** for any privacy-related question, request, or concern.
+Bemy is built and operated by Beebles. You can reach us at **beeble.ptyltd@gmail.com** for any privacy-related question, request, or concern.
 
 ## 2. What we collect
 
@@ -72,7 +72,7 @@ We may update this policy as the app evolves. The "Last updated" date at the top
 
 ## 10. Contact
 
-For any privacy question, data export request, deletion request, or concern, email **jacksangdinh@gmail.com**. We aim to reply within 7 days.
+For any privacy question, data export request, deletion request, or concern, email **beeble.ptyltd@gmail.com**. We aim to reply within 7 days.
 
 ---
 

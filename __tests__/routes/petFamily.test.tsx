@@ -103,7 +103,7 @@ describe('PetFamilyScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockFamilyState = {
-      family: { id: 'fam-1', name: 'Dinh Family' },
+      family: { id: 'fam-1', name: 'Smith Family' },
       members: [
         {
           id: 'mem-1',
@@ -136,7 +136,7 @@ describe('PetFamilyScreen', () => {
     expect(getByText('Family')).toBeTruthy();
     expect(getByText('Pets')).toBeTruthy();
     await findByText('Buddy');
-    expect(getByText('Dinh Family')).toBeTruthy();
+    expect(getByText('Smith Family')).toBeTruthy();
   });
 
   it('renders Archived Pets section when archived pets exist', async () => {
@@ -168,7 +168,7 @@ describe('PetFamilyScreen', () => {
 
   it('member: shows Leave Family button and triggers leaveFamily', async () => {
     mockFamilyState = {
-      family: { id: 'fam-1', name: 'Dinh Family' },
+      family: { id: 'fam-1', name: 'Smith Family' },
       members: [
         {
           id: 'mem-1',
@@ -206,7 +206,7 @@ describe('PetFamilyScreen', () => {
 
   it('admin: remove member triggers familyService.removeMember', async () => {
     mockFamilyState = {
-      family: { id: 'fam-1', name: 'Dinh Family' },
+      family: { id: 'fam-1', name: 'Smith Family' },
       members: [
         {
           id: 'mem-1',

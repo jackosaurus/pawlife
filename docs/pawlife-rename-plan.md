@@ -2,7 +2,7 @@
 
 **Status:** Handoff-ready. Read this single document end-to-end before touching anything.
 **Last updated:** 2026-04-27
-**Owner at write time:** Jack Dinh (founder) + AI implementation agents
+**Owner at write time:** Beebles (founder) + AI implementation agents
 **Replaces:** ad-hoc threads referenced in `docs/pawlife-v1-release-plan.md` item #3 ("rename to Boopa")
 
 > **Reader note.** Throughout this doc, the new brand is referenced as `<NEW_NAME>` (display form, e.g. `Schnoot`), `<new-name>` (slug form, e.g. `schnoot`), and bundle ID as `com.<new-name>.app` (the format we are tentatively standardising on — see §4 for the open question). Once the founder picks a name, do a single pass of find-and-replace on this doc to lock the placeholders before kicking off implementation.
@@ -39,7 +39,7 @@ The output state is: a fresh user installing the new build sees the new brand ev
 - **Database schema** — no migrations. The only brand reference in SQL is a comment header in `supabase/migrations/001_initial_schema.sql:1`, which is functionally irrelevant.
 - **Edge Function names** — `send-reminders`, `delete-account` are generic and stay.
 - **EAS env var names** — already generic (`EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_POSTHOG_KEY`, etc.).
-- **Email** — `jacksangdinh@gmail.com` is the support address; no `support@pawlife.app` mailbox exists, so no MX rename needed.
+- **Email** — `beeble.ptyltd@gmail.com` is the support address; no `support@pawlife.app` mailbox exists, so no MX rename needed.
 - **Git history** — no rebase, no force-push, no amend. The rename is one or more new commits on `main`.
 
 ---
@@ -58,11 +58,11 @@ These have been thought through during the audit phase and should not be re-liti
 | Supabase secrets | `POSTHOG_API_KEY`, `POSTHOG_HOST`, `HEALTHCHECK_URL`, `OBSERVABILITY_ENV` | Generic. |
 | EAS / Expo project | projectId `efbd59b1-…` | Immutable; binds slug to project. |
 | EAS env vars | `EXPO_PUBLIC_*` set across `preview` / `production` | Generic. |
-| Apple Developer team | Jack Dinh personal team | Immutable. |
+| Apple Developer team | Beebles personal team | Immutable. |
 | GitHub user | `jackosaurus` / `jackdinh.github.io` | Account-level, not project-level. |
 | PostHog API key | `phc_…` | Tied to project, not project name. Renaming the project does NOT rotate the key. |
 | healthchecks.io ping URL | `hc-ping.com/<uuid>` | UUID-keyed; check name is cosmetic. |
-| Email | `jacksangdinh@gmail.com` | Personal Gmail, no branded mailbox. |
+| Email | `beeble.ptyltd@gmail.com` | Personal Gmail, no branded mailbox. |
 
 ### 3.2 Bundle ID changes
 
