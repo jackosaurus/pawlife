@@ -432,7 +432,7 @@ User enters the 6-character invite code
 App calls familyService.previewInvite(code)
   → Validates code exists and hasn't expired
   → Returns: family name, admin name, member count
-  → Shows preview: "Join 'The Dinhs'? Created by Jack. 1 member."
+  → Shows preview: "Join 'The Smiths'? Created by Sam. 1 member."
        │
        ▼
 User taps "Join"
@@ -665,7 +665,7 @@ New screen: `app/(main)/settings/join-family.tsx`
 │                                      │
 │  ┌──────────────────────────────┐    │  ← shown after valid code entered
 │  │  You're joining:             │    │
-│  │  "The Dinhs"                 │    │
+│  │  "The Smiths"                 │    │
 │  │  Created by jack@email.com   │    │
 │  │  1 member                    │    │
 │  └──────────────────────────────┘    │

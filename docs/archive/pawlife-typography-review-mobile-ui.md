@@ -383,7 +383,7 @@ which is the right call for thumb targets).
 **Before:**
 ```
 ┌──────────────────────────────────────┐
-│ [@] Jack Dinh                        │  ← 16pt 600
+│ [@] Sam Smith                        │  ← 16pt 600
 │     jack@example.com                 │  ← 14pt
 │ ──────────────────────────────────   │
 │ [⚙] Settings                    >    │  ← 16pt body
@@ -397,7 +397,7 @@ which is the right call for thumb targets).
 **After (1pt bump throughout):**
 ```
 ┌──────────────────────────────────────┐
-│ [@] Jack Dinh                        │  ← 17pt 600 headline
+│ [@] Sam Smith                        │  ← 17pt 600 headline
 │     jack@example.com                 │  ← 13pt footnote
 │ ──────────────────────────────────   │
 │ [⚙] Settings                    >    │  ← 17pt body  (matches iOS)

@@ -212,7 +212,7 @@ Jest sets `EXPO_PUBLIC_ENV=test` (a fourth value not in the union, so always dis
 
 ### Privacy policy content (target ~750 words)
 
-The previously drafted markdown content covers: introduction, what data we collect (account info, pet records, photos, usage analytics, crash data), why (auth, app functionality, diagnostics, anonymous analytics), third-party processors (Supabase EU, PostHog EU, Apple Push, Expo), retention (records until account deletion; analytics 90 days; exceptions 30 days), user rights (access, correction, deletion via in-app account deletion + email), children's policy (not directed at <13), changes/versioning, contact (`jacksangdinh@gmail.com`).
+The previously drafted markdown content covers: introduction, what data we collect (account info, pet records, photos, usage analytics, crash data), why (auth, app functionality, diagnostics, anonymous analytics), third-party processors (Supabase EU, PostHog EU, Apple Push, Expo), retention (records until account deletion; analytics 90 days; exceptions 30 days), user rights (access, correction, deletion via in-app account deletion + email), children's policy (not directed at <13), changes/versioning, contact (`beeble.ptyltd@gmail.com`).
 
 **Refinements for v2:**
 - Specify PostHog as a "product analytics and diagnostics processor" (one tool, not two).
@@ -323,7 +323,7 @@ The user (Jack) needs to do these before integration testing can begin. None req
   - Person profile mode: "Identified persons only" (cuts cost, matches our anonymous-until-signup model).
   - Autocapture: **OFF** for RN (autocapture in PostHog RN SDK is opt-in; just don't enable).
   - Data retention: default (1 year for events, fine).
-- [ ] **healthchecks.io account.** Free tier. Create one check named `bemy-send-reminders`. Schedule: hourly, grace period 30 minutes. Capture the ping URL (`https://hc-ping.com/<uuid>`). Add an email alert recipient (`jacksangdinh@gmail.com`).
+- [ ] **healthchecks.io account.** Free tier. Create one check named `bemy-send-reminders`. Schedule: hourly, grace period 30 minutes. Capture the ping URL (`https://hc-ping.com/<uuid>`). Add an email alert recipient (`beeble.ptyltd@gmail.com`).
 - [ ] **Privacy policy hosting.** Decide: GitHub Pages on a new `bemy-legal` repo, or a Vercel deploy of `docs/privacy-policy.md`. Whichever — the URL must be live before code lands. Capture the final URL (target: `https://bemy.app/privacy`).
 - [ ] **EAS secrets:** `eas secret:create --name EXPO_PUBLIC_POSTHOG_KEY --value phc_...`. Repeat for `EXPO_PUBLIC_POSTHOG_HOST` (not strictly secret but kept consistent).
 - [ ] **Supabase secrets:** `supabase secrets set POSTHOG_KEY=phc_... POSTHOG_HOST=... HEALTHCHECKS_PING_URL=... OBSERVABILITY_ENV=production`.

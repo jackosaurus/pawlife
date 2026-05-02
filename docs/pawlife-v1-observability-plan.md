@@ -239,7 +239,7 @@ Required URL hosted publicly. Sections:
 4. Retention (recommend: pet records until account deletion; analytics events 90d; crash logs 30d)
 5. User rights (DSAR, deletion, correction, portability) — for v1, accept by email; automate later
 6. Children's policy (not directed at children under 13)
-7. Contact (jacksangdinh@gmail.com)
+7. Contact (beeble.ptyltd@gmail.com)
 8. Changes & versioning
 
 Hosting recommendation: GitHub Pages or Vercel. Static markdown → HTML. Versioned in the repo. *Don't* host on a Supabase public bucket — looks unprofessional and breaks discoverability.
