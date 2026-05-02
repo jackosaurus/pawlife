@@ -1,6 +1,6 @@
-# Pawlife Design System
+# Bemy Design System
 
-> Canonical source of truth for design in Pawlife. Always check this doc before introducing a new pattern. When you change a pattern in code, update this doc in the same PR.
+> Canonical source of truth for design in Bemy. Always check this doc before introducing a new pattern. When you change a pattern in code, update this doc in the same PR.
 
 This doc consolidates everything previously scattered across `CLAUDE.md` (Design System / UI Patterns / Styling), `docs/archive/pawlife-screen-inventory.md`, and the various `feedback_*.md` / `project_*.md` memory files. Where this doc and any of those disagree, **this doc wins**.
 
@@ -62,7 +62,7 @@ Source-of-truth precedence when this doc is silent:
 | Record list empty | "No vaccinations yet. Start building [Name]'s health history." |
 | Action confirmation (gentle) | "We'll keep all of [Name]'s records safe." |
 | Destructive confirmation | "This will permanently remove the record from [Name]'s history. This can't be undone." |
-| Onboarding | "Welcome to Pawlife! Let's meet your pet family." |
+| Onboarding | "Welcome to Bemy! Let's meet your pet family." |
 | Form helper | "Auto-suggested based on Rabies schedule. You can adjust this." |
 
 ---

@@ -98,7 +98,7 @@ Use **Angle 2 (birthday and life-stage)** as the framing, but make the "between 
 
 ### What would make me wrong
 
-- If user research shows people who use Pawlife are predominantly recent adopters (< 1 year with pet), Angle 1 (relationship time) would win — accumulating time would be the headline emotion. Worth checking telemetry on `created_at` of pets vs. their birth dates once we have PostHog flowing.
+- If user research shows people who use Bemy are predominantly recent adopters (< 1 year with pet), Angle 1 (relationship time) would win — accumulating time would be the headline emotion. Worth checking telemetry on `created_at` of pets vs. their birth dates once we have PostHog flowing.
 - If users skip entering exact birth dates (using approximate / "around 2018"), Angle 2's life-stage transitions become noisy and we should fall back to Angle 3.
 - If senior-pet users find life-stage transitions ("now a senior") emotionally heavy rather than dignifying, we cut that state and keep only the birthday window.
 

@@ -1,12 +1,12 @@
-# Pawlife Privacy Policy
+# Bemy Privacy Policy
 
 **Last updated:** 27 April 2026
 
-This privacy policy explains how the Pawlife mobile application ("Pawlife", "we", "us", or "our") collects, uses, and protects information about you when you use the app. Pawlife is a personal pet-health tracker for iOS and Android. By creating an account and using the app, you agree to the practices described below.
+This privacy policy explains how the Bemy mobile application ("Bemy", "we", "us", or "our") collects, uses, and protects information about you when you use the app. Bemy is a personal pet-health tracker for iOS and Android. By creating an account and using the app, you agree to the practices described below.
 
-## 1. Who runs Pawlife
+## 1. Who runs Bemy
 
-Pawlife is built and operated by Jack Dinh. You can reach us at **jacksangdinh@gmail.com** for any privacy-related question, request, or concern.
+Bemy is built and operated by Jack Dinh. You can reach us at **jacksangdinh@gmail.com** for any privacy-related question, request, or concern.
 
 ## 2. What we collect
 
@@ -18,7 +18,7 @@ We collect only what is necessary to make the app work, keep your data secure, a
 - **Diagnostics and crash data.** When the app encounters an unexpected error, we record the technical details (stack trace, app version, OS version) so we can fix bugs. Crash reports do not include the content of your records.
 - **Device information.** The app version, build number, operating system, and a stable anonymous device identifier used by the analytics tool to group events from the same device.
 
-We do **not** collect: your location, your contacts, your camera roll (we ask for permission only when you tap "add a photo"), your advertising ID, or anything used for ad targeting. Pawlife does not show ads.
+We do **not** collect: your location, your contacts, your camera roll (we ask for permission only when you tap "add a photo"), your advertising ID, or anything used for ad targeting. Bemy does not show ads.
 
 ## 3. Why we collect it
 
@@ -31,7 +31,7 @@ We rely on **legitimate interest** for diagnostics (you have a reasonable expect
 
 ## 4. Who else sees your data
 
-Pawlife uses a small number of third-party processors. We chose each one for security, EU residency where possible, and a clear privacy posture.
+Bemy uses a small number of third-party processors. We chose each one for security, EU residency where possible, and a clear privacy posture.
 
 - **Supabase (EU region)** — stores your account, pet records, and photos. Data is encrypted in transit and at rest.
 - **PostHog (EU region)** — receives the anonymous analytics events and crash diagnostics described above. PostHog is configured without session recording, without ad-network attribution, and without any tracking identifiers.
@@ -60,7 +60,7 @@ If you live in the EU/UK, you have additional rights under GDPR — to restrict 
 
 ## 7. Children
 
-Pawlife is not directed at children under 13. We do not knowingly collect data from children. If you believe a child has used the app, please email us and we will delete the account.
+Bemy is not directed at children under 13. We do not knowingly collect data from children. If you believe a child has used the app, please email us and we will delete the account.
 
 ## 8. Security
 

@@ -112,8 +112,8 @@ describe('getEnvironment', () => {
 });
 
 describe('getRelease + getAppVersion + getBuildNumber', () => {
-  it('formats release as pawlife@<version>+<build>', () => {
-    expect(load().getRelease()).toBe('pawlife@1.0.0+42');
+  it('formats release as bemy@<version>+<build>', () => {
+    expect(load().getRelease()).toBe('bemy@1.0.0+42');
   });
 
   it('returns the raw version + build', () => {

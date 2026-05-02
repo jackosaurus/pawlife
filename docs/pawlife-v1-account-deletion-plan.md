@@ -1,4 +1,4 @@
-# Pawlife v1 — Account Deletion Implementation Plan
+# Bemy v1 — Account Deletion Implementation Plan
 
 Owner: planning agent
 Reviewers: senior DB engineer (migrations 013 + 014), then second senior engineer (post-migration code review). Per CLAUDE.md rules 6 + 7, both reviews are required before this work is considered done.
@@ -818,7 +818,7 @@ Strict order. Each step must succeed before the next.
 
 Apple requires App Review to have a way to test account deletion. Options:
 
-1. **Provision a dedicated reviewer test account** with credentials in App Store Connect → App Information → App Review Information → Sign-In Information. Email like `appstore-reviewer@pawlife.app`. Pre-seed it with one fake pet so the reviewer can see the data before deleting.
+1. **Provision a dedicated reviewer test account** with credentials in App Store Connect → App Information → App Review Information → Sign-In Information. Email like `appstore-reviewer@bemy.app`. Pre-seed it with one fake pet so the reviewer can see the data before deleting.
 2. **Allow self-signup** — reviewer creates their own throwaway account and deletes it. Riskier because email confirmation may slow them down, and they may flag the friction.
 
 **Recommendation: option 1.** Provision the reviewer account before the first submission. Include a note in App Review Information:

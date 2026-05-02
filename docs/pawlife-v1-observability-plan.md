@@ -1,4 +1,4 @@
-# Pawlife V1 — Instrumentation & Observability Plan
+# Bemy V1 — Instrumentation & Observability Plan
 
 **Status:** Planning round complete (2026-04-26). Awaiting user decisions on 4 open questions before commissioning implementation.
 
@@ -43,7 +43,7 @@ Note: prefer `@sentry/react-native` over the deprecated `sentry-expo` package �
 
 | File | Change |
 |---|---|
-| `app.json` | Add `"plugins": [["@sentry/react-native/expo", { "url": "https://sentry.io/", "organization": "...", "project": "pawlife-mobile" }]]` |
+| `app.json` | Add `"plugins": [["@sentry/react-native/expo", { "url": "https://sentry.io/", "organization": "...", "project": "bemy-mobile" }]]` |
 | `app/_layout.tsx` | Wrap root with `Sentry.wrap(RootLayout)`. Call `Sentry.init({ dsn, environment, release, tracesSampleRate: 0, beforeSend })` before any other init. Read DSN from `process.env.EXPO_PUBLIC_SENTRY_DSN`. |
 | `services/supabase.ts` | No change — but **add** `services/observability.ts` (new) exporting `captureServiceError(context, fn, tags?)` wrapper used by every service. |
 | `services/{auth,pet,health,food,allergy,family,feedback,notification,user}Service.ts` | Wrap each public method with `captureServiceError('domain:methodName', () => …)`. Re-throw so existing error UI states still trigger. |
@@ -79,7 +79,7 @@ What this means in practice: any service that throws an error containing a pet n
 
 The `@sentry/react-native/expo` config plugin handles source-map upload automatically during EAS build, provided `SENTRY_AUTH_TOKEN` is set in EAS secrets.
 
-Release naming: `pawlife@{appVersion}+{buildNumber}` (default). Tag environment via `EXPO_PUBLIC_ENV` (`development` / `preview` / `production`). This makes the Releases view show errors per build and per env.
+Release naming: `bemy@{appVersion}+{buildNumber}` (default). Tag environment via `EXPO_PUBLIC_ENV` (`development` / `preview` / `production`). This makes the Releases view show errors per build and per env.
 
 OTA updates (`expo-updates`) are *not* in v1. If/when added, source maps need a second upload step keyed on the OTA release ID. Document this when OTA lands; not a v1 concern.
 
@@ -246,7 +246,7 @@ Hosting recommendation: GitHub Pages or Vercel. Static markdown → HTML. Versio
 
 ### C. Account deletion (v1 BLOCKER, currently NOT in v1 release plan)
 
-Apple has required in-app account deletion since June 2022 for any app with sign-up. Pawlife has Supabase Auth → this is a hard blocker. **Surface this to `docs/pawlife-v1-release-plan.md` as a new item.** Implementation:
+Apple has required in-app account deletion since June 2022 for any app with sign-up. Bemy has Supabase Auth → this is a hard blocker. **Surface this to `docs/pawlife-v1-release-plan.md` as a new item.** Implementation:
 
 - Settings → Privacy → "Delete account" (destructive button)
 - Confirmation modal with re-auth (require password / fresh OAuth) to prevent accidental deletion

@@ -1,6 +1,6 @@
-# EAS Environment Variables — Pawlife
+# EAS Environment Variables — Bemy
 
-Reference for the env vars Pawlife relies on across EAS build profiles. Set these once via `eas env:create` (or the EAS dashboard); the values then flow into every build of the matching profile.
+Reference for the env vars Bemy relies on across EAS build profiles. Set these once via `eas env:create` (or the EAS dashboard); the values then flow into every build of the matching profile.
 
 ## Profile matrix
 

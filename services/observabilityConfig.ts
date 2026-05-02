@@ -25,12 +25,12 @@ export function getEnvironment(): Environment {
 
 /**
  * Release tag attached to every event. Used by PostHog dashboards to filter
- * by app version (regression hunting). Format: `pawlife@<version>+<build>`.
+ * by app version (regression hunting). Format: `bemy@<version>+<build>`.
  */
 export function getRelease(): string {
   const version = Application.nativeApplicationVersion ?? 'unknown';
   const build = Application.nativeBuildVersion ?? 'unknown';
-  return `pawlife@${version}+${build}`;
+  return `bemy@${version}+${build}`;
 }
 
 export function getAppVersion(): string {

@@ -1,12 +1,12 @@
-# Pawlife — Stitch Design Prompts
+# Bemy — Stitch Design Prompts
 
-Use these prompts in Google Stitch to generate high-fidelity mobile mockups for the Pawlife app. Each prompt is self-contained and describes one screen.
+Use these prompts in Google Stitch to generate high-fidelity mobile mockups for the Bemy app. Each prompt is self-contained and describes one screen.
 
 ## Global Design Context
 
 Include this preamble with every prompt (or set it as a Stitch style):
 
-> **App name:** Pawlife
+> **App name:** Bemy
 > **Platform:** iOS mobile app
 > **Style:** Warm, modern, premium feel. Not clinical or corporate. Think premium baby tracking app aesthetic.
 > **Background color:** Pale warm yellow (#FFF8E7)
@@ -30,9 +30,9 @@ Include this preamble with every prompt (or set it as a Stitch style):
 
 ### PROMPT 01 — Welcome Screen
 
-Design a mobile welcome screen for Pawlife, a pet care app. Pale warm yellow background (#FFF8E7). Centered layout.
+Design a mobile welcome screen for Bemy, a pet care app. Pale warm yellow background (#FFF8E7). Centered layout.
 
-At the top center, show the Pawlife logo — a friendly, modern wordmark with a small paw print integrated into the letter "a". Below the logo, a warm hand-drawn style illustration of a golden retriever and a tabby cat sitting side by side, looking happy and relaxed.
+At the top center, show the Bemy logo — a friendly, modern wordmark with a small paw print integrated into the letter "a". Below the logo, a warm hand-drawn style illustration of a golden retriever and a tabby cat sitting side by side, looking happy and relaxed.
 
 Below the illustration, the tagline in dark charcoal text: "A digital home for your pet family" in medium weight, centered.
 
@@ -46,7 +46,7 @@ Clean, minimal, warm. No other navigation or text. The screen should feel inviti
 
 ### PROMPT 02 — Sign Up
 
-Design a mobile sign up screen for Pawlife. Pale warm yellow background (#FFF8E7).
+Design a mobile sign up screen for Bemy. Pale warm yellow background (#FFF8E7).
 
 Top left: back arrow icon. Center top: "Create Account" as a heading in dark charcoal, semi-bold.
 
@@ -64,7 +64,7 @@ No social login buttons. No terms and conditions. Clean and minimal with generou
 
 ### PROMPT 03 — Sign In
 
-Design a mobile sign in screen for Pawlife. Pale warm yellow background (#FFF8E7).
+Design a mobile sign in screen for Bemy. Pale warm yellow background (#FFF8E7).
 
 Top left: back arrow icon. Center top: "Welcome Back" as a heading in dark charcoal, semi-bold. Below it, a smaller subheading in warm gray: "Sign in to see your pet family."
 
@@ -82,11 +82,11 @@ Clean, warm, minimal. Same styling as the sign up screen for consistency.
 
 ### PROMPT 04 — Dashboard (Empty State)
 
-Design a mobile dashboard screen for Pawlife showing an empty state for a first-time user with no pets added yet. Pale warm yellow background (#FFF8E7).
+Design a mobile dashboard screen for Bemy showing an empty state for a first-time user with no pets added yet. Pale warm yellow background (#FFF8E7).
 
 Top left: "Your Pet Family" as a large heading in dark charcoal. Top right: a gear/settings icon in warm gray.
 
-Center of the screen: a warm, friendly illustration of an empty cozy pet bed with a small paw print trail leading to it. Below the illustration, text in warm gray: "Welcome to Pawlife!" in semi-bold, and below that: "Let's meet your pet family" in regular weight.
+Center of the screen: a warm, friendly illustration of an empty cozy pet bed with a small paw print trail leading to it. Below the illustration, text in warm gray: "Welcome to Bemy!" in semi-bold, and below that: "Let's meet your pet family" in regular weight.
 
 Below the text, a prominent button: "Add Your First Pet" in rich plum (#4A2157), white text, rounded corners, with a small "+" icon before the text.
 
@@ -96,7 +96,7 @@ The screen should feel warm and inviting, not empty or broken. The illustration 
 
 ### PROMPT 05 — Dashboard (With Pets)
 
-Design a mobile dashboard screen for Pawlife showing two pets. Pale warm yellow background (#FFF8E7).
+Design a mobile dashboard screen for Bemy showing two pets. Pale warm yellow background (#FFF8E7).
 
 Top left: "Your Pet Family" as a large heading in dark charcoal. Top right: a gear/settings icon in warm gray.
 
@@ -114,7 +114,7 @@ The pet cards should feel tappable and personal. The circular photos should be l
 
 ### PROMPT 06 — Add Pet
 
-Design a mobile "Add Pet" form screen for Pawlife. Pale warm yellow background (#FFF8E7).
+Design a mobile "Add Pet" form screen for Bemy. Pale warm yellow background (#FFF8E7).
 
 Top left: back arrow. Center top: "Add to Your Family" heading in dark charcoal.
 
@@ -145,7 +145,7 @@ The form should feel friendly, not like a government document. Generous spacing,
 
 ### PROMPT 07 — Edit Pet Profile
 
-Design a mobile "Edit Pet Profile" screen for Pawlife. Pale warm yellow background (#FFF8E7).
+Design a mobile "Edit Pet Profile" screen for Bemy. Pale warm yellow background (#FFF8E7).
 
 Top left: back arrow. Top right: "Cancel" in plum text. Center top: "Edit Profile" heading.
 
@@ -166,7 +166,7 @@ Below the button, separated by extra spacing: "Archive Luna" as a muted warm gra
 
 ### PROMPT 08 — Pet Detail (With Data)
 
-Design a mobile pet detail screen for Pawlife — this is the most important screen in the app. Pale warm yellow background (#FFF8E7).
+Design a mobile pet detail screen for Bemy — this is the most important screen in the app. Pale warm yellow background (#FFF8E7).
 
 **Sticky Header:** A large hero section at the top with a big circular profile photo of a golden retriever named Luna, centered. Below the photo: "Luna" in large semi-bold charcoal text, and below that "Golden Retriever · 3 years, 2 months" in warm gray with a small dog icon badge. Below that, "Female · 28.5 kg" in smaller warm gray text.
 
@@ -201,7 +201,7 @@ The screen should feel rich with information but not cluttered. Cards create cle
 
 ### PROMPT 09 — Pet Detail (Empty State)
 
-Design a mobile pet detail screen for Pawlife for a pet that was just added with no records yet. Pale warm yellow background (#FFF8E7).
+Design a mobile pet detail screen for Bemy for a pet that was just added with no records yet. Pale warm yellow background (#FFF8E7).
 
 **Header:** Same as the populated version — large circular photo of Luna the golden retriever, name, breed, age details.
 
@@ -227,7 +227,7 @@ The empty states should feel encouraging and guide the user to take action, not 
 
 ### PROMPT 10 — Quick-Add Bottom Sheet
 
-Design a mobile bottom sheet overlay for Pawlife's quick-add menu. The background shows the pet detail screen (dimmed). The bottom sheet slides up from the bottom with a white background, rounded top corners, and a small drag handle at the top.
+Design a mobile bottom sheet overlay for Bemy's quick-add menu. The background shows the pet detail screen (dimmed). The bottom sheet slides up from the bottom with a white background, rounded top corners, and a small drag handle at the top.
 
 Title on the sheet: "Add for Luna" in semi-bold charcoal.
 
@@ -246,7 +246,7 @@ The bottom sheet should feel quick and lightweight — a springboard to the righ
 
 ### PROMPT 11 — Health Records List (All Records)
 
-Design a mobile health records list screen for Pawlife. Pale warm yellow background (#FFF8E7).
+Design a mobile health records list screen for Bemy. Pale warm yellow background (#FFF8E7).
 
 Top left: back arrow. Header: Luna's small circular avatar + "Luna's Health Records" in semi-bold.
 
@@ -284,7 +284,7 @@ Same layout, back arrow, avatar header, FAB.
 
 ### PROMPT 13 — Add Vet Visit
 
-Design a mobile form screen for adding a vet visit in Pawlife. Pale warm yellow background (#FFF8E7).
+Design a mobile form screen for adding a vet visit in Bemy. Pale warm yellow background (#FFF8E7).
 
 Top left: "Cancel" in plum. Center: "Log Vet Visit" heading. Top right: nothing.
 
@@ -310,7 +310,7 @@ The form should feel quick and easy. Not too many fields, clear labels, obvious 
 
 ### PROMPT 14 — Vet Visit Detail
 
-Design a mobile detail screen for a vet visit record in Pawlife. Pale warm yellow background (#FFF8E7).
+Design a mobile detail screen for a vet visit record in Bemy. Pale warm yellow background (#FFF8E7).
 
 Top left: back arrow. Top right: "Edit" in plum text.
 
@@ -332,7 +332,7 @@ The detail screen should feel like reading a clean, organized note about the vis
 
 ### PROMPT 15 — Add Vaccination
 
-Design a mobile form screen for adding a vaccination in Pawlife. Pale warm yellow background (#FFF8E7).
+Design a mobile form screen for adding a vaccination in Bemy. Pale warm yellow background (#FFF8E7).
 
 Top left: "Cancel" in plum. Center: "Add Vaccination" heading.
 
@@ -378,7 +378,7 @@ Bottom: muted "Delete" link in soft coral, same pattern as vet visit detail.
 
 ### PROMPT 17 — Add Medication
 
-Design a mobile form screen for adding a medication in Pawlife. Pale warm yellow background (#FFF8E7).
+Design a mobile form screen for adding a medication in Bemy. Pale warm yellow background (#FFF8E7).
 
 Top left: "Cancel" in plum. Center: "Add Medication" heading. Context: Luna's avatar + "for Luna".
 
@@ -428,7 +428,7 @@ Two action buttons at the bottom of the card:
 
 ### PROMPT 19 — Weight Log (List View)
 
-Design a mobile weight history screen for Pawlife. Pale warm yellow background (#FFF8E7).
+Design a mobile weight history screen for Bemy. Pale warm yellow background (#FFF8E7).
 
 Top left: back arrow. Header: Scale icon + "Luna's Weight History" in semi-bold.
 
@@ -450,7 +450,7 @@ The list is simple and scannable. Weight values are prominent, dates are seconda
 
 ### PROMPT 20 — Add Weight Entry (Bottom Sheet)
 
-Design a mobile bottom sheet for logging a weight entry in Pawlife. The background shows the weight history screen (dimmed). The bottom sheet has white background, rounded top corners, drag handle.
+Design a mobile bottom sheet for logging a weight entry in Bemy. The background shows the weight history screen (dimmed). The bottom sheet has white background, rounded top corners, drag handle.
 
 Title: "Log Weight" with Luna's tiny avatar.
 
@@ -468,7 +468,7 @@ The bottom sheet should feel fast and lightweight — log a weight in under 5 se
 
 ### PROMPT 21 — Food Overview
 
-Design a mobile food overview screen for Pawlife. Pale warm yellow background (#FFF8E7).
+Design a mobile food overview screen for Bemy. Pale warm yellow background (#FFF8E7).
 
 Top left: back arrow. Header: Bowl icon + "Luna's Food" in semi-bold.
 
@@ -495,7 +495,7 @@ The current food should be visually dominant. History is there for reference but
 
 ### PROMPT 22 — Add/Change Food
 
-Design a mobile form screen for adding or changing a pet's food in Pawlife. Pale warm yellow background (#FFF8E7).
+Design a mobile form screen for adding or changing a pet's food in Bemy. Pale warm yellow background (#FFF8E7).
 
 Top left: "Cancel" in plum. Center: "Change Luna's Food" heading.
 
@@ -523,7 +523,7 @@ Sticky bottom: Large plum "Save" button.
 
 ### PROMPT 23 — Food Detail (Past Entry)
 
-Design a mobile detail screen for a past food entry in Pawlife. Pale warm yellow background (#FFF8E7).
+Design a mobile detail screen for a past food entry in Bemy. Pale warm yellow background (#FFF8E7).
 
 Top left: back arrow. Top right: "Edit" in plum.
 
@@ -544,7 +544,7 @@ Bottom: muted "Delete" link in soft coral.
 
 ### PROMPT 24 — Settings
 
-Design a mobile settings screen for Pawlife. Pale warm yellow background (#FFF8E7).
+Design a mobile settings screen for Bemy. Pale warm yellow background (#FFF8E7).
 
 Top left: back arrow. Header: "Settings" in semi-bold.
 
@@ -574,7 +574,7 @@ Clean, standard settings layout. Nothing fancy, but consistent with the app's wa
 
 ### PROMPT 25 — Archive Pet Confirmation
 
-Design a mobile confirmation dialog/modal for archiving a pet in Pawlife. Semi-transparent dark overlay on the background. Centered white card with rounded corners.
+Design a mobile confirmation dialog/modal for archiving a pet in Bemy. Semi-transparent dark overlay on the background. Centered white card with rounded corners.
 
 At the top of the card: a small, warm illustration of a dog sleeping peacefully (or a gentle paw print).
 
@@ -592,7 +592,7 @@ The dialog should feel gentle and respectful. No alarm, no urgency. This is a se
 
 ### PROMPT 26 — Delete Record Confirmation
 
-Design a mobile confirmation dialog for deleting a health record in Pawlife. Semi-transparent dark overlay. Centered white card with rounded corners.
+Design a mobile confirmation dialog for deleting a health record in Bemy. Semi-transparent dark overlay. Centered white card with rounded corners.
 
 Title: "Delete this vet visit?" in semi-bold charcoal.
 
@@ -608,7 +608,7 @@ Small and focused. Standard destructive confirmation pattern but using the app's
 
 ### PROMPT 27 — Weight Entry Detail
 
-Design a mobile detail screen for a single weight entry in Pawlife. Pale warm yellow background (#FFF8E7).
+Design a mobile detail screen for a single weight entry in Bemy. Pale warm yellow background (#FFF8E7).
 
 Top left: back arrow. Top right: "Edit" in plum.
 
@@ -628,7 +628,7 @@ Simple and minimal — weight entries are lightweight records.
 
 ### PROMPT 28 — Medication Detail (Completed)
 
-Design a mobile detail screen for a completed medication in Pawlife. Pale warm yellow background (#FFF8E7).
+Design a mobile detail screen for a completed medication in Bemy. Pale warm yellow background (#FFF8E7).
 
 Same layout as the active medication detail (Prompt 18) but with differences:
 
