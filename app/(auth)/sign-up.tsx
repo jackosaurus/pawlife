@@ -54,29 +54,16 @@ export default function SignUpScreen() {
 
   return (
     <Screen scroll>
-      {/* PLACEHOLDER: founder is generating a custom hero illustration matching
-          the icon style. Swap this View for an Image source={require('../../assets/images/welcome-hero.png')}
-          when the asset lands. */}
-      <View
+      <Image
         testID="signup-hero"
         accessibilityLabel="Bemy hero illustration"
+        source={require('../../assets/images/welcome-hero.png')}
         style={{
           height: HERO_HEIGHT,
           width: '100%',
-          backgroundColor: Colors.brandYellow,
-          alignItems: 'center',
-          justifyContent: 'center',
         }}
-      >
-        <Image
-          source={require('../../assets/images/icon.png')}
-          style={{
-            width: HERO_HEIGHT * 0.7,
-            height: HERO_HEIGHT * 0.7,
-          }}
-          resizeMode="contain"
-        />
-      </View>
+        resizeMode="cover"
+      />
 
       <View className="flex-1 px-8 pt-8">
         <Text
