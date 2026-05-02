@@ -1,29 +1,67 @@
-# Bemy — SSO Integration Plan (Apple + Google)
+# Bemy — SSO Integration Plan (Apple + Google + Facebook)
 
-**Status:** planning, not yet implemented
-**Audience:** the implementation agent that will pick this up next
-**Last updated:** 2026-05-02
-**Scope:** add Sign In with Apple and Sign In with Google to the auth flow, alongside the existing email/password fallback.
+> **STATUS: PARKED — DO NOT IMPLEMENT YET.** This plan is preserved for future revisit. The founder decided in May 2026 to ship Bemy v1 with email + password only, and to invest the SSO budget into polishing the email signup flow instead (iCloud Keychain integration, magic-link option, single-screen flow). Reasoning + revisit triggers are in §1.1 directly below. All research, decisions, flow audits, and provider-specific setup notes in this doc remain valid as a starting point when SSO is revisited — read §1.1 first to understand the parking rationale before reusing anything else.
+
+**Status:** PARKED, preserved for future revisit
+**Audience:** the implementation agent that will pick this up *if and when* the founder revisits SSO
+**Last updated:** 2026-05-02 (parked)
+**Scope (when revisited):** add Sign In with Apple, Sign In with Google, and Sign In with Facebook to the auth flow, alongside the existing email/password fallback.
 
 ---
 
 ## 1. Executive summary
 
-Bemy currently ships with email + password auth via `supabase.auth.signInWithPassword`. To minimise friction at sign-up — the founder's stated goal — we are adding **Sign In with Apple** and **Sign In with Google** in this release. Apple is non-negotiable: App Store Review Guideline 4.8 requires Sign In with Apple any time another social login is offered, so the two providers ship together. Email + password stays as a fallback for users who decline both. The work is mostly client wiring and provider-dashboard config — Supabase handles token exchange, session persistence, and the `auth.users` row natively. The one schema risk is the `public.users` trigger (`handle_new_user`) which currently writes `new.email` unconditionally; if Apple's private-relay email arrives or the email is missing it must continue to work without raising. We expect ~2–3 agent-days of coding plus the founder's time in the Apple Developer + Google Cloud + Supabase dashboards. **§4 enumerates every auth flow and edge case (provider × user-state matrix, the 5 collision scenarios, support-side recovery, token expiry, outages, account deletion) so the implementation agent has zero ambiguity.**
+Bemy currently ships with email + password auth via `supabase.auth.signInWithPassword`. To minimise friction at sign-up — the founder's stated goal — we are adding **Sign In with Apple**, **Sign In with Google**, and **Sign In with Facebook** in this release. Apple is non-negotiable: App Store Review Guideline 4.8 requires Sign In with Apple any time another social login is offered, so all three providers ship together. Email + password stays as a fallback for users who decline all three. The work is mostly client wiring and provider-dashboard config — Supabase handles token exchange, session persistence, and the `auth.users` row natively for all three providers via `signInWithIdToken`. The one schema risk is the `public.users` trigger (`handle_new_user`) which currently writes `new.email` unconditionally; if Apple's private-relay email arrives or the email is missing it must continue to work without raising. We expect ~2.5–3.5 agent-days of coding plus the founder's time in the Apple Developer + Google Cloud + Facebook Developer + Supabase dashboards. **§4 enumerates every auth flow and edge case (provider × user-state matrix, the generalised any-SSO-vs-any-SSO collision rule, support-side recovery, token expiry, outages, account deletion) so the implementation agent has zero ambiguity.**
+
+## 1.1 Why this plan is parked (May 2026)
+
+After completing the comprehensive flow audit (§4) and Facebook research, the founder reconsidered whether the cost of three concurrent SSO providers was justified for a hobby app with **zero current users**. The cost-benefit analysis came out as follows.
+
+**Total cost to ship all three providers:**
+
+- ~2.5–3.5 agent-days of coding
+- ~2–3 hours of founder time across Apple Developer + Google Cloud + Facebook Developer + Supabase dashboards
+- 1–2 weeks of asynchronous Google verification review
+- 1–2 weeks of asynchronous Facebook app review
+- Ongoing maintenance burden: 3 native SDKs to keep current with Expo SDK upgrades, breaking changes, and platform policy shifts (Facebook SDK is the worst offender historically)
+- App Store Connect privacy labels expansion to declare each new sub-processor
+- Privacy policy updates listing each new sub-processor (already drafted)
+
+**Benefit:**
+
+- Faster sign-up at the moment of conversion
+- Industry-standard auth UX
+- Some users prefer not creating new passwords
+
+**Why parking is the right call right now:**
+
+1. **Friction reduction is solving a problem we don't have.** Bemy has no live users yet. The conversion delta between a polished email signup and an SSO button is genuinely small when modern OS-level password managers (iCloud Keychain on iOS, Google Password Manager on Android) auto-generate and auto-fill passwords. A well-designed email flow approaches one-tap on a modern device.
+2. **The collision/duplicate-account complexity surfaced by §4 is entirely a creation of having SSO.** If we ship email + password only, none of C1–C5 in §4.2 exist, the §4.4 manual recovery runbook is unnecessary, and the §4.5 prevention nudges (last-method memory, welcome-screen caption) become unnecessary code. Removing SSO removes the entire matrix of failure modes.
+3. **Apple Developer Individual account → "Huu Sang Dinh" Seller name on the App Store.** Bemy's privacy and brand identity is "Beebles." The App Store Seller field will display the founder's legal name until the Apple Developer account is converted to an Organization (separate, longer-term workstream documented in `docs/bemy-v1-release-plan.md`). Pushing the v1 launch sooner means accepting "Huu Sang Dinh" briefly; pushing the launch later for SSO + Org conversion compounds the wait.
+4. **The replacement plan is cheap and well-defined.** Polishing the email signup flow — proper `textContentType` / `autoComplete` hints for OS password managers, optional magic-link via `supabase.auth.signInWithOtp`, single-screen signup, deferred email verification — costs ~2–4 agent-hours of work, adds zero native modules, requires zero third-party dashboard config, and lifts most of the SSO UX win. To be commissioned as a separate plan when the founder is ready.
+
+**Revisit triggers (when to un-park this plan):**
+
+- Bemy has shipped v1 publicly and there is concrete evidence of friction-driven sign-up drop-off (e.g. funnel analytics in PostHog showing < 60% completion of the email signup flow despite the polish work).
+- The founder has converted the Apple Developer account from Individual to Organization, removing the "Seller name" PII concern.
+- App-internal user requests for SSO become a recurring support request.
+- Any combination of the above that materially changes the cost-benefit math.
+
+**If/when revisited, the recommended first cut is Email + Apple-only**, not all three. Apple captures most of the SSO UX win at the cheapest setup cost (no review process, no SHA-1 fingerprint debugging, no ATT politics, and is the only provider Apple actively pushes). Add Google later only if there is concrete evidence of Android users requesting it. Skip Facebook entirely unless the founder's audience strategy specifically targets demographics where Facebook auth is dominant (it is not, for pet care, in 2026). The full Apple + Google + Facebook plan below remains the upper bound — implement only what is strictly justified at the time of revisit.
 
 ## 2. Discovery summary
 
 What was already decided or noted in earlier docs/code, with citations:
 
-- **Apple is required if any other social login ships** — `docs/bemy-v1-release-plan.md:42`. Order: Apple first, Google second. Facebook deferred indefinitely.
-- **Phasing in the v1 plan was Apple-first / Google-deferred** (`bemy-v1-release-plan.md:60` and the suggested ordering at line 224). The founder has now overridden this — both Apple and Google ship together in this release, Facebook still deferred.
+- **Apple is required if any other social login ships** — `docs/bemy-v1-release-plan.md:42`. Apple is in the lineup, so Guideline 4.8 is satisfied for the whole set.
+- **Phasing in the v1 plan was Apple-first / Google-deferred / Facebook-deferred-indefinitely** (`bemy-v1-release-plan.md:60` and the suggested ordering at line 224). The founder has now overridden this — Apple, Google, and Facebook ship together in this release.
 - **Tech-stack note** (`docs/bemy-tech-stack.md:156`): "Social auth (Apple, Google) is a config change in Supabase when ready for Phase 2." True for the backend; ignores native client config.
 - **Roadmap reference** (`docs/bemy-roadmap.md:97`): Phase 2 item 5 — "Social sign-in (Apple, Google) — Reduces sign-up friction for broader launch." No design constraints captured.
 - **Bundle ID is settled** as `com.beebles.bemy` (`app.json:14, app.json:24`). The earlier plan worried about `com.jackdinh.pawlife` → rename — that rename has happened. Apple Services ID + Google client IDs can be provisioned against the final bundle ID with no future migration.
 - **Existing email/password flow lives in `services/authService.ts:5-95`** — methods `signUp`, `signIn`, `signOut`, `getSession`, `resetPassword`, `changePassword`, `deleteAccount`. Funnel analytics already wrap signup (`auth_signup_started`, `auth_signup_failed`). New SSO methods should mirror this instrumentation.
 - **`auth.users` → `public.users` is auto-populated by a trigger** in `supabase/migrations/001_initial_schema.sql:17-28`. The trigger does `insert into public.users (id, email) values (new.id, new.email)`. `email` in `public.users` is `not null` (`001_initial_schema.sql:11`). **This is the schema-level risk** — see §9.
 - **Display name is nullable** (`supabase/migrations/005_user_display_name.sql:2`). That's fine — Apple full name is one-shot (returned only on first sign-in), Google gives it freely; either way we can populate `display_name` after the fact via `userService` when present.
-- **No SSO packages installed.** `package.json` confirmed: no `expo-apple-authentication`, no `@react-native-google-signin/google-signin`, no `expo-auth-session`. `expo-web-browser@~15.0.10` is already present (used today for the Privacy Policy link in `app/(auth)/sign-up.tsx:6`) — useful for Google's PKCE-via-browser path.
+- **No SSO packages installed.** `package.json` confirmed: no `expo-apple-authentication`, no `@react-native-google-signin/google-signin`, no `react-native-fbsdk-next`, no `expo-auth-session`. `expo-web-browser@~15.0.10` is already present (used today for the Privacy Policy link in `app/(auth)/sign-up.tsx:6`).
 - **Memory grep returned nothing** under `apple|google|sso|oauth` in `~/.claude/projects/.../memory/` — no prior agent context to honour or override.
 - **No existing `docs/*sso*` or `docs/*auth*` planning docs.** This doc is the canonical SSO plan.
 
@@ -65,7 +103,69 @@ These are the open questions that, if left ambiguous, will bounce the implementa
 
 ### 3.6 Do we ask for the user's name on first SSO sign-in?
 
-**Decision:** for Apple, capture `fullName` if returned on first auth, write to `public.users.display_name`. For Google, take `user_metadata.full_name` from Supabase's `getSession()`. Don't prompt — frictionless is the goal.
+**Decision:** for Apple, capture `fullName` if returned on first auth, write to `public.users.display_name`. For Google, take `user_metadata.full_name` from Supabase's `getSession()`. For Facebook, take `user_metadata.full_name` (Supabase populates this from the OIDC `name` claim returned by Facebook Limited Login). Don't prompt — frictionless is the goal.
+
+### 3.7 Facebook: Limited Login or Classic Login on iOS?
+
+**Decision:** **Limited Login on iOS, Classic on Android (the only option there).** The two are wired through the same JS surface; the platform branch lives in `services/authService.ts`.
+
+**Reasoning:**
+
+- Limited Login was designed by Meta specifically to avoid the App Tracking Transparency (ATT) prompt on iOS 14+. With Limited Login, no `NSUserTrackingUsageDescription` Info.plist key is needed and the user never sees the OS-level "Allow Bemy to track…" prompt. The founder's stated goal is friction minimisation; the ATT prompt is one of the loudest friction sources in mobile auth.
+- Limited Login returns an **OIDC-compliant authentication token** (a JWT carrying `sub`, `email`, `name`, `aud`, `iss`, `exp`, plus the verified `nonce`). This is exactly the shape Supabase's `signInWithIdToken({ provider: 'facebook', token })` expects. Confirmed working as of `react-native-fbsdk-next@13.4.x` (latest as of Feb 2026) plus Supabase's GoTrue Facebook OIDC parser.
+- Android does not have ATT; the Facebook Android SDK only supports Classic Login (returns an `AccessToken`, not an OIDC token). On Android we therefore use the Classic Login flow but Supabase's ID-token path is unavailable — see §3.8 for the Android branch.
+- Trade-off accepted: Limited Login on iOS does not give us a Graph API access token, so we cannot read additional fields beyond `email`, `name`, `picture`. We don't need any of those for Bemy. If Bemy ever wants to fetch the user's friends list (we won't), that's the moment to revisit.
+
+### 3.8 Facebook: `signInWithIdToken` (iOS) vs `signInWithOAuth` (Android)?
+
+**Decision:** **iOS uses `signInWithIdToken` for parity with Apple/Google. Android uses `signInWithOAuth` (browser-based PKCE flow) because the Facebook Android SDK does not return an OIDC ID token.**
+
+**Reasoning:**
+
+- iOS path: `LoginManager.logInWithPermissions(['email', 'public_profile'], 'limited', hashedNonce)` → `AuthenticationToken.getAuthenticationTokenIOS()` → `supabase.auth.signInWithIdToken({ provider: 'facebook', token, nonce: rawNonce })`. Native modal, no browser detour, parity with Apple/Google. **Nonce handling:** generate a random UUID, SHA-256-hash it, pass the **hashed** nonce to the native FB SDK, pass the **raw** nonce to Supabase. Supabase hashes the raw nonce server-side and matches against the hashed nonce inside the JWT. This is the documented working pattern (Supabase Discussion #22297).
+- Android path: `supabase.auth.signInWithOAuth({ provider: 'facebook', options: { redirectTo: 'bemy://auth/callback' } })` opens a Custom Tabs browser, completes Facebook's OAuth flow, and deep-links back into the app. Less consistent with Apple/Google (which are native modals on both platforms), but the only choice given Meta's Android SDK design. The deep-link `bemy://auth/callback` already works because `app.json` has `"scheme": "bemy"`. Supabase's RN auth helpers handle the `getSessionFromUrl` step.
+- We considered using `signInWithOAuth` on **both** platforms for code simplicity (one path, one mock, fewer tests). Rejected because the iOS UX downgrade — replacing a native modal with a Safari sheet — is exactly the friction the founder asked us to avoid. The conditional `Platform.OS === 'ios'` branch in `signInWithFacebook` is ~10 lines and well-tested.
+
+### 3.9 Facebook: ATT prompt avoidance
+
+**Decision:** **never request ATT for Facebook auth.** Limited Login on iOS bypasses ATT entirely; Classic Login on Android has no ATT concept. The Facebook SDK's autoinit/advertiser-ID-collection knobs are turned **off** in the `react-native-fbsdk-next` plugin config (`advertiserIDCollectionEnabled: false`, `autoLogAppEventsEnabled: false`).
+
+**Reasoning:**
+
+- The ATT prompt is the single biggest friction source in iOS sign-up flows. Users decline 70%+ of the time, and the prompt itself reads as alarming.
+- Bemy ships zero ad tech, has no use for IDFA, and our App Store privacy labels assert "Used for Tracking: No" across every category (`docs/bemy-app-store-privacy-labels.md:5`). Adding the ATT prompt would force us to flip that to "Yes" and rewrite the labels — for no benefit.
+- Limited Login was designed for exactly this case. Trust Meta's design here.
+
+### 3.10 Facebook: scopes requested
+
+**Decision:** **`email` and `public_profile` only.** No `user_friends`, no `user_birthday`, no extended permissions.
+
+**Reasoning:**
+
+- These two are auto-granted to all Facebook apps (Standard Access). No App Review submission is required for them. Anything beyond requires App Review (1–4 weeks) plus Business Verification — disproportionate to the value.
+- `public_profile` covers `name` and `picture`, which is what we use for display name. `email` is what Supabase requires.
+
+### 3.11 Facebook: handling no-email-returned
+
+**Decision:** **same as Google §3.2** — abort with friendly toast: *"Bemy needs your email to create an account. Try Apple Sign In or use email + password instead."* No emailless-account fallback.
+
+**Reasoning:** Facebook lets the user revoke email permission per-app in their Facebook settings. If the OIDC token comes back without an `email` claim, Supabase's exchange will fail (`public.users.email NOT NULL`). Surfacing the actionable toast is more useful than a generic "Sign-in failed."
+
+### 3.12 Facebook: handling email change at facebook.com
+
+**Decision:** **treat the email returned by Facebook on each sign-in as canonical for that auth.users row, but do NOT update `public.users.email` on subsequent sign-ins.** The email captured at first sign-in is the canonical identity; later changes at facebook.com are ignored on Bemy's side.
+
+**Reasoning:**
+
+- Facebook lets users change which email is associated with their account. On Bemy's side, the security boundary is the Facebook `sub`, not the email — `sub` is stable. The email is just a label.
+- Updating `public.users.email` on every sign-in introduces a write that could collide with another user's email (no email uniqueness constraint today, but a future one would create migration headaches) and confuses our customer-support runbook (§4.4 keys recovery off email).
+- If a user truly needs their Bemy email updated, the path is: contact support → manual SQL by founder. Acceptable rate for a hobby app.
+
+### 3.13 Facebook: handling de-permissioning at facebook.com
+
+**Decision:** **no proactive detection.** If a user revokes Bemy's access at facebook.com, the next sign-in attempt will fail at the Facebook step (the user has to re-grant `email` + `public_profile`). They re-authorise; the existing `auth.users` row is matched by `sub`; session resumes. Document, do not engineer.
+
+**Reasoning:** there is no Facebook webhook delivered to Supabase on revocation; detecting it would require polling the Graph API (which Limited Login doesn't even give us a token for). The next-sign-in failure surfaces the issue at the right moment.
 
 ---
 
@@ -75,20 +175,26 @@ This section enumerates every credible auth scenario. The implementation agent s
 
 The Supabase identity model assumed throughout:
 
-- One `auth.users` row per `(provider, sub)` pair. `provider ∈ {email, apple, google}`. `sub` is provider-side user ID (Apple `sub`, Google `sub`, or Supabase-generated UUID for email).
+- One `auth.users` row per `(provider, sub)` pair. `provider ∈ {email, apple, google, facebook}`. `sub` is provider-side user ID (Apple `sub`, Google `sub`, Facebook `sub`, or Supabase-generated UUID for email).
 - Supabase **does not auto-link** by email. Two different providers using the same email address produce **two** `auth.users` rows (and therefore two `public.users` rows via the `handle_new_user` trigger at `supabase/migrations/001_initial_schema.sql:17-28`).
 - Account merging requires manual SQL in the Supabase dashboard. Bemy v1 does not ship a self-serve merge UI (see §3.3).
+- Within this section, "SSO" generically means Apple, Google, **or** Facebook — the rules below are provider-agnostic unless explicitly called out.
 
-### 4.1 Provider × user-state matrix
+### 4.1 Provider × user-state matrix (generalised)
 
-Rows = the auth method the user **just tapped**. Columns = the prior state of the system for that email address.
+Rows = the auth method the user **just tapped**. Columns = the prior state of the system for that email address. The "Any SSO (apple/google/facebook)" row collapses three identical rules into one because, after extensive review, no Facebook-specific behaviour requires a distinct cell from Apple or Google. Provider-specific deltas are footnoted.
 
-| Method tapped → / Prior state ↓ | No prior account | Existing email-only account (same email) | Existing Apple-only account (same email) | Existing Google-only account (same email) |
+| Method tapped → / Prior state ↓ | No prior account | Existing email-only account (same email) | Existing SSO account (same email, **same provider**) | Existing SSO account (same email, **different provider**) |
 |---|---|---|---|---|
-| **Email + password (sign-up)** | New `auth.users` row created with `provider=email`. New `public.users` row via trigger. User lands in `(main)` empty state. | Supabase rejects with `User already registered`. Surface as toast: "An account with this email already exists. Sign in instead." Tap routes to `sign-in.tsx`. | A second `auth.users` row is created (`provider=email`), with same email but distinct `id`. User now has **two accounts**. *No code-side prevention in v1 (see §4.2 C2 for rationale).* | Same as Apple-only column — second row is created, user has two accounts. |
-| **Email + password (sign-in)** | Supabase returns `Invalid login credentials`. Surface as toast: "No account found, or wrong password." Existing copy. | Standard sign-in. Session returned. User lands in `(main)`. | Returns `Invalid login credentials` (no `provider=email` row exists). User sees "Wrong password." **This is the C2 confusing case.** v1 leaves copy as-is; §4.5 proposes a soft hint deferred to v1.x. | Same as Apple-only — `Invalid login credentials`. Same C2 confusion. |
-| **Apple SSO (first tap on this device)** | New `auth.users` row created with `provider=apple`. `display_name` populated from `fullName` if returned. User lands in `(main)` empty state. | Second `auth.users` row created (`provider=apple`). Two accounts. *Allowed; see C1.* | Standard sign-in. Same Apple `sub` matches existing row. Session returned. | Second `auth.users` row created (`provider=apple`). Two accounts. *Allowed; see C3/C4.* |
-| **Google SSO** | New `auth.users` row created with `provider=google`. `display_name` populated from `user_metadata.full_name`. User lands in `(main)` empty state. | Second `auth.users` row created (`provider=google`). Two accounts. *Allowed; see C1.* | Second `auth.users` row created (`provider=google`). Two accounts. *Allowed; see C3/C4.* | Standard sign-in. Same Google `sub` matches existing row. Session returned. |
+| **Email + password (sign-up)** | New `auth.users` row created with `provider=email`. New `public.users` row via trigger. User lands in `(main)` empty state. | Supabase rejects with `User already registered`. Surface as toast: "An account with this email already exists. Sign in instead." Tap routes to `sign-in.tsx`. | A second `auth.users` row is created (`provider=email`), with same email but distinct `id`. User now has **two accounts**. *No code-side prevention in v1 (see §4.2 C2 for rationale).* | Same — second row is created, user has two accounts. |
+| **Email + password (sign-in)** | Supabase returns `Invalid login credentials`. Surface as toast: "No account found, or wrong password." Existing copy. | Standard sign-in. Session returned. User lands in `(main)`. | Returns `Invalid login credentials` (no `provider=email` row exists). User sees "Wrong password." **This is the C2 confusing case.** v1 leaves copy as-is; §4.5 proposes a soft hint deferred to v1.x. | Same — `Invalid login credentials`. Same C2 confusion. |
+| **Any SSO** (apple / google / facebook) | New `auth.users` row created with the tapped provider. Display name populated as per §4.11. User lands in `(main)` empty state. | Second `auth.users` row created with the tapped provider. Two accounts. *Allowed; see C1.* | Standard sign-in. Same `sub` matches existing row. Session returned. | Second `auth.users` row created with the tapped provider. Two accounts. *Allowed; see C3/C4.* |
+
+**Provider-specific footnotes on the "Any SSO" row:**
+
+- *Apple* — `fullName` is returned **only on first sign-in**; subsequent sign-ins do not include it (Apple's design).
+- *Google* — `user_metadata.full_name` is present on every sign-in; first-only write semantics enforced in `signInWithGoogle` (§4.11).
+- *Facebook* — on iOS the OIDC token from Limited Login carries `name` + `email` claims (assuming the user grants `public_profile` + `email`); Supabase populates `user_metadata.full_name` from the `name` claim. Same first-only write semantics. On Android, the OAuth flow returns the same fields via the `user_info_endpoint` Supabase calls server-side.
 
 **Implementation-agent reading of this table:**
 
@@ -96,14 +202,16 @@ Rows = the auth method the user **just tapped**. Columns = the prior state of th
 - The "Supabase rejects" cell for email-on-email is the only error path that needs explicit copy. The string lives in `app/(auth)/sign-up.tsx` error block (line 46-50) — already wired to display `error` from the store. **Founder confirmed:** intercept in `authService.signUp` and rethrow with friendlier copy: `"An account with this email already exists. Sign in instead."` (Supabase's default `User already registered` is too terse and doesn't suggest the recovery path.)
 - All "session returned, lands in `(main)`" cells use the same code path: the `onAuthStateChange` listener at `stores/authStore.ts:32` fires, `_layout.tsx` redirect logic routes the user.
 
-### 4.2 The 5 collision scenarios — explicit decision per scenario
+### 4.2 The 6 collision scenarios — explicit decision per scenario
 
 For each, the implementation agent's job is to **match the listed behaviour exactly**. Recovery paths are the founder's job (manual SQL in Supabase dashboard — see §4.4).
 
+**Generalisation note:** C3 and C4 in this section now cover the full N-by-N grid of cross-provider collisions (Apple↔Google, Apple↔Facebook, Google↔Facebook, and the symmetric reverses). The behaviour is identical regardless of which two SSO providers collide — see §4.2.X for the consolidated rule. C6 (new) captures Facebook-specific deauth recovery; it is not a collision but lives here because it is a flow the implementation agent must handle.
+
 #### C1 — Email signup → later SSO sign-in with same email
 
-- **Trigger:** user signs up with `you@gmail.com` + password on day 1, then on day 30 taps "Continue with Google" with the same Gmail address.
-- **Default Supabase behaviour:** creates a new `auth.users` row with `provider=google`. Session is for the new row. The `public.users` trigger fires and creates a second `public.users` row.
+- **Trigger:** user signs up with `you@gmail.com` + password on day 1, then on day 30 taps "Continue with Google" (or Apple, or Facebook) with the same email address.
+- **Default Supabase behaviour:** creates a new `auth.users` row with `provider=<tapped>`. Session is for the new row. The `public.users` trigger fires and creates a second `public.users` row.
 - **What the user sees AFTER:** they land in `(main)` with an empty pet list. No pets, no records. Their original account still exists but is unreachable from this session.
 - **Decision:** **ALLOW (separate accounts).** Do not block, do not auto-link.
 - **Reasoning:** auto-linking requires server-side proof-of-ownership (e.g. send-magic-link to the email and require click) which we don't have infrastructure for. Blocking would require a pre-flight `select id from auth.users where email = ? and provider = 'email'` — we cannot run this from the client (RLS), and it would require an Edge Function. Disproportionate to the audience size. The empty-state on `(main)` is itself a strong signal that something is off; the user will likely sign out and try the other method or contact support.
@@ -112,43 +220,54 @@ For each, the implementation agent's job is to **match the listed behaviour exac
 
 #### C2 — SSO signup → later email sign-in with same email
 
-- **Trigger:** user signs up via "Continue with Google" on day 1, then on day 30 taps "Use email instead" → "Sign In" and types email + a guessed password.
+- **Trigger:** user signs up via "Continue with Google" (or Apple, or Facebook) on day 1, then on day 30 taps "Use email instead" → "Sign In" and types email + a guessed password.
 - **Default Supabase behaviour:** `signInWithPassword` returns `Invalid login credentials` because no `provider=email` row exists for that email.
 - **What the user sees AFTER:** generic "Invalid login credentials" / "No account found" toast. They are most likely to interpret this as "I forgot my password," tap reset, and confuse themselves further (Supabase will email a reset link that, when followed, sets a password and creates a `provider=email` row — yielding two accounts).
 - **Decision:** **ALLOW (separate accounts), but ship a v1 nudge.** Do not block. Do not auto-link.
 - **Reasoning:** blocking would require the same pre-flight check as C1 and is rejected for the same reason. However, the C2 confusion ceiling is higher than C1 (user goes through password-reset flow before realising), so we ship the **mitigation in §4.5** — "Use the same method you signed up with" caption on the welcome screen, plus remembered-last-method on this device.
-- **Implementation note:** the welcome-screen caption + last-method memory live in `app/(auth)/welcome.tsx`. Storage backend: `AsyncStorage` (the same storage the Supabase client already uses — see `services/supabase.ts:10`; founder confirmed this choice over `expo-secure-store` since the value is a non-sensitive UX hint, not a credential). Key: `bemy.lastAuthMethod`. Values: `email` / `apple` / `google` / null. Write on every successful sign-in. Read on welcome screen mount. Visually emphasize last-used (e.g. soft border highlight or "Last used" badge).
+- **Implementation note:** the welcome-screen caption + last-method memory live in `app/(auth)/welcome.tsx`. Storage backend: `AsyncStorage` (the same storage the Supabase client already uses — see `services/supabase.ts:10`; founder confirmed this choice over `expo-secure-store` since the value is a non-sensitive UX hint, not a credential). Key: `bemy.lastAuthMethod`. Values: `email` / `apple` / `google` / `facebook` / null. Write on every successful sign-in. Read on welcome screen mount. Visually emphasize last-used (e.g. soft border highlight or "Last used" badge).
 - **Recovery path (founder):** if the user opened a reset-password email and now has two accounts: pick canonical, reassign FKs, delete abandoned. §4.4.
 
-#### C3 — Apple signup → later Google sign-in with same email
+#### C3 — Cross-SSO collision: SSO provider A signup → later sign-in with SSO provider B (same email)
 
-- **Trigger:** user taps "Continue with Apple" with `you@privaterelay.appleid.com` (or with their real email if they didn't elect to hide). Later, on the same install, taps "Continue with Google" with `you@gmail.com`. **In practice, the email address won't match for relay users** — but if the user originally elected "Share my email" with Apple and the email is the same Gmail used in Google, the addresses collide.
-- **Default Supabase behaviour:** new `auth.users` row with `provider=google`. Two accounts. Session is for the new row.
-- **What the user sees AFTER:** empty `(main)` (different account). Likely confused, may sign out and re-tap Apple to recover.
+- **Trigger:** user signs up with one SSO provider (Apple / Google / Facebook) on day 1, then on day 30 taps a different SSO provider while the email addresses returned by the two providers happen to match. Concrete examples (one row per cross-provider pair):
+  - Apple "Share my email" with `you@gmail.com`, then Google sign-in with `you@gmail.com` → collision.
+  - Apple "Hide my email" producing `xxx@privaterelay.appleid.com`, then Google sign-in with `you@gmail.com` → **does NOT collide** (relay emails are unique to Apple). Two clean accounts; not a confusion vector.
+  - Google signup with `you@gmail.com`, then Facebook sign-in where the Facebook account email is `you@gmail.com` → collision.
+  - Apple "Hide my email", then Facebook sign-in with `you@whatever.com` → does NOT collide.
+- **Default Supabase behaviour:** new `auth.users` row with `provider=<B>`. Two accounts. Session is for the new row.
+- **What the user sees AFTER:** empty `(main)` (different account). Likely confused, may sign out and re-tap the original provider to recover.
 - **Decision:** **ALLOW (separate accounts).** Same as C1.
-- **Reasoning:** in the most common subcase (Apple relay email ≠ Google email), the addresses don't even collide and the two accounts are genuinely distinct user-intent. In the less common subcase (matching emails), the user has explicitly tapped two different SSO buttons — they're more likely experimenting than mistaking. Don't be paternalistic.
-- **Implementation note:** none.
+- **Reasoning:** the user has explicitly tapped two different SSO buttons — they're more likely experimenting than mistaking. The relay-email subcase is genuinely two different intents. Don't be paternalistic.
+- **Implementation note:** none. The rule is provider-agnostic: any (provider A → provider B) cross-SSO collision results in two `auth.users` rows. There is **no Facebook-specific deviation** here — `sub` is stable, the email-as-canonical rule from §3.12 applies, and Supabase's identity model treats all three providers uniformly.
 - **Recovery path:** §4.4.
 
-#### C4 — Google signup → later Apple sign-in with same email
+#### C4 — Cross-SSO collision: the symmetric reverse of C3
 
-- **Trigger:** mirror of C3.
-- **Default Supabase behaviour:** new `auth.users` row with `provider=apple`. Two accounts.
-- **What the user sees AFTER:** empty `(main)`.
+- **Trigger:** mirror of C3 in the opposite direction (provider B first, provider A second). All N-by-N cross-provider permutations covered (Apple↔Google, Apple↔Facebook, Google↔Facebook).
 - **Decision:** **ALLOW (separate accounts).** Same as C3.
-- **Reasoning:** same as C3. Symmetric.
+- **Reasoning:** symmetric.
 - **Implementation note:** none.
 - **Recovery path:** §4.4.
 
 #### C5 — Same SSO provider, different identity (re-sign-in with a different account)
 
-- **Trigger:** user A is signed in on the device. User A signs out. A different person picks up the device, taps "Continue with Apple" with **their own Apple ID** (different `sub`). Or: original user signs into iCloud with a different Apple ID and then opens Bemy.
-- **Default Supabase behaviour:** Apple's `sub` is different → new `auth.users` row with `provider=apple`. Distinct account from the first user. This is the **correct, desired** behaviour — it is how multi-user device sharing works.
+- **Trigger:** user A is signed in on the device. User A signs out. A different person picks up the device, taps "Continue with Apple" / "Continue with Google" / "Continue with Facebook" with **their own** provider account (different `sub`). Or: original user switches their iCloud / Google / Facebook account on the OS or browser side and then opens Bemy.
+- **Default Supabase behaviour:** the provider's `sub` is different → new `auth.users` row with the same provider. Distinct account from the first user. This is the **correct, desired** behaviour — it is how multi-user device sharing works.
 - **What the user sees AFTER:** empty `(main)`. No data leakage from user A — RLS scoped to `user_id` ensures the second user sees none of the first user's pets.
 - **Decision:** **ALLOW (this is the desired behaviour, not a collision).**
-- **Reasoning:** matching by Apple `sub` is the security boundary. Two different `sub`s = two different humans (per Apple's contract). We must not link them.
-- **Implementation note:** confirm sign-out fully clears the Supabase session in `AsyncStorage` (Supabase's RN adapter should handle this; verify in `services/supabase.ts`). The `bemy.lastAuthMethod` key from §4.5 should also be cleared on explicit sign-out (so the new user isn't shown the previous user's preferred method).
-- **Recovery path:** none — this is correct. If a user complains "my data is gone" after this, the support response is: "Sign out, then sign back in with your original Apple ID (the one with `XYZ` email)."
+- **Reasoning:** matching by provider `sub` is the security boundary. Two different `sub`s = two different humans (per each provider's contract). We must not link them.
+- **Implementation note:** confirm sign-out fully clears the Supabase session in `AsyncStorage` (Supabase's RN adapter should handle this; verify in `services/supabase.ts`). The `bemy.lastAuthMethod` key from §4.5 should also be cleared on explicit sign-out (so the new user isn't shown the previous user's preferred method). **Facebook addition:** also call `LoginManager.logOut()` from `react-native-fbsdk-next` in `authService.signOut` so the SDK clears its cached `AuthenticationToken` — otherwise the next "Continue with Facebook" tap silently re-uses the previous user's identity.
+- **Recovery path:** none — this is correct. If a user complains "my data is gone" after this, the support response is: "Sign out, then sign back in with your original provider account (the one with `XYZ` email)."
+
+#### C6 — Facebook-specific: user revoked Bemy's access at facebook.com, then re-attempts sign-in
+
+- **Trigger:** user signed in with Facebook on day 1. On day 15, they go to facebook.com → Settings → Apps and Websites → Bemy → Remove. On day 30, they tap "Continue with Facebook" in Bemy.
+- **Default behaviour (iOS Limited Login):** the cached `AuthenticationToken` is rejected by Facebook (audit fails server-side). The native FB SDK detects this, clears the cache, and re-prompts for `email` + `public_profile` consent. The user re-grants. Same `sub` is returned → existing `auth.users` row matched. Session resumes.
+- **Default behaviour (Android Classic via OAuth browser):** the OAuth flow re-prompts for consent automatically because no valid session cookie exists at facebook.com. Same outcome.
+- **Decision:** **no special handling.** The provider does the right thing.
+- **Implementation note:** none. The implementation agent does **not** need to detect revocation proactively — there is no Facebook webhook delivered to Supabase, and Limited Login does not give us a Graph API token to poll with. Document for support: if a user reports "Facebook sign-in keeps failing," ask them to check facebook.com → Apps and Websites → Bemy is connected.
+- **Recovery path:** the user re-grants in the FB modal; no founder action.
 
 **Summary of decisions (TL;DR for the implementation agent):**
 
@@ -158,7 +277,8 @@ For each, the implementation agent's job is to **match the listed behaviour exac
 | C2 | Allow + soft nudge (§4.5) | No | Welcome-screen caption + last-method memory |
 | C3 | Allow | No | None |
 | C4 | Allow | No | None |
-| C5 | Allow (correct behaviour) | No | Clear `lastAuthMethod` on sign-out |
+| C5 | Allow (correct behaviour) | No | Clear `lastAuthMethod` on sign-out + `LoginManager.logOut()` for FB |
+| C6 | Allow (provider self-recovers) | No | None (Facebook only; documented for support) |
 
 ### 4.3 First-time SSO sign-in for a brand-new user
 
