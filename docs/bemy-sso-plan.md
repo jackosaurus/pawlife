@@ -15,10 +15,10 @@ Bemy currently ships with email + password auth via `supabase.auth.signInWithPas
 
 What was already decided or noted in earlier docs/code, with citations:
 
-- **Apple is required if any other social login ships** — `docs/pawlife-v1-release-plan.md:42`. Order: Apple first, Google second. Facebook deferred indefinitely.
-- **Phasing in the v1 plan was Apple-first / Google-deferred** (`pawlife-v1-release-plan.md:60` and the suggested ordering at line 224). The founder has now overridden this — both Apple and Google ship together in this release, Facebook still deferred.
-- **Tech-stack note** (`docs/pawlife-tech-stack.md:156`): "Social auth (Apple, Google) is a config change in Supabase when ready for Phase 2." True for the backend; ignores native client config.
-- **Roadmap reference** (`docs/pawlife-roadmap.md:97`): Phase 2 item 5 — "Social sign-in (Apple, Google) — Reduces sign-up friction for broader launch." No design constraints captured.
+- **Apple is required if any other social login ships** — `docs/bemy-v1-release-plan.md:42`. Order: Apple first, Google second. Facebook deferred indefinitely.
+- **Phasing in the v1 plan was Apple-first / Google-deferred** (`bemy-v1-release-plan.md:60` and the suggested ordering at line 224). The founder has now overridden this — both Apple and Google ship together in this release, Facebook still deferred.
+- **Tech-stack note** (`docs/bemy-tech-stack.md:156`): "Social auth (Apple, Google) is a config change in Supabase when ready for Phase 2." True for the backend; ignores native client config.
+- **Roadmap reference** (`docs/bemy-roadmap.md:97`): Phase 2 item 5 — "Social sign-in (Apple, Google) — Reduces sign-up friction for broader launch." No design constraints captured.
 - **Bundle ID is settled** as `com.beebles.bemy` (`app.json:14, app.json:24`). The earlier plan worried about `com.jackdinh.pawlife` → rename — that rename has happened. Apple Services ID + Google client IDs can be provisioned against the final bundle ID with no future migration.
 - **Existing email/password flow lives in `services/authService.ts:5-95`** — methods `signUp`, `signIn`, `signOut`, `getSession`, `resetPassword`, `changePassword`, `deleteAccount`. Funnel analytics already wrap signup (`auth_signup_started`, `auth_signup_failed`). New SSO methods should mirror this instrumentation.
 - **`auth.users` → `public.users` is auto-populated by a trigger** in `supabase/migrations/001_initial_schema.sql:17-28`. The trigger does `insert into public.users (id, email) values (new.id, new.email)`. `email` in `public.users` is `not null` (`001_initial_schema.sql:11`). **This is the schema-level risk** — see §8.

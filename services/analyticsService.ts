@@ -8,7 +8,7 @@
  * complete.
  *
  * Strict event taxonomy — no PII. `pet_id` only, never `pet_name`. See
- * `pawlife-v1-posthog-plan.md` §4 for rationale.
+ * `bemy-v1-posthog-plan.md` §4 for rationale.
  */
 
 import { observabilityService } from './observabilityService';

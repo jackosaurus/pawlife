@@ -45,7 +45,7 @@ utils/                  # Pure utility functions
 
 ## Design System
 
-The canonical design system lives in `docs/pawlife-design-system.md` — colors, typography, components, patterns, voice. Always check it before introducing a new pattern. When you change a pattern, update the doc.
+The canonical design system lives in `docs/bemy-design-system.md` — colors, typography, components, patterns, voice. Always check it before introducing a new pattern. When you change a pattern, update the doc.
 
 Do not hardcode hex values, font sizes, or spacing — use the tokens in `constants/colors.ts`, `constants/typography.ts`, and the NativeWind theme.
 
@@ -116,20 +116,20 @@ npx expo install [package]        # Install Expo-compatible package version
 
 ## Current Build Phase
 
-Refer to `docs/pawlife-build-plan.md` for the full sequenced build plan.
+Refer to `docs/bemy-build-plan.md` for the full sequenced build plan.
 
 **Status:** Units 1–10 complete. Currently in Unit 11 — Polish & QA.
 
 ## Reference Documents
 
 These are in the `docs/` directory:
-- `pawlife-roadmap.md` — Product vision, MVP scope, phased backlog
-- `pawlife-design-system.md` — Canonical design system: tokens, components, patterns, voice, destructive-action tiers
-- `pawlife-tech-stack.md` — Full tech stack with architecture and migration path
-- `pawlife-data-model.md` — Schema, RLS policies, storage, data flows, service layer examples
-- `pawlife-build-plan.md` — 11 sequenced units of work (MVP build, Units 1-10 complete)
-- `pawlife-v1-release-plan.md` — 9 open items before first App Store release, with rationale and suggested ordering
-- `pawlife-stitch-prompts.md` — Design mockup prompts (for reference, not code)
+- `bemy-roadmap.md` — Product vision, MVP scope, phased backlog
+- `bemy-design-system.md` — Canonical design system: tokens, components, patterns, voice, destructive-action tiers
+- `bemy-tech-stack.md` — Full tech stack with architecture and migration path
+- `bemy-data-model.md` — Schema, RLS policies, storage, data flows, service layer examples
+- `bemy-build-plan.md` — 11 sequenced units of work (MVP build, Units 1-10 complete)
+- `bemy-v1-release-plan.md` — 9 open items before first App Store release, with rationale and suggested ordering
+- `bemy-stitch-prompts.md` — Design mockup prompts (for reference, not code)
 
 ## Things to Avoid
 

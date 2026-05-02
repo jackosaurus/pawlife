@@ -1,6 +1,6 @@
 /**
  * Gate matrix tests. Tests reset env vars between cases to assert the truth
- * table from `pawlife-v1-posthog-plan.md` §8.
+ * table from `bemy-v1-posthog-plan.md` §8.
  */
 
 jest.mock('expo-application', () => ({

@@ -17,7 +17,7 @@ import { Card } from '@/components/ui/Card';
  *
  * Without this, when the right column flexes around variable content the
  * indicator drifts vertically per row, producing a visibly ragged list. See
- * `docs/pawlife-design-system.md` → "Status card layout invariant".
+ * `docs/bemy-design-system.md` → "Status card layout invariant".
  *
  * # Slots
  *

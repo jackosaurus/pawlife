@@ -8,7 +8,7 @@
  * Numbers are in pt (== px on iOS at @1x). Keep these in lockstep with
  * `tailwind.config.js`.
  *
- * 10-token semantic scale (Phase 2). See `docs/pawlife-design-system.md`
+ * 10-token semantic scale (Phase 2). See `docs/bemy-design-system.md`
  * Typography section for the role of each token.
  */
 export const Typography = {

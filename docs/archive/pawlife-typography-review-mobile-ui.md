@@ -1,7 +1,7 @@
 # Pawlife Typography Review — Mobile UI Pass
 
 > Senior mobile UI designer review through an iOS-craftsman lens.
-> Companion to `docs/pawlife-design-system.md` — when this doc and the
+> Companion to `docs/bemy-design-system.md` — when this doc and the
 > design-system Typography section disagree, **this doc supersedes** until
 > Phase 2 lands and the design system is updated in lockstep.
 
@@ -256,7 +256,7 @@ need a visual pass at 1.3× before sign-off.
 |---|---|---|
 | `tailwind.config.js` | Add `largeTitle`, `subhead`, `eyebrow`, `metadata`. Rename `button-sm` → `subhead` (or alias). | +6 |
 | `constants/typography.ts` | Mirror the new tokens. | +6 |
-| `docs/pawlife-design-system.md` | Update the Typography table. | +20 |
+| `docs/bemy-design-system.md` | Update the Typography table. | +20 |
 
 ### Phase 2B — top-priority migrations (most visible churn)
 

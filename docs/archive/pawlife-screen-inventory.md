@@ -1,6 +1,6 @@
 # Pawlife — Screen Inventory & Design System (MVP)
 
-> **DEPRECATED.** Design system content has moved to [pawlife-design-system.md](pawlife-design-system.md). This file is kept for historical reference only — patterns described here (e.g. swipe-to-edit/delete, "Vet Visits" filter) no longer reflect the current app.
+> **DEPRECATED.** Design system content has moved to [bemy-design-system.md](bemy-design-system.md). This file is kept for historical reference only — patterns described here (e.g. swipe-to-edit/delete, "Vet Visits" filter) no longer reflect the current app.
 
 ## Design Principles
 
