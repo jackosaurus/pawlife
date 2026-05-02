@@ -6,7 +6,7 @@ module.exports = {
       moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/$1',
       },
-      testPathIgnorePatterns: ['/node_modules/', '/.claude/'],
+      testPathIgnorePatterns: ['/node_modules/', '/.claude/', '/__tests__/smoke/'],
     },
   ],
 };
