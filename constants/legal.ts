@@ -8,6 +8,5 @@
  * the URL resolves, App Store submission is blocked.
  */
 
-// Replace `<gh-user>` once the user enables GitHub Pages.
 export const PRIVACY_POLICY_URL =
-  'https://jackdinh.github.io/bemy-legal/privacy.html';
+  'https://jackosaurus.github.io/bemy-legal/privacy.html';
