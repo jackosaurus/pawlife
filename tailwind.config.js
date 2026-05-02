@@ -14,6 +14,11 @@ module.exports = {
           pressed: '#341539',
         },
         accent: '#E8735A',
+        coral: '#E8806A',
+        sage: '#8FA68A',
+        'dusty-plum': '#6B4577',
+        'brand-yellow': '#FDC602',
+        'brand-yellow-pressed': '#E5B202',
         destructive: '#E5484D',
         card: '#FFFFFF',
         'text-primary': '#2D2A26',
@@ -27,6 +32,13 @@ module.exports = {
       },
       borderRadius: {
         card: '16px',
+      },
+      fontFamily: {
+        // Display face — Fraunces, loaded via @expo-google-fonts/fraunces in
+        // app/_layout.tsx. Use this only for the wordmark + hero headlines on
+        // welcome / sign-in / sign-up. Body copy stays on the system sans.
+        display: ['Fraunces_700Bold'],
+        'display-regular': ['Fraunces_400Regular'],
       },
       fontSize: {
         display: ['36px', { lineHeight: '40px', fontWeight: '700' }],

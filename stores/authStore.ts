@@ -14,6 +14,7 @@ interface AuthState {
   signUp: (email: string, password: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -71,6 +72,20 @@ export const useAuthStore = create<AuthState>((set) => ({
       const message =
         err instanceof Error ? err.message : 'An unexpected error occurred';
       set({ error: message });
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  resetPassword: async (email) => {
+    set({ loading: true, error: null });
+    try {
+      await authService.resetPassword(email);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'An unexpected error occurred';
+      set({ error: message });
+      throw err;
     } finally {
       set({ loading: false });
     }

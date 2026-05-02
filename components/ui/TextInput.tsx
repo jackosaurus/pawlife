@@ -6,6 +6,7 @@ import {
   Pressable,
   TextInputProps as RNTextInputProps,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
 
 interface TextInputProps extends RNTextInputProps {
@@ -24,13 +25,18 @@ export const TextInput = React.forwardRef<RNTextInput, TextInputProps>(
         ? Colors.primary
         : Colors.border;
 
+    // Visible focus state — 2px border in brand purple when focused, 1px in
+    // warm gray otherwise. Matches the auth-screen redesign brief and the
+    // existing input convention used across record forms.
+    const borderWidth = focused ? 2 : 1;
+
     return (
       <View className="mb-4">
         <Text className="text-text-secondary text-body mb-1.5">
           {label}
         </Text>
         <View
-          style={[{ borderColor, borderWidth: 1, borderRadius: 12 }]}
+          style={[{ borderColor, borderWidth, borderRadius: 12 }]}
           className="flex-row items-center bg-white px-4"
         >
           <RNTextInput
@@ -52,12 +58,24 @@ export const TextInput = React.forwardRef<RNTextInput, TextInputProps>(
           {secureTextEntry && (
             <Pressable
               onPress={() => setHidden((h) => !h)}
-              hitSlop={8}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              accessibilityRole="button"
+              accessibilityLabel={
+                hidden ? 'Show password' : 'Hide password'
+              }
               testID="toggle-password"
+              style={{
+                width: 32,
+                height: 32,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
             >
-              <Text className="text-text-secondary text-button-sm">
-                {hidden ? 'Show' : 'Hide'}
-              </Text>
+              <Ionicons
+                name={hidden ? 'eye-outline' : 'eye-off-outline'}
+                size={20}
+                color={Colors.textSecondary}
+              />
             </Pressable>
           )}
         </View>

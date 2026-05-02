@@ -31,7 +31,7 @@ describe('TextInput', () => {
     expect(onChangeText).toHaveBeenCalledWith('test');
   });
 
-  it('toggles password visibility', () => {
+  it('toggles password visibility via the eye icon', () => {
     render(
       <TextInput
         label="Password"
@@ -39,8 +39,24 @@ describe('TextInput', () => {
         placeholder="Enter password"
       />,
     );
-    expect(screen.getByText('Show')).toBeTruthy();
-    fireEvent.press(screen.getByTestId('toggle-password'));
-    expect(screen.getByText('Hide')).toBeTruthy();
+    const toggle = screen.getByTestId('toggle-password');
+    // Initial accessibility label reflects the action ("Show password" while
+    // hidden). After tapping, it flips to "Hide password".
+    expect(toggle.props.accessibilityLabel).toBe('Show password');
+    fireEvent.press(toggle);
+    expect(toggle.props.accessibilityLabel).toBe('Hide password');
+  });
+
+  it('uses an eye icon (not a "Show"/"Hide" text label) for the toggle', () => {
+    render(
+      <TextInput
+        label="Password"
+        secureTextEntry
+        placeholder="Enter password"
+      />,
+    );
+    // Brief: replace text-toggle with eye-outline / eye-off-outline icons.
+    expect(screen.queryByText('Show')).toBeNull();
+    expect(screen.queryByText('Hide')).toBeNull();
   });
 });

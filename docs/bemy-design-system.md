@@ -78,7 +78,12 @@ Source-of-truth precedence when this doc is silent:
 | App background | `Colors.background` | `#FFF8E7` | `bg-background` |
 | Primary / CTA | `Colors.primary` | `#4A2157` | `bg-primary` / `text-primary` |
 | Primary pressed | `Colors.primaryPressed` | `#341539` | `bg-primary-pressed` |
-| Brand accent (coral) | `Colors.accent` | `#E8735A` | `bg-accent` / `text-accent` |
+| Dusty plum (background blocks) | `Colors.dustyPlum` | `#6B4577` | `bg-dusty-plum` |
+| Brand yellow (auth CTAs / hero) | `Colors.brandYellow` | `#FDC602` | `bg-brand-yellow` |
+| Brand yellow pressed | `Colors.brandYellowPressed` | `#E5B202` | `bg-brand-yellow-pressed` |
+| Brand accent (coral, "due soon" warmth) | `Colors.accent` | `#E8735A` | `bg-accent` / `text-accent` |
+| Coral (delight moments) | `Colors.coral` | `#E8806A` | `bg-coral` / `text-coral` |
+| Sage (health-positive accent) | `Colors.sage` | `#8FA68A` | `bg-sage` / `text-sage` |
 | Card surface | `Colors.card` | `#FFFFFF` | `bg-card` |
 | Primary text | `Colors.textPrimary` | `#2D2A26` | `text-text-primary` |
 | Secondary text | `Colors.textSecondary` | `#7A756E` | `text-text-secondary` |
@@ -105,7 +110,11 @@ Source-of-truth precedence when this doc is silent:
 ### When to use each color
 
 - **Plum (`primary`)** — primary CTAs, FAB, links, focused input borders, active filter pill, header back/save text buttons, archive/restore actions.
+- **Dusty plum (`dustyPlum`)** — softer purple for **large background blocks** (>~30% of the screen) where the saturated `primary` reads as a heavy slab. Auth screens and any future hero panel that wants the plum hue family without the weight.
+- **Brand yellow (`brandYellow`)** — primary CTA on the welcome / sign-in / sign-up screens, plus the welcome hero placeholder. Inside the main app, primary CTAs stay on `primary` (plum). Yellow is the icon's signature; we use it in onboarding to anchor brand recognition.
 - **Coral (`accent` / `statusOverdue`)** — illustrations, "due soon" / overdue warmth, hero accents. **Never** as the fill of a primary button outside the destructive-account flow.
+- **Coral (`coral`, `#E8806A`)** — delight moments: success toasts, "good job" celebratory micro-interactions. Slightly warmer than `accent` so the two semantics don't blur. **Rule:** `accent` for warmth-as-status, `coral` for warmth-as-celebration.
+- **Sage (`sage`, `#8FA68A`)** — health-positive accents (vaccinations on track, weight stability, "all good" confirmations). Distinct from `statusGreen` — sage reads as "calm OK", status green as "active green".
 - **Sage / amber / coral / neutral status colors** — only on `StatusPill` and similar alert badges. They communicate state, not decoration.
 - **Warm gray (`textSecondary`)** — secondary metadata, helper text, disabled-feeling states, "Optional" labels.
 - **Border (`#EDE8DF`)** — card outlines, input borders, segment dividers. Never the primary visual; subtle.
@@ -116,6 +125,13 @@ Source-of-truth precedence when this doc is silent:
 ## Typography
 
 Source of truth: `constants/typography.ts` + `tailwind.config.js`. Use the Tailwind class wherever possible (`text-headline`, `text-body`, etc.) and import from `constants/typography.ts` only where you must set `style={{ fontSize: ... }}` inline.
+
+### Type pairing — display + body
+
+- **Display: Fraunces** (Google Font, free; loaded via `@expo-google-fonts/fraunces`). A warm contemporary serif with light playful "soft" cuts. Use **only** for the wordmark + hero headlines on welcome / sign-in / sign-up. Available weights: 400 / 600 / 700 — see `DisplayFontFamily` in `constants/typography.ts`.
+- **Body: system sans** (San Francisco on iOS, Roboto on Android). Default for everything else — form labels, body copy, button labels, all in-app text. The 10-token semantic scale below targets the system sans.
+
+**EAS implication:** Fraunces is loaded at runtime via `useFonts()` in `app/_layout.tsx`, not registered as a native asset in `app.json`. No EAS rebuild is required to ship the font; the first app launch after install will hold the splash until `useFonts()` resolves (`expo-font` caches subsequently).
 
 ### Semantic scale (10 tokens)
 
@@ -175,7 +191,7 @@ All components live in `components/`. Test files (`*.test.tsx`) sit alongside. E
 | Component | One-liner |
 |---|---|
 | `Avatar.tsx` | Round pet photo with type-default fallback (dog/cat). |
-| `Button.tsx` | Primary / secondary / text variants. Plum filled, plum outlined, plum text. Use this for any submit, save, or full-width action. |
+| `Button.tsx` | Primary / secondary / text / brandYellow variants. Plum filled, plum outlined, plum text, or yellow filled with plum text (auth screens only). Use this for any submit, save, or full-width action. |
 | `Card.tsx` | White rounded surface, the wrapper for almost everything. |
 | `DateInput.tsx` | Native date picker (`@react-native-community/datetimepicker`), day-first en-GB format. **Always** use this for dates — never raw text. |
 | `ConfirmationModal.tsx` | Bottom-sheet-style confirm modal with `severity: 'standard' \| 'destructive' \| 'irreversible'`. Standard = neutral confirm. Destructive = red ghost-text confirm. Irreversible = filled red + typed-confirm gate (Delete Account only). |

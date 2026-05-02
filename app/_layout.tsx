@@ -3,6 +3,12 @@ import { Slot, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Text } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
+import {
+  useFonts,
+  Fraunces_400Regular,
+  Fraunces_600SemiBold,
+  Fraunces_700Bold,
+} from '@expo-google-fonts/fraunces';
 import { useAuthStore } from '@/stores/authStore';
 import { useNotificationSetup } from '@/hooks/useNotificationSetup';
 import { useScreenTracking } from '@/hooks/useScreenTracking';
@@ -26,6 +32,18 @@ export default function RootLayout() {
   const { session, initialized, initialize } = useAuthStore();
   const segments = useSegments();
   const router = useRouter();
+
+  // Load Fraunces — display face for the wordmark + hero headlines on
+  // welcome / sign-in / sign-up. The rest of the app stays on the system
+  // sans. Loaded via JS at runtime (no `expo-font` plugin entry needed in
+  // app.json), so EAS rebuilds aren't required to ship this — but the first
+  // launch on a new install does block the splash until the font resolves
+  // (we hold the splash via SplashScreen.preventAutoHideAsync above).
+  const [fontsLoaded] = useFonts({
+    Fraunces_400Regular,
+    Fraunces_600SemiBold,
+    Fraunces_700Bold,
+  });
 
   useNotificationSetup(session?.user.id ?? null);
   // Auto screen tracking — no-op when observability is disabled.
@@ -55,12 +73,12 @@ export default function RootLayout() {
   }, [session, initialized, segments, router]);
 
   useEffect(() => {
-    if (initialized) {
+    if (initialized && fontsLoaded) {
       SplashScreen.hideAsync();
     }
-  }, [initialized]);
+  }, [initialized, fontsLoaded]);
 
-  if (!initialized) {
+  if (!initialized || !fontsLoaded) {
     return null;
   }
 

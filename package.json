@@ -15,6 +15,7 @@
     "test:smoke": "jest __tests__/smoke --testPathIgnorePatterns=/node_modules/ --testPathIgnorePatterns=/.claude/"
   },
   "dependencies": {
+    "@expo-google-fonts/fraunces": "^0.4.1",
     "@expo/vector-icons": "^15.0.3",
     "@gorhom/bottom-sheet": "^5.2.8",
     "@hookform/resolvers": "^5.2.2",

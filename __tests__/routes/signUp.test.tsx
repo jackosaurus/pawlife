@@ -32,27 +32,37 @@ beforeEach(() => {
 });
 
 describe('SignUpScreen', () => {
-  it('disables Create Account until consent checkbox is checked', () => {
-    const { getByTestId } = render(<SignUpScreen />);
-    const button = getByTestId('button');
-    // RN Pressable forwards `disabled` via accessibility props, but our
-    // Button applies an opacity-50 class when disabled and `disabled` prop
-    // on the Pressable directly. Easier: try to press it and confirm signUp
-    // wasn't called.
-    fireEvent.press(button);
+  it('renders the warm headline copy', () => {
+    const { getByText } = render(<SignUpScreen />);
+    expect(getByText('Add your first furry family member')).toBeTruthy();
+  });
+
+  it('shows an inline consent error when CTA tapped without ticking the checkbox', async () => {
+    const { getByTestId, findByTestId } = render(<SignUpScreen />);
+    // Always-enabled CTA pattern: tap should NOT call signUp, but should
+    // surface a helpful inline error instead of being a dead button.
+    fireEvent.press(getByTestId('button'));
+    const errorText = await findByTestId('consent-error');
+    expect(errorText.props.children).toMatch(/Privacy Policy/);
     expect(mockSignUp).not.toHaveBeenCalled();
   });
 
-  it('enables Create Account once the checkbox is checked', async () => {
+  it('clears the consent error when the checkbox is checked', async () => {
+    const { getByTestId, queryByTestId } = render(<SignUpScreen />);
+    fireEvent.press(getByTestId('button'));
+    expect(queryByTestId('consent-error')).not.toBeNull();
+    fireEvent.press(getByTestId('privacy-consent-checkbox'));
+    expect(queryByTestId('consent-error')).toBeNull();
+    await act(async () => {
+      await Promise.resolve();
+    });
+  });
+
+  it('toggles the privacy checkbox accessibility state', async () => {
     const { getByTestId } = render(<SignUpScreen />);
     const checkbox = getByTestId('privacy-consent-checkbox');
     fireEvent.press(checkbox);
-    // Toggling the checkbox flips `consented` to true. We don't actually
-    // submit (RHF + zod would fail with empty fields) but the disabled
-    // gate is the unit under test.
-    const state = checkbox.props.accessibilityState;
-    expect(state.checked).toBe(true);
-    // Avoid an act warning from the trailing render without the field flush.
+    expect(checkbox.props.accessibilityState.checked).toBe(true);
     await act(async () => {
       await Promise.resolve();
     });
@@ -65,5 +75,18 @@ describe('SignUpScreen', () => {
     expect(mockOpenBrowserAsync).toHaveBeenCalledWith(
       'https://jackosaurus.github.io/bemy-legal/privacy.html',
     );
+  });
+
+  it('renders a hero illustration placeholder above the form', () => {
+    const { getByTestId } = render(<SignUpScreen />);
+    expect(getByTestId('signup-hero')).toBeTruthy();
+  });
+
+  it('uses an eye-icon password toggle (no "Show"/"Hide" text)', () => {
+    const { queryByText, getAllByTestId } = render(<SignUpScreen />);
+    // Two password fields — both should render the icon-based toggle.
+    expect(getAllByTestId('toggle-password').length).toBe(2);
+    expect(queryByText('Show')).toBeNull();
+    expect(queryByText('Hide')).toBeNull();
   });
 });

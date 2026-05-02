@@ -30,3 +30,16 @@ export const Typography = {
 } as const;
 
 export type TypographyToken = keyof typeof Typography;
+
+/**
+ * Display font family — Fraunces (Google Font, free). Loaded via
+ * `@expo-google-fonts/fraunces` in `app/_layout.tsx`. Use ONLY for the wordmark
+ * + hero headlines on welcome / sign-in / sign-up. Body copy stays on the
+ * system sans (San Francisco / Roboto). Falls back to undefined before the
+ * font finishes loading; React Native handles that gracefully.
+ */
+export const DisplayFontFamily = {
+  bold: 'Fraunces_700Bold',
+  semibold: 'Fraunces_600SemiBold',
+  regular: 'Fraunces_400Regular',
+} as const;

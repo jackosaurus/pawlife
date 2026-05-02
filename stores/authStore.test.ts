@@ -20,6 +20,7 @@ jest.mock('@/services/authService', () => ({
     signUp: jest.fn(),
     signIn: jest.fn(),
     signOut: jest.fn(),
+    resetPassword: jest.fn(),
   },
 }));
 
@@ -107,6 +108,27 @@ describe('authStore', () => {
       expect(useAuthStore.getState().loading).toBe(false);
       expect(useFamilyStore.getState().family).toBeNull();
       expect(useFamilyStore.getState().myRole).toBeNull();
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('calls authService.resetPassword and clears loading', async () => {
+      mockAuthService.resetPassword.mockResolvedValue(undefined);
+      await useAuthStore.getState().resetPassword('a@b.com');
+      expect(mockAuthService.resetPassword).toHaveBeenCalledWith('a@b.com');
+      expect(useAuthStore.getState().loading).toBe(false);
+      expect(useAuthStore.getState().error).toBeNull();
+    });
+
+    it('sets error and rethrows on failure', async () => {
+      mockAuthService.resetPassword.mockRejectedValue(
+        new Error('Email not registered'),
+      );
+      await expect(
+        useAuthStore.getState().resetPassword('a@b.com'),
+      ).rejects.toThrow('Email not registered');
+      expect(useAuthStore.getState().error).toBe('Email not registered');
+      expect(useAuthStore.getState().loading).toBe(false);
     });
   });
 

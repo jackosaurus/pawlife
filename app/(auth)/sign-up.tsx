@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, Image, Dimensions } from 'react-native';
 import { Link } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,11 +10,16 @@ import { Screen } from '@/components/ui/Screen';
 import { TextInput } from '@/components/ui/TextInput';
 import { Button } from '@/components/ui/Button';
 import { Colors } from '@/constants/colors';
+import { DisplayFontFamily } from '@/constants/typography';
 import { PRIVACY_POLICY_URL } from '@/constants/legal';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const HERO_HEIGHT = Math.round(SCREEN_HEIGHT * 0.2);
 
 export default function SignUpScreen() {
   const { signUp, loading, error, clearError } = useAuthStore();
   const [consented, setConsented] = useState(false);
+  const [consentError, setConsentError] = useState<string | null>(null);
   const {
     control,
     handleSubmit,
@@ -25,8 +30,22 @@ export default function SignUpScreen() {
   });
 
   const onSubmit = async (data: SignUpFormData) => {
+    setConsentError(null);
     clearError();
     await signUp(data.email, data.password);
+  };
+
+  // Always-enabled CTA pattern: tapping "Create account" first checks the
+  // privacy gate and surfaces an inline error if the checkbox isn't ticked,
+  // then defers to react-hook-form's validated submit. Avoids the dead-button
+  // confusion the design review flagged.
+  const onCreatePressed = () => {
+    if (!consented) {
+      setConsentError('Please agree to the Privacy Policy to continue.');
+      return;
+    }
+    setConsentError(null);
+    void handleSubmit(onSubmit)();
   };
 
   const openPrivacyPolicy = () => {
@@ -35,12 +54,44 @@ export default function SignUpScreen() {
 
   return (
     <Screen scroll>
-      <View className="flex-1 px-8 pt-16">
-        <Text className="text-largeTitle text-text-primary mb-2">
-          Create Account
+      {/* PLACEHOLDER: founder is generating a custom hero illustration matching
+          the icon style. Swap this View for an Image source={require('../../assets/images/welcome-hero.png')}
+          when the asset lands. */}
+      <View
+        testID="signup-hero"
+        accessibilityLabel="Bemy hero illustration"
+        style={{
+          height: HERO_HEIGHT,
+          width: '100%',
+          backgroundColor: Colors.brandYellow,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Image
+          source={require('../../assets/images/icon.png')}
+          style={{
+            width: HERO_HEIGHT * 0.7,
+            height: HERO_HEIGHT * 0.7,
+          }}
+          resizeMode="contain"
+        />
+      </View>
+
+      <View className="flex-1 px-8 pt-8">
+        <Text
+          style={{
+            fontFamily: DisplayFontFamily.bold,
+            fontSize: 30,
+            lineHeight: 36,
+            color: Colors.textPrimary,
+            marginBottom: 8,
+          }}
+        >
+          Add your first furry family member
         </Text>
         <Text className="text-body text-text-secondary mb-8">
-          Sign up to start tracking your pet's health
+          Start building their story.
         </Text>
 
         {error && (
@@ -97,13 +148,17 @@ export default function SignUpScreen() {
           )}
         />
 
-        {/* Explicit consent — reviewer amendment §8. Unchecked by default;
-            sign-up button disabled until checked. */}
+        {/* Explicit consent — reviewer amendment §8. Now using the
+            "always-enabled CTA, helpful inline error if blocker present"
+            pattern (auth-screen redesign brief). */}
         <Pressable
           accessibilityRole="checkbox"
           accessibilityState={{ checked: consented }}
           accessibilityLabel="I agree to the Privacy Policy"
-          onPress={() => setConsented((v) => !v)}
+          onPress={() => {
+            setConsented((v) => !v);
+            setConsentError(null);
+          }}
           testID="privacy-consent-checkbox"
           className="flex-row items-center mt-4"
         >
@@ -131,19 +186,30 @@ export default function SignUpScreen() {
           </Text>
         </Pressable>
 
+        {consentError && (
+          <Text
+            testID="consent-error"
+            className="text-status-overdue text-footnote mt-2"
+          >
+            {consentError}
+          </Text>
+        )}
+
         <View className="mt-4">
           <Button
-            title="Create Account"
-            onPress={handleSubmit(onSubmit)}
+            title="Create account"
+            onPress={onCreatePressed}
             loading={loading}
-            disabled={!consented}
+            variant="brandYellow"
+            // Always enabled — onCreatePressed guards on `consented` and
+            // surfaces an inline error if the checkbox isn't ticked.
           />
         </View>
 
         <View className="items-center mt-6">
           <Link href="/(auth)/sign-in">
             <Text className="text-primary text-callout font-medium">
-              Already have an account? Sign In
+              Already have an account? Sign in
             </Text>
           </Link>
         </View>

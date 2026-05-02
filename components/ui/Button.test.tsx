@@ -34,4 +34,14 @@ describe('Button', () => {
     fireEvent.press(screen.getByTestId('button'));
     expect(onPress).not.toHaveBeenCalled();
   });
+
+  it('renders the brandYellow variant with the title visible', () => {
+    render(
+      <Button title="Get Started" onPress={jest.fn()} variant="brandYellow" />,
+    );
+    // Smoke check: variant renders and the title is visible. Pixel-level
+    // contrast is verified on a device build — NativeWind class -> style
+    // resolution is not exercised in jest-expo.
+    expect(screen.getByText('Get Started')).toBeTruthy();
+  });
 });
