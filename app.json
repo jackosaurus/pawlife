@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Bemy",
-    "slug": "bemy",
+    "slug": "pawlife",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.bemy.app",
+      "bundleIdentifier": "com.beebles.bemy",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -23,7 +23,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.bemy.app",
+      "package": "com.beebles.bemy",
       "permissions": [
         "android.permission.RECORD_AUDIO"
       ]
