@@ -45,7 +45,7 @@ The following items were captured by the user 2026-04-25 at the close of a long 
   - Apple Developer account already in use via EAS
   - Need to enable "Sign In with Apple" capability in Apple Developer portal + EAS credentials
   - `expo-apple-authentication` package
-  - Bundle ID: `com.jackdinh.bemy` currently — would change if rename happens (#3)
+  - Bundle ID: `com.jackdinh.pawlife` currently — would change if rename happens (#3)
 - **Google Sign In:**
   - Google Cloud project + OAuth credentials (iOS + Android client IDs)
   - `@react-native-google-signin/google-signin` or Supabase native flow
@@ -64,7 +64,7 @@ The following items were captured by the user 2026-04-25 at the close of a long 
 **Roadmap reference:** new
 
 **User's words (verbatim):**
-> rename the entire product and app to "Boopa" which relates to "Boop" the nose of your pet and given the icon of the app is a nose/snout of a dog, i think it bodes well. I thought about the term "bemy" and when you say it out loud it doesn't sound great because someone misinterpreted it as "Poor life" which is not good. this task should think through some more and once we decide on a final name, we need to do a detailed thorough review of all the places we need to update and make a check list and plan it out before going ahead
+> rename the entire product and app to "Boopa" which relates to "Boop" the nose of your pet and given the icon of the app is a nose/snout of a dog, i think it bodes well. I thought about the term "pawlife" and when you say it out loud it doesn't sound great because someone misinterpreted it as "Poor life" which is not good. this task should think through some more and once we decide on a final name, we need to do a detailed thorough review of all the places we need to update and make a check list and plan it out before going ahead
 
 **Open questions / concerns:**
 - "Boopa" leans cute and pet-native. The boop-the-snoot connection is on-brand for the icon.
@@ -74,21 +74,21 @@ The following items were captured by the user 2026-04-25 at the close of a long 
   - Trademark search (USPTO + AU + UK if launching internationally)
   - Social handles: boopa, boopaApp, boopaPet — check Instagram, Twitter/X, TikTok
 - **Other candidate names worth brainstorming if Boopa doesn't clear:** Snoot, Sniff, Pawly, Kibble, Tail, Murph, Whiskr (cat-leaning).
-- **Bundle ID is the big footgun:** currently `com.jackdinh.bemy`. Would become `com.jackdinh.boopa`. Bundle IDs are STICKY — once submitted to App Store, changing them requires creating a new app listing (loses reviews, downloads, ranking). **The rename MUST happen before first App Store submission.**
+- **Bundle ID is the big footgun:** currently `com.jackdinh.pawlife`. Would become `com.jackdinh.boopa`. Bundle IDs are STICKY — once submitted to App Store, changing them requires creating a new app listing (loses reviews, downloads, ranking). **The rename MUST happen before first App Store submission.**
 - **Comprehensive rename checklist:**
   - `app.json` — name, slug, scheme, iOS bundle identifier, Android package
   - `package.json` — name field
   - EAS project name (`eas.json` and dashboard config)
   - Supabase project name (cosmetic only, doesn't affect URLs)
   - GitHub repo name (rename + update remote URL)
-  - All in-app strings: search for "Bemy" and "bemy" across the codebase — splash screen text, About copy, share text, app version reporting, etc.
+  - All in-app strings: search for "Pawlife" and "pawlife" across the codebase — splash screen text, About copy, share text, app version reporting, etc.
   - `CLAUDE.md` first-line product description
-  - `docs/*.md` — all docs reference Bemy in headings/prose (this file included)
-  - All memory files referring to Bemy (low-stakes; cosmetic)
+  - `docs/*.md` — all docs reference Pawlife in headings/prose (this file included)
+  - All memory files referring to Pawlife (low-stakes; cosmetic)
   - App icon — likely stays since it already shows a snout, but verify it works with the new name
-  - Splash screen — update if it currently shows "Bemy"
-  - "Welcome to Bemy" copy and Apple Sign In button text
-  - EAS env vars — the env names don't reference Bemy but worth a sweep
+  - Splash screen — update if it currently shows "Pawlife"
+  - "Welcome to Pawlife" copy and Apple Sign In button text
+  - EAS env vars — the env names don't reference Pawlife but worth a sweep
 - **Single-shot rename ideally, not piecemeal.** Plan it as a discrete task with a checklist, do it all in one PR.
 
 ### 4. Release process — dev vs prod environments
