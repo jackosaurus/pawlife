@@ -35,6 +35,7 @@ Bemy uses a small number of third party processors. We chose each one for securi
 
 - **Supabase (EU region)** stores your account, pet records, and photos. Network traffic uses TLS and Supabase encrypts data at rest.
 - **PostHog (EU region)** receives the anonymous analytics events and crash diagnostics described above. PostHog is configured without session recording, without ad network attribution, and without any tracking identifiers.
+- **Facebook (Meta)** verifies your identity when you choose "Continue with Facebook". Facebook is based in the United States. We do not share any of your pet records with Facebook, and on iOS we use Facebook's Limited Login mode which does not enable cross app tracking.
 - **Apple Push Notification Service / Expo Push** delivers the medication and vaccination reminders you have enabled.
 - **Expo / EAS** builds and ships the app. They do not see your runtime data.
 
