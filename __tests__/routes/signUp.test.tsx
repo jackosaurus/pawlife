@@ -63,7 +63,7 @@ describe('SignUpScreen', () => {
     const link = getByTestId('privacy-policy-link');
     fireEvent.press(link);
     expect(mockOpenBrowserAsync).toHaveBeenCalledWith(
-      'https://jackdinh.github.io/bemy-legal/privacy.html',
+      'https://jackosaurus.github.io/bemy-legal/privacy.html',
     );
   });
 });
