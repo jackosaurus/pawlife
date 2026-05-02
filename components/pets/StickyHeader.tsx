@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, ImageBackground } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Avatar } from '@/components/ui/Avatar';
 import { MetadataPill } from '@/components/pets/MetadataPill';
@@ -6,6 +6,8 @@ import { AgePill } from '@/components/pets/AgePill';
 import { calculateAge } from '@/utils/dates';
 import { Colors } from '@/constants/colors';
 import { Pet } from '@/types';
+
+const headerBg = require('@/assets/images/pet-detail-header-bg.png');
 
 interface StickyHeaderProps {
   pet: Pet;
@@ -26,7 +28,11 @@ export function StickyHeader({ pet, onBack, latestWeight }: StickyHeaderProps) {
     pet.sex === 'male' ? '♂ Male' : pet.sex === 'female' ? '♀ Female' : null;
 
   return (
-    <View className="px-6 pt-4 pb-6">
+    <ImageBackground
+      source={headerBg}
+      resizeMode="cover"
+      className="px-6 pt-4 pb-6"
+    >
       <View className="flex-row items-center justify-between mb-4">
         <Pressable onPress={onBack} hitSlop={8} testID="back-button">
           <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
@@ -61,6 +67,6 @@ export function StickyHeader({ pet, onBack, latestWeight }: StickyHeaderProps) {
           <MetadataPill label={`${Number(latestWeight.toFixed(1))} kg`} />
         ) : null}
       </View>
-    </View>
+    </ImageBackground>
   );
 }

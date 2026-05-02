@@ -16,7 +16,7 @@ import { Colors } from '@/constants/colors';
 import { ActionItem } from '@/types';
 
 const welcomeHero = require('@/assets/illustrations/welcome-hero.png');
-const emptyPets = require('@/assets/illustrations/empty-pets.png');
+const emptyPets = require('@/assets/images/welcome-hero.png');
 
 export default function DashboardScreen() {
   const router = useRouter();
