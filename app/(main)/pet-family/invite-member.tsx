@@ -45,7 +45,7 @@ export default function InviteMemberScreen() {
     if (!formattedCode) return;
     try {
       await Share.share({
-        message: `Join my pet family on Pawlife! Use code: ${formattedCode}`,
+        message: `Join my pet family on Bemy! Use code: ${formattedCode}`,
       });
     } catch {
       // User cancelled or share failed

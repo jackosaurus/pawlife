@@ -597,7 +597,7 @@ export default function SettingsScreen() {
         {/* App Version */}
         <View className="mt-8 items-center">
           <Text className="text-text-secondary text-caption">
-            Pawlife v{appVersion}
+            Bemy v{appVersion}
           </Text>
         </View>
       </View>

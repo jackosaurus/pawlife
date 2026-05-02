@@ -1,8 +1,8 @@
-# Pawlife — App Store Connect Privacy Labels
+# Bemy — App Store Connect Privacy Labels
 
 Reference for the privacy nutrition labels in App Store Connect → App Privacy. Apple requires this disclosure for every released version.
 
-**Tracking?** No. Pawlife does not use IDFA, does not call `requestTrackingAuthorization`, and does not share data with third parties for advertising. Apple's "Used for Tracking" column is **No** for every category below.
+**Tracking?** No. Bemy does not use IDFA, does not call `requestTrackingAuthorization`, and does not share data with third parties for advertising. Apple's "Used for Tracking" column is **No** for every category below.
 
 ## Data collected
 
@@ -19,7 +19,7 @@ Reference for the privacy nutrition labels in App Store Connect → App Privacy.
 
 Explicitly omitted from the form (do not check these):
 
-- Health & Fitness — Pawlife stores **pet** health records, not human health data. Apple's category is for human-health data only.
+- Health & Fitness — Bemy stores **pet** health records, not human health data. Apple's category is for human-health data only.
 - Financial Info
 - Location (precise or coarse)
 - Sensitive Info

@@ -8,7 +8,7 @@ export default function WelcomeScreen() {
   return (
     <View className="flex-1 items-center justify-center bg-background px-8">
       <Text className="text-display text-text-primary mb-4">
-        Pawlife
+        Bemy
       </Text>
       <Text className="text-body text-text-secondary text-center mb-12">
         A digital home for your pet family

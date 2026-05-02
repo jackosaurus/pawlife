@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "Pawlife",
-    "slug": "pawlife",
+    "name": "Bemy",
+    "slug": "bemy",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "pawlife",
+    "scheme": "bemy",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.pawlife.app",
+      "bundleIdentifier": "com.bemy.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -23,7 +23,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.pawlife.app",
+      "package": "com.bemy.app",
       "permissions": [
         "android.permission.RECORD_AUDIO"
       ]
@@ -46,7 +46,7 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Pawlife needs access to your photos to add a profile picture for your pet."
+          "photosPermission": "Bemy needs access to your photos to add a profile picture for your pet."
         }
       ],
       "@react-native-community/datetimepicker",

@@ -1,4 +1,4 @@
-# Pawlife V1 — PostHog Observability & Analytics Plan
+# Bemy V1 — PostHog Observability & Analytics Plan
 
 **Status:** Plan v2 (2026-04-27). Supersedes the dual-tool plan in `docs/pawlife-v1-observability-plan.md` for the parts inside scope. After cost/value review the user has chosen to consolidate on **PostHog only** — product analytics, error tracking, screen views, and (deferred) session replay in one tool. Sentry is removed from v1 scope; the wrapper service abstraction makes it a drop-in addition later if PostHog's exception capture proves insufficient.
 
@@ -99,7 +99,7 @@ Key invariants:
 export type Environment = 'development' | 'preview' | 'production';
 
 export function getEnvironment(): Environment;
-export function getRelease(): string;            // `pawlife@<version>+<buildNumber>`
+export function getRelease(): string;            // `bemy@<version>+<buildNumber>`
 export function isObservabilityEnabled(): boolean;
 // true iff: EXPO_PUBLIC_POSTHOG_KEY is set AND
 //   (EXPO_PUBLIC_ENV === 'production' OR EXPO_PUBLIC_TEST_OBSERVABILITY === 'true')
@@ -218,7 +218,7 @@ The previously drafted markdown content covers: introduction, what data we colle
 - Specify PostHog as a "product analytics and diagnostics processor" (one tool, not two).
 - Drop the "Sentry" line — only PostHog.
 - Make the consent posture explicit: "We rely on legitimate interest for crash diagnostics and on your acceptance of these terms (presented at sign-up) for product analytics. You may opt out at any time by deleting your account; an in-Settings opt-out is on our v1.1 roadmap." This is honest about the v1 posture (no in-app analytics toggle yet) and avoids over-promising.
-- Hosting: `docs/privacy-policy.md` rendered via GitHub Pages from a new `pawlife-legal` public repo or an `/legal` branch. Final URL: `https://pawlife.app/privacy` (if domain is owned) or `https://<gh-user>.github.io/pawlife-legal/privacy.html`. **The URL must exist and resolve before App Store submission and before the first production build is shipped.**
+- Hosting: `docs/privacy-policy.md` rendered via GitHub Pages from a new `bemy-legal` public repo or an `/legal` branch. Final URL: `https://bemy.app/privacy` (if domain is owned) or `https://<gh-user>.github.io/bemy-legal/privacy.html`. **The URL must exist and resolve before App Store submission and before the first production build is shipped.**
 
 ### Apple App Store Connect privacy labels
 
@@ -238,7 +238,7 @@ The previously drafted markdown content covers: introduction, what data we colle
 
 ```
 By creating an account, you agree to our Privacy Policy.
-                                             └─ Pressable, opens https://pawlife.app/privacy via expo-web-browser
+                                             └─ Pressable, opens https://bemy.app/privacy via expo-web-browser
 ```
 
 ---
@@ -316,15 +316,15 @@ Dependencies are real. Mis-ordering causes either silent data loss or runtime er
 
 The user (Jack) needs to do these before integration testing can begin. None require code changes.
 
-- [ ] **PostHog account.** Sign up at `https://eu.posthog.com` (EU region, confirm during signup). Create a project named `pawlife-mobile`. Capture the Project API Key (`phc_...`).
+- [ ] **PostHog account.** Sign up at `https://eu.posthog.com` (EU region, confirm during signup). Create a project named `bemy-mobile`. Capture the Project API Key (`phc_...`).
 - [ ] **PostHog project settings:**
   - Region: EU (irreversible — confirm before clicking).
   - Session recording: **OFF** (Settings → Project → Recordings).
   - Person profile mode: "Identified persons only" (cuts cost, matches our anonymous-until-signup model).
   - Autocapture: **OFF** for RN (autocapture in PostHog RN SDK is opt-in; just don't enable).
   - Data retention: default (1 year for events, fine).
-- [ ] **healthchecks.io account.** Free tier. Create one check named `pawlife-send-reminders`. Schedule: hourly, grace period 30 minutes. Capture the ping URL (`https://hc-ping.com/<uuid>`). Add an email alert recipient (`jacksangdinh@gmail.com`).
-- [ ] **Privacy policy hosting.** Decide: GitHub Pages on a new `pawlife-legal` repo, or a Vercel deploy of `docs/privacy-policy.md`. Whichever — the URL must be live before code lands. Capture the final URL (target: `https://pawlife.app/privacy`).
+- [ ] **healthchecks.io account.** Free tier. Create one check named `bemy-send-reminders`. Schedule: hourly, grace period 30 minutes. Capture the ping URL (`https://hc-ping.com/<uuid>`). Add an email alert recipient (`jacksangdinh@gmail.com`).
+- [ ] **Privacy policy hosting.** Decide: GitHub Pages on a new `bemy-legal` repo, or a Vercel deploy of `docs/privacy-policy.md`. Whichever — the URL must be live before code lands. Capture the final URL (target: `https://bemy.app/privacy`).
 - [ ] **EAS secrets:** `eas secret:create --name EXPO_PUBLIC_POSTHOG_KEY --value phc_...`. Repeat for `EXPO_PUBLIC_POSTHOG_HOST` (not strictly secret but kept consistent).
 - [ ] **Supabase secrets:** `supabase secrets set POSTHOG_KEY=phc_... POSTHOG_HOST=... HEALTHCHECKS_PING_URL=... OBSERVABILITY_ENV=production`.
 - [ ] **App Store Connect privacy labels:** complete the form using the table in §7. This is a one-time manual entry per app version unless the data practices change.
@@ -349,7 +349,7 @@ The user (Jack) needs to do these before integration testing can begin. None req
 ## 12. Open questions for the reviewer / user
 
 1. **Identify timing.** Plan currently says: identify on `signUp` and `signIn` success. Alternative: identify *only* on `signIn` and let `signUp` flow through to the next `signIn` (Supabase email-confirmation flow currently throws after signup pending email confirmation, so `signUp` may not always have a session). Recommendation: identify on whatever returns a session, never on the bare signUp call. Confirm.
-2. **Privacy policy hosting.** GitHub Pages on a new public `pawlife-legal` repo, or piggyback on an existing domain? The decision affects the URL we ship in the App Store metadata and the privacy policy file itself, so it must be locked before submission. Recommendation: GitHub Pages, custom domain `pawlife.app/privacy` if owned, otherwise `<gh-user>.github.io/pawlife-legal`.
+2. **Privacy policy hosting.** GitHub Pages on a new public `bemy-legal` repo, or piggyback on an existing domain? The decision affects the URL we ship in the App Store metadata and the privacy policy file itself, so it must be locked before submission. Recommendation: GitHub Pages, custom domain `bemy.app/privacy` if owned, otherwise `<gh-user>.github.io/bemy-legal`.
 3. **Edge Function PostHog SDK choice.** `npm:posthog-node` via Deno's npm specifier is the documented path but is less battle-tested than the raw `fetch`-to-`/capture/` approach. Recommendation: try `npm:posthog-node` first; if the implementation agent hits any flush/shutdown issue, fall back to raw `fetch` (it's a 30-line implementation). Confirm OK to make this call inside the implementation PR rather than re-review here.
 4. **Explicit consent checkbox at sign-up.** Plan ships with footer-only ("By creating an account..."). An explicit checkbox is more defensible for GDPR and harder for App Store review to push back on, at the cost of one more tap. Recommendation: footer only for v1, checkbox in v1.1 if anyone complains. Confirm acceptable.
 

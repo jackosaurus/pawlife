@@ -1,4 +1,4 @@
-# Pawlife v1 — Account Deletion Plan: Adversarial Review
+# Bemy v1 — Account Deletion Plan: Adversarial Review
 
 **Reviewer:** independent senior staff engineer (no involvement in authoring).
 **Plan reviewed:** `docs/pawlife-v1-account-deletion-plan.md` (commit on `main`, 2026-04-27).

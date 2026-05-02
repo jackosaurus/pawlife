@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Pawlife is a mobile app (iOS + Android) for tracking pet health, food, and care. Built with React Native (Expo) and Supabase. Currently building the MVP for personal use.
+Bemy is a mobile app (iOS + Android) for tracking pet health, food, and care. Built with React Native (Expo) and Supabase. Currently building the MVP for personal use.
 
 ## Tech Stack
 

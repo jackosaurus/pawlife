@@ -154,7 +154,7 @@ describe('SettingsScreen (slimmed)', () => {
 
   it('renders app version footer', () => {
     const { getByText } = render(<SettingsScreen />);
-    expect(getByText('Pawlife v1.0.0')).toBeTruthy();
+    expect(getByText('Bemy v1.0.0')).toBeTruthy();
   });
 
   describe('Delete Account', () => {

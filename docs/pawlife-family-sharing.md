@@ -1,4 +1,4 @@
-# Pawlife — Family Sharing Feature
+# Bemy — Family Sharing Feature
 
 ## Overview
 
@@ -412,7 +412,7 @@ App calls familyService.createInvite(familyId)
        ▼
 App shows the code prominently with a "Share" button
   → Native Share API opens (iMessage, WhatsApp, etc.)
-  → Share text: "Join my pet family on Pawlife! Use code: PAW-3KX"
+  → Share text: "Join my pet family on Bemy! Use code: PAW-3KX"
        │
        ▼
 Admin can also see the active code in the family settings card
@@ -905,7 +905,7 @@ $$ language plpgsql security definer;
 - **Transfer admin ownership** — let admin promote a member to admin
 - **Activity feed** — "Sarah logged Buddy's medication 5m ago"
 - **Per-pet permissions** — member can only see certain pets (not needed for families)
-- **Deep link invites** — `pawlife://invite/PAW-3KX` for one-tap join
+- **Deep link invites** — `bemy://invite/PAW-3KX` for one-tap join
 - **Temporary access / pet sitter view** — different model, read-only, time-limited
 - **Multiple families** — one user in several families (shared custody scenarios)
 - **Member avatars/display names** — currently using email, could add profile names

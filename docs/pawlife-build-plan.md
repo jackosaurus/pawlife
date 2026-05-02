@@ -1,4 +1,4 @@
-# Pawlife — MVP Build Plan
+# Bemy — MVP Build Plan
 
 ## Overview
 

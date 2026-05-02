@@ -1,4 +1,4 @@
-# Pawlife — Tech Stack
+# Bemy — Tech Stack
 
 ## Overview
 
@@ -213,7 +213,7 @@ food_entries
 ## Project Structure
 
 ```
-pawlife/
+bemy/
 ├── app/                          # Expo Router file-based routes
 │   ├── (auth)/                   # Auth group (no layout chrome)
 │   │   ├── welcome.tsx

@@ -124,7 +124,7 @@ export default function DashboardScreen() {
               resizeMode="contain"
             />
             <Text className="text-title font-semibold text-text-primary mb-2 mt-4">
-              Welcome to Pawlife!
+              Welcome to Bemy!
             </Text>
             <Text className="text-body text-text-secondary text-center mb-8">
               Let's meet your pet family.

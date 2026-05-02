@@ -53,8 +53,8 @@ Must be added before implementation:
 
 1. **`components/ErrorBoundary.tsx`** + test. Plan references it but doesn't list it as a net-new file.
 2. **`AppState` listener** for `flush()` on background, OR explicit decision to not flush. Document.
-3. **App version + build number tagging on every event.** §3 mentions `getRelease()` returning `pawlife@<version>+<buildNumber>` but never says where it's attached. The wrapper should set it as a super-property on init via `register()` so every event carries it. Without this, the user cannot answer "did this regression appear in 1.0.2?" — which is the entire point of release tracking.
-4. **Distinct ID merging on signup.** PostHog v3 changed the alias behavior: anonymous user → identified user requires `posthog.alias()` *before* `identify()` to preserve the pre-signup funnel. The plan doesn't address this. For Pawlife specifically the funnel is short (welcome → sign-up → first pet), but if you ever want to measure "what % of welcome-screen visitors complete sign-up," you need alias on signup. **Add to `analyticsService.identify`:** if there's a current anon distinct ID, call `alias(userId, anonId)` before `identify(userId)`.
+3. **App version + build number tagging on every event.** §3 mentions `getRelease()` returning `bemy@<version>+<buildNumber>` but never says where it's attached. The wrapper should set it as a super-property on init via `register()` so every event carries it. Without this, the user cannot answer "did this regression appear in 1.0.2?" — which is the entire point of release tracking.
+4. **Distinct ID merging on signup.** PostHog v3 changed the alias behavior: anonymous user → identified user requires `posthog.alias()` *before* `identify()` to preserve the pre-signup funnel. The plan doesn't address this. For Bemy specifically the funnel is short (welcome → sign-up → first pet), but if you ever want to measure "what % of welcome-screen visitors complete sign-up," you need alias on signup. **Add to `analyticsService.identify`:** if there's a current anon distinct ID, call `alias(userId, anonId)` before `identify(userId)`.
 5. **Sign-up funnel events.** Plan tracks `auth_signed_up` (post-success) but not `auth_signup_started` or `auth_signup_failed`. Without these you cannot measure the funnel. Cheap to add.
 6. **Network-vs-app error distinction.** A failed Supabase fetch should not register as a `$exception`. Either filter at capture time (`captureException` checks `err.message` for known network strings) or tag with `error_kind: 'network' | 'app'` so the dashboard can filter. Today the wrapper has no such filter, meaning offline users will spam exceptions.
 7. **Test for re-entrancy guard.** §11 says the wrapper sets a "re-entrancy flag" — that's not in §3's API or §8's tests. Either add the implementation + test or drop the claim.
@@ -78,7 +78,7 @@ Must be added before implementation:
 
 1. **Identify timing.** Author's recommendation is correct: identify only when there is a session. `authService.signUp` (services/authService.ts:7-12) explicitly throws when `data.session` is null (email confirmation flow), so `signUp` only returns successfully when there IS a session — meaning identifying on both `signUp` AND `signIn` is safe. **Stance: do both, keep the plan as written.** No change needed.
 
-2. **Privacy policy hosting.** GitHub Pages is fine. **Stance: use `<gh-user>.github.io/pawlife-legal` UNLESS the user owns `pawlife.app` already and can configure DNS today.** A custom domain that isn't live by submission day is a worse outcome than a GitHub-subdomain URL that is. Pin the URL before code lands, full stop.
+2. **Privacy policy hosting.** GitHub Pages is fine. **Stance: use `<gh-user>.github.io/bemy-legal` UNLESS the user owns `bemy.app` already and can configure DNS today.** A custom domain that isn't live by submission day is a worse outcome than a GitHub-subdomain URL that is. Pin the URL before code lands, full stop.
 
 3. **Edge Function SDK choice.** **Stance: use raw `fetch`. Skip `npm:posthog-node` entirely.** Reasoning above (§2 #5). The "try first, fall back" framing is wrong — the fallback is the better default for a serverless cron.
 
@@ -88,7 +88,7 @@ Must be added before implementation:
 
 ## 7. Net new open questions
 
-1. **What's the deploy story for the privacy policy if the user doesn't own `pawlife.app`?** Plan says "host on GitHub Pages" but `pawlife.app/privacy` shows up in §7 as the URL — these are inconsistent. Lock the URL before code lands.
+1. **What's the deploy story for the privacy policy if the user doesn't own `bemy.app`?** Plan says "host on GitHub Pages" but `bemy.app/privacy` shows up in §7 as the URL — these are inconsistent. Lock the URL before code lands.
 2. **Should the wrapper add a 2-second timeout on `init()`?** PostHog SDK init issues a network request to fetch feature flags. If the request hangs, does the SDK block the JS thread? Verify at install. If yes, wrap in `Promise.race` with a 2s timeout.
 3. **Does the user want the implementation agent to commission its own DB review?** No DB migration in this plan, so rules 6+7 don't apply — but explicitly call that out in the implementation brief so the agent doesn't waste cycles spawning a DB reviewer.
 4. **Hidden dependency on the account-deletion thread:** none material. The plan correctly scopes it out. The only crossover is that the privacy policy mentions "deletion via in-app account deletion" — if that feature isn't shipped before the privacy URL goes live, the policy is making a promise the app can't keep. **Surface this:** account deletion must ship in the same App Store submission as PostHog, OR the privacy policy text must say "deletion via email request" until the in-app flow ships.
@@ -106,7 +106,7 @@ Must be added before implementation:
 - Adds release tagging via `register()` on init.
 - Adds `auth_signup_started` / `auth_signup_failed` events.
 - Adds the alias-on-identify behavior + test.
-- Resolves the `pawlife.app` vs GitHub Pages URL inconsistency.
+- Resolves the `bemy.app` vs GitHub Pages URL inconsistency.
 - Adds the explicit consent checkbox at sign-up.
 - Drops `addBreadcrumb` from the wrapper or commits to using it in 3+ places.
 

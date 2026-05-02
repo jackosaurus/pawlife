@@ -1,4 +1,4 @@
-# Pawlife — Product Roadmap
+# Bemy — Product Roadmap
 
 ## Product Vision
 
@@ -8,9 +8,9 @@
 
 **Core insight:** Pet owners accumulate a surprising amount of important information over a pet's life — vaccination records, medication schedules, dietary changes, weight history, vet visits, behavioral notes — and none of it has a natural home. It ends up split across paper files, email attachments, camera rolls, and memory. When you need it (at the vet, at a boarding facility, when something seems off), it's never at hand.
 
-**What Pawlife is:** A single, beautiful profile for each member of your pet family that captures their health, diet, and milestones — and actively helps you stay on top of their care.
+**What Bemy is:** A single, beautiful profile for each member of your pet family that captures their health, diet, and milestones — and actively helps you stay on top of their care.
 
-**What Pawlife is not:** A social network. A vet telehealth platform. A pet store. It's a personal tool first.
+**What Bemy is not:** A social network. A vet telehealth platform. A pet store. It's a personal tool first.
 
 ---
 
@@ -120,7 +120,7 @@ Features that add significant value but require more engineering effort or intro
 
 ## Phase 4 — Platform & Monetization
 
-Features that expand Pawlife from a personal tool into a platform.
+Features that expand Bemy from a personal tool into a platform.
 
 | # | Feature | Rationale |
 |---|---------|-----------|

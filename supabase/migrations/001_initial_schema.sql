@@ -1,4 +1,4 @@
--- Pawlife Initial Schema Migration
+-- Bemy Initial Schema Migration
 -- Run this in the Supabase SQL editor after creating your project
 
 -- ============================================
