@@ -25,10 +25,11 @@ export const TextInput = React.forwardRef<RNTextInput, TextInputProps>(
         ? Colors.primary
         : Colors.border;
 
-    // Visible focus state — 2px border in brand purple when focused, 1px in
-    // warm gray otherwise. Matches the auth-screen redesign brief and the
-    // existing input convention used across record forms.
-    const borderWidth = focused ? 2 : 1;
+    // Visible focus state — 2px border in brand purple when focused, 2px in
+    // coral when an inline error is present, 1px in warm gray otherwise.
+    // Matches the auth-flow designer spec (§5/§6) so an errored field reads
+    // as "weighted" not "subtly outlined".
+    const borderWidth = focused || !!error ? 2 : 1;
 
     return (
       <View className="mb-4">

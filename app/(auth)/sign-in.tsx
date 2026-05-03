@@ -1,184 +1,22 @@
-import { useState } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  Dimensions,
-  Pressable,
-  Alert,
-} from 'react-native';
-import { Link } from 'expo-router';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { signInSchema, SignInFormData } from '@/types/auth';
-import { useAuthStore } from '@/stores/authStore';
-import { Screen } from '@/components/ui/Screen';
-import { TextInput } from '@/components/ui/TextInput';
-import { Button } from '@/components/ui/Button';
-import { Colors } from '@/constants/colors';
-import { DisplayFontFamily } from '@/constants/typography';
+import { useEffect } from 'react';
+import { View } from 'react-native';
+import { useRouter } from 'expo-router';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-// Smaller hero on sign-in: ~20% of the screen.
-const HERO_HEIGHT = Math.round(SCREEN_HEIGHT * 0.2);
-
+/**
+ * Deprecated route. Auth lives in the bottom sheet on the welcome screen
+ * (per `docs/bemy-auth-flow-decision.md` §3 — Option B). This stub redirects
+ * any deep links / stale navigation history straight to welcome so we don't
+ * 404 on, e.g., a password-reset email link a user opens after we ship.
+ *
+ * The sheet's default tab is contextual to which welcome CTA the user taps,
+ * so we don't auto-open it here — the user lands on welcome and chooses.
+ */
 export default function SignInScreen() {
-  const { signIn, resetPassword, loading, error, clearError } = useAuthStore();
-  const [resetSent, setResetSent] = useState(false);
-  const {
-    control,
-    handleSubmit,
-    getValues,
-    formState: { errors },
-  } = useForm<SignInFormData>({
-    resolver: zodResolver(signInSchema),
-    defaultValues: { email: '', password: '' },
-  });
+  const router = useRouter();
 
-  // Hook for surfacing the cached "last user's name" in a future PR. Today
-  // we always render the generic copy; the founder's caching mechanism will
-  // hydrate `cachedDisplayName` on app boot.
-  const cachedDisplayName: string | null = null;
-  const headline = cachedDisplayName
-    ? `Welcome back, ${cachedDisplayName}`
-    : 'Welcome back';
+  useEffect(() => {
+    router.replace('/(auth)/welcome');
+  }, [router]);
 
-  const onSubmit = async (data: SignInFormData) => {
-    clearError();
-    await signIn(data.email, data.password);
-  };
-
-  const onForgotPassword = async () => {
-    clearError();
-    const email = getValues('email').trim();
-    if (!email) {
-      Alert.alert(
-        'Enter your email',
-        'Type the email you signed up with above, then tap "Forgot password?" again.',
-      );
-      return;
-    }
-    try {
-      await resetPassword(email);
-      setResetSent(true);
-      Alert.alert(
-        'Check your inbox',
-        `We've sent a password reset link to ${email}.`,
-      );
-    } catch {
-      // Error already surfaced via authStore.error; no-op here.
-    }
-  };
-
-  return (
-    <Screen scroll>
-      <Image
-        testID="signin-hero"
-        accessibilityLabel="Bemy hero illustration"
-        source={require('../../assets/images/welcome-hero.png')}
-        style={{
-          height: HERO_HEIGHT,
-          width: '100%',
-        }}
-        resizeMode="cover"
-      />
-
-      <View className="flex-1 px-8 pt-8">
-        <Text
-          style={{
-            fontFamily: DisplayFontFamily.bold,
-            fontSize: 32,
-            lineHeight: 38,
-            color: Colors.textPrimary,
-            marginBottom: 8,
-          }}
-        >
-          {headline}
-        </Text>
-        <Text className="text-body text-text-secondary mb-8">
-          Sign in to continue.
-        </Text>
-
-        {error && (
-          <View className="bg-status-overdue/10 rounded-xl px-4 py-3 mb-4">
-            <Text className="text-status-overdue text-footnote">{error}</Text>
-          </View>
-        )}
-
-        {resetSent && !error && (
-          <View
-            testID="reset-sent-banner"
-            className="bg-status-green/10 rounded-xl px-4 py-3 mb-4"
-          >
-            <Text className="text-status-green text-footnote">
-              Password reset link sent. Check your inbox.
-            </Text>
-          </View>
-        )}
-
-        <Controller
-          control={control}
-          name="email"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label="Email"
-              placeholder="you@example.com"
-              keyboardType="email-address"
-              onChangeText={onChange}
-              onBlur={onBlur}
-              value={value}
-              error={errors.email?.message}
-            />
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="password"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label="Password"
-              placeholder="Enter your password"
-              secureTextEntry
-              onChangeText={onChange}
-              onBlur={onBlur}
-              value={value}
-              error={errors.password?.message}
-            />
-          )}
-        />
-
-        <View className="items-end -mt-2 mb-4">
-          <Pressable
-            onPress={onForgotPassword}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            testID="forgot-password-link"
-            accessibilityRole="button"
-            accessibilityLabel="Forgot password?"
-          >
-            <Text className="text-primary text-footnote font-medium">
-              Forgot password?
-            </Text>
-          </Pressable>
-        </View>
-
-        <View className="mt-2">
-          <Button
-            title="Sign in"
-            onPress={handleSubmit(onSubmit)}
-            loading={loading}
-            variant="brandYellow"
-          />
-        </View>
-
-        <View className="items-center mt-6">
-          <Link href="/(auth)/sign-up">
-            <Text className="text-primary text-callout font-medium">
-              Don&apos;t have an account? Get started
-            </Text>
-          </Link>
-        </View>
-      </View>
-    </Screen>
-  );
+  return <View testID="signin-redirect" className="flex-1 bg-background" />;
 }

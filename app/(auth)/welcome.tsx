@@ -1,6 +1,7 @@
-import { View, Text, Image, Dimensions } from 'react-native';
-import { Link, useRouter } from 'expo-router';
+import { useRef } from 'react';
+import { View, Text, Image, Dimensions, Pressable } from 'react-native';
 import { Button } from '@/components/ui/Button';
+import { AuthSheet, AuthSheetHandle } from '@/components/auth/AuthSheet';
 import { Colors } from '@/constants/colors';
 import { DisplayFontFamily } from '@/constants/typography';
 
@@ -9,7 +10,10 @@ const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const HERO_HEIGHT = Math.round(SCREEN_HEIGHT * 0.4);
 
 export default function WelcomeScreen() {
-  const router = useRouter();
+  const sheetRef = useRef<AuthSheetHandle>(null);
+
+  const openSignUp = () => sheetRef.current?.open('signup');
+  const openSignIn = () => sheetRef.current?.open('signin');
 
   return (
     <View className="flex-1 bg-background">
@@ -20,12 +24,17 @@ export default function WelcomeScreen() {
         style={{
           height: HERO_HEIGHT,
           width: '100%',
+          // Locked by designer doc §3 / §TL;DR: `contain` with the cream
+          // background hides letterboxing because the source asset already
+          // sits on `#FFF8E7`.
+          backgroundColor: Colors.background,
         }}
-        resizeMode="cover"
+        resizeMode="contain"
       />
 
       <View className="flex-1 px-8 pt-10 items-center">
         <Text
+          accessibilityRole="header"
           style={{
             fontFamily: DisplayFontFamily.bold,
             fontSize: 44,
@@ -43,17 +52,25 @@ export default function WelcomeScreen() {
         <View className="w-full mb-5">
           <Button
             title="Get Started"
-            onPress={() => router.push('/(auth)/sign-up')}
+            onPress={openSignUp}
             variant="brandYellow"
           />
         </View>
 
-        <Link href="/(auth)/sign-in">
+        <Pressable
+          onPress={openSignIn}
+          testID="welcome-signin-link"
+          accessibilityRole="button"
+          accessibilityLabel="I already have an account"
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
           <Text className="text-primary text-callout font-medium">
             I already have an account
           </Text>
-        </Link>
+        </Pressable>
       </View>
+
+      <AuthSheet ref={sheetRef} />
     </View>
   );
 }
