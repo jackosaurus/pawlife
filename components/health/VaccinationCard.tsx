@@ -148,11 +148,11 @@ export function VaccinationCard({
             <Pressable
               onPress={() => onLog!()}
               disabled={logLoading}
-              hitSlop={8}
+              hitSlop={12}
               testID="log-button"
               accessibilityRole="button"
               accessibilityLabel="Log vaccination"
-              className="mt-2 px-4 py-2.5 rounded-full"
+              className="mt-1 px-3 py-1 rounded-full"
               style={{ backgroundColor: `${Colors.primary}1A` }}
             >
               {logLoading ? (

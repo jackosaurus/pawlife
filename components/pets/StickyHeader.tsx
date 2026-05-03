@@ -1,4 +1,5 @@
 import { View, Text, Pressable, ImageBackground } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Avatar } from '@/components/ui/Avatar';
 import { MetadataPill } from '@/components/pets/MetadataPill';
@@ -16,6 +17,7 @@ interface StickyHeaderProps {
 }
 
 export function StickyHeader({ pet, onBack, latestWeight }: StickyHeaderProps) {
+  const insets = useSafeAreaInsets();
   // Pets with a precise date_of_birth get the smart AgePill (default /
   // birthday / savor / puppy). Pets recorded only with an approximate age
   // in months fall back to the legacy static MetadataPill — there's no
@@ -31,12 +33,15 @@ export function StickyHeader({ pet, onBack, latestWeight }: StickyHeaderProps) {
     <ImageBackground
       source={headerBg}
       resizeMode="cover"
-      // Default cover positioning. Earlier translateY: 30 shift exposed an
-      // empty band at the top of the header (RN's ImageBackground+transform
-      // composition on this RN version doesn't extend the image to fill the
-      // shifted area). If we want the visible band higher in the source,
-      // the cleaner path is to pre-crop the asset rather than transform it.
-      className="px-6 pt-4 pb-6"
+      // Extend the textured bg UP under the safe area / status bar by
+      // stretching the header above its container. The pet detail Screen
+      // wraps with `edges=['top','left','right']` so it pads above us; we
+      // reach up over that padding with a negative top margin equal to the
+      // top safe inset, then add the inset back as paddingTop so content
+      // still clears the status bar. Closes the cream-yellow gap reported
+      // May 3 2026.
+      style={{ marginTop: -insets.top, paddingTop: insets.top + 16 }}
+      className="px-6 pb-6"
     >
       <View className="flex-row items-center justify-between mb-4">
         <Pressable onPress={onBack} hitSlop={8} testID="back-button">

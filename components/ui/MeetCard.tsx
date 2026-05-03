@@ -25,21 +25,14 @@ interface MeetCardProps {
   petType?: 'dog' | 'cat';
 }
 
-// Illustrations are 4:5 portrait (1122×1402 source). Rendered at 50% of
-// content width centered — half the previous size, with visible cream
-// gaps either side. Wrapped in a frame that carries a 3pt dustyPlum
-// outer border + a 2pt brandYellow inner band (same double-ring
-// treatment as the bordered Avatar on the pet detail screen, May 3
-// 2026). The Image inside fills the frame's content area at a slightly
-// smaller borderRadius so the inner curve nests cleanly within the
-// outer curve.
+// Illustrations are 4:5 portrait (1122×1402 source). Rendered at 65% of
+// content width centered — 30% larger than the previous 50%, no border
+// frame (founder ask May 3 2026: "remove the borders, looks weird").
+// Plain rounded-corner image; the illustration's own watercolor cream
+// background blends with the page bg.
 const PHOTO_ASPECT_RATIO = 4 / 5;
-const PHOTO_WIDTH_FRACTION = '50%' as const;
-const FRAME_BORDER_RADIUS = 16;
-const FRAME_BORDER_WIDTH = 3;
-const FRAME_INNER_BAND = 2;
-const INNER_IMAGE_BORDER_RADIUS =
-  FRAME_BORDER_RADIUS - FRAME_BORDER_WIDTH - FRAME_INNER_BAND;
+const PHOTO_WIDTH_FRACTION = '65%' as const;
+const PHOTO_BORDER_RADIUS = 16;
 
 /**
  * "Beau" / "Remy" Meet card layout — heading first, then subtitle, then a
@@ -66,74 +59,46 @@ export function MeetCard({ name, subtitle, body, photoUri }: MeetCardProps) {
         {subtitle}
       </Text>
 
-      {/* Illustration sits below the heading, centered, sized to fit on
-          screen alongside the body copy. Wrapped in a double-ring frame
-          (light purple outer, light yellow inner). */}
+      {/* Illustration sits below the heading, centered, no border frame. */}
       {photoUri !== undefined ? (
-        <View
+        <Image
+          source={photoUri}
+          accessibilityLabel={`Illustration of ${name}`}
           style={{
             width: PHOTO_WIDTH_FRACTION,
             aspectRatio: PHOTO_ASPECT_RATIO,
+            borderRadius: PHOTO_BORDER_RADIUS,
             alignSelf: 'center',
             marginTop: 16,
-            borderRadius: FRAME_BORDER_RADIUS,
-            borderWidth: FRAME_BORDER_WIDTH,
-            borderColor: Colors.dustyPlum,
-            backgroundColor: Colors.brandYellow,
-            padding: FRAME_INNER_BAND,
           }}
-          testID={`meet-card-photo-frame-${name.toLowerCase()}`}
-        >
-          <Image
-            source={photoUri}
-            accessibilityLabel={`Illustration of ${name}`}
-            style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: INNER_IMAGE_BORDER_RADIUS,
-            }}
-            resizeMode="cover"
-            testID={`meet-card-photo-${name.toLowerCase()}`}
-          />
-        </View>
+          resizeMode="cover"
+          testID={`meet-card-photo-${name.toLowerCase()}`}
+        />
       ) : (
         <View
+          accessibilityLabel={`Placeholder illustration of ${name}`}
           style={{
             width: PHOTO_WIDTH_FRACTION,
             aspectRatio: PHOTO_ASPECT_RATIO,
+            borderRadius: PHOTO_BORDER_RADIUS,
             alignSelf: 'center',
             marginTop: 16,
-            borderRadius: FRAME_BORDER_RADIUS,
-            borderWidth: FRAME_BORDER_WIDTH,
-            borderColor: Colors.dustyPlum,
-            backgroundColor: Colors.brandYellow,
-            padding: FRAME_INNER_BAND,
+            backgroundColor: Colors.dustyPlum,
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
-          testID={`meet-card-photo-frame-${name.toLowerCase()}`}
+          testID={`meet-card-photo-fallback-${name.toLowerCase()}`}
         >
-          <View
-            accessibilityLabel={`Placeholder illustration of ${name}`}
+          <Text
             style={{
-              width: '100%',
-              height: '100%',
-              borderRadius: INNER_IMAGE_BORDER_RADIUS,
-              backgroundColor: Colors.dustyPlum,
-              alignItems: 'center',
-              justifyContent: 'center',
+              fontFamily: DisplayFontFamily.bold,
+              fontSize: 80,
+              lineHeight: 88,
+              color: '#FFFFFF',
             }}
-            testID={`meet-card-photo-fallback-${name.toLowerCase()}`}
           >
-            <Text
-              style={{
-                fontFamily: DisplayFontFamily.bold,
-                fontSize: 64,
-                lineHeight: 72,
-                color: '#FFFFFF',
-              }}
-            >
-              {name.charAt(0).toUpperCase()}
-            </Text>
-          </View>
+            {name.charAt(0).toUpperCase()}
+          </Text>
         </View>
       )}
 
