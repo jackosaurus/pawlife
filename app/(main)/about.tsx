@@ -5,7 +5,6 @@ import * as Haptics from 'expo-haptics';
 import { Screen } from '@/components/ui/Screen';
 import { Button } from '@/components/ui/Button';
 import { MeetCard } from '@/components/ui/MeetCard';
-import { PullQuote } from '@/components/ui/PullQuote';
 import { Colors } from '@/constants/colors';
 import { DisplayFontFamily } from '@/constants/typography';
 
@@ -107,10 +106,6 @@ export default function AboutScreen() {
           looking like one of them, so I gave up and named it after both.
         </Text>
 
-        <PullQuote accessibilityLabel="Bemy equals Beau plus Remy">
-          Bemy = Beau + Remy
-        </PullQuote>
-
         {/* 4. Meet Beau, founder-supplied full-body photo. */}
         <View className="mt-10">
           <MeetCard
@@ -193,9 +188,12 @@ export default function AboutScreen() {
         <Text className="text-body text-text-primary mt-3">
           A handful of friends with their own dogs and cats started using
           early versions, and a lot of what&apos;s in the app now exists
-          because they asked for it. The vaccination reminders, the food
-          change history, the gentler language around archiving a pet, those
-          came from real people telling me what they actually needed.
+          because they asked for it. Bev wanted somewhere to keep her
+          dog&apos;s allergies. Anya asked if I could add microchip numbers.
+          Other friends nudged me toward insurance details, medications, and
+          vaccination reminders. The food change history and the gentler
+          language around archiving a pet came from real people telling me
+          what they actually needed too.
         </Text>
 
         {/* 7. What Bemy is, and isn't */}

@@ -37,14 +37,13 @@ describe('WelcomeScreen', () => {
     expect(getByText('A digital home for your pet family.')).toBeTruthy();
   });
 
-  it('renders the hero illustration with contain mode + cream background', () => {
+  it('renders the hero illustration with cover mode (no left/right gaps)', () => {
+    // Switched from `contain` to `cover` on May 3 2026 — `contain` left
+    // visible cream gaps on either side of the illustration on phones
+    // where screen width exceeded the hero's bound height.
     const { getByTestId } = render(<WelcomeScreen />);
     const hero = getByTestId('welcome-hero');
-    expect(hero.props.resizeMode).toBe('contain');
-    const style = Array.isArray(hero.props.style)
-      ? Object.assign({}, ...hero.props.style)
-      : hero.props.style;
-    expect(style.backgroundColor).toBe(Colors.background);
+    expect(hero.props.resizeMode).toBe('cover');
   });
 
   it('opens the auth sheet on the sign-up tab when "Get Started" is tapped', () => {

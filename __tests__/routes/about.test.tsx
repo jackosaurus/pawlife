@@ -59,8 +59,6 @@ describe('AboutScreen', () => {
     // §5 Remy
     expect(getByText('Remy')).toBeTruthy();
     expect(getByText('Bordoodle × poodle · 6 years')).toBeTruthy();
-    // Pull-quote (now lives inside Origins of Bemy)
-    expect(getByText('Bemy = Beau + Remy')).toBeTruthy();
     // §6 Why I built it
     expect(getByText('Why I built it')).toBeTruthy();
     // §7 What Bemy is, and isn't
@@ -91,12 +89,6 @@ describe('AboutScreen', () => {
     const { getByTestId } = render(<AboutScreen />);
     expect(getByTestId('meet-card-remy')).toBeTruthy();
     expect(getByTestId('meet-card-photo-remy')).toBeTruthy();
-  });
-
-  it('renders the pull-quote primitive inside the Origins section', () => {
-    const { getByTestId, getByText } = render(<AboutScreen />);
-    expect(getByTestId('pull-quote')).toBeTruthy();
-    expect(getByText('Bemy = Beau + Remy')).toBeTruthy();
   });
 
   it('does not render the cheesy footer line', () => {

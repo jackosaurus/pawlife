@@ -70,14 +70,23 @@ describe('MeetCard', () => {
     expect(getByText('B')).toBeTruthy();
     expect(queryByTestId('meet-card-photo-beau')).toBeNull();
 
+    // Fallback is now wrapped in the same double-ring frame as the
+    // photo path. The frame carries the dimensions + outer ring; the
+    // inner View is the dustyPlum disc with the initial.
+    const frameStyle = flattenStyle(
+      getByTestId('meet-card-photo-frame-beau').props.style,
+    );
+    expect(frameStyle.width).toBe('50%');
+    expect(frameStyle.aspectRatio).toBe(4 / 5);
+    expect(frameStyle.borderRadius).toBe(16);
+    expect(frameStyle.borderWidth).toBe(3);
+    expect(frameStyle.borderColor).toBe(Colors.dustyPlum);
+
     const fallbackStyle = flattenStyle(
       getByTestId('meet-card-photo-fallback-beau').props.style,
     );
     expect(fallbackStyle.backgroundColor).toBe(Colors.dustyPlum);
-    expect(fallbackStyle.aspectRatio).toBe(4 / 5);
-    expect(fallbackStyle.width).toBe('100%');
-    // Subtle 8pt rounded corner — no circle.
-    expect(fallbackStyle.borderRadius).toBe(8);
+    expect(fallbackStyle.borderRadius).toBe(11); // 16 − 3 − 2
   });
 
   it('renders the local image at full content width with no border or shadow', () => {
@@ -95,23 +104,33 @@ describe('MeetCard', () => {
     // No fallback placeholder when a photo is present.
     expect(queryByTestId('meet-card-photo-fallback-remy')).toBeNull();
 
-    const photoStyle = flattenStyle(
+    // Frame holds the dimensions + double-ring border treatment.
+    const frameStyle = flattenStyle(
+      getByTestId('meet-card-photo-frame-remy').props.style,
+    );
+    expect(frameStyle.width).toBe('50%');
+    expect(frameStyle.aspectRatio).toBe(4 / 5);
+    expect(frameStyle.alignSelf).toBe('center');
+    expect(frameStyle.borderRadius).toBe(16);
+    // Outer ring: 3pt dustyPlum (light purple).
+    expect(frameStyle.borderWidth).toBe(3);
+    expect(frameStyle.borderColor).toBe(Colors.dustyPlum);
+    // Inner band: 2pt brandYellow shows through padding gap.
+    expect(frameStyle.padding).toBe(2);
+    expect(frameStyle.backgroundColor).toBe(Colors.brandYellow);
+    // No shadow / elevation — clean cameo treatment.
+    expect(frameStyle.shadowColor).toBeUndefined();
+    expect(frameStyle.shadowOpacity).toBeUndefined();
+    expect(frameStyle.shadowRadius).toBeUndefined();
+    expect(frameStyle.elevation).toBeUndefined();
+
+    // Inner image fills the frame's content area at a slightly smaller radius.
+    const imageStyle = flattenStyle(
       getByTestId('meet-card-photo-remy').props.style,
     );
-    // 75% of content width, centered (alignSelf), 4:5 aspect.
-    expect(photoStyle.width).toBe('75%');
-    expect(photoStyle.aspectRatio).toBe(4 / 5);
-    expect(photoStyle.alignSelf).toBe('center');
-    // 16pt rounded corners — founder ask May 3 2026.
-    expect(photoStyle.borderRadius).toBe(16);
-    // Critically: no border, no shadow, no elevation. Founder feedback locks
-    // the illustration to a clean editorial treatment.
-    expect(photoStyle.borderWidth).toBeUndefined();
-    expect(photoStyle.borderColor).toBeUndefined();
-    expect(photoStyle.shadowColor).toBeUndefined();
-    expect(photoStyle.shadowOpacity).toBeUndefined();
-    expect(photoStyle.shadowRadius).toBeUndefined();
-    expect(photoStyle.elevation).toBeUndefined();
+    expect(imageStyle.width).toBe('100%');
+    expect(imageStyle.height).toBe('100%');
+    expect(imageStyle.borderRadius).toBe(11); // 16 − 3 − 2
   });
 
   it('exposes an illustration accessibilityLabel including the pet name', () => {

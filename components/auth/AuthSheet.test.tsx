@@ -72,9 +72,7 @@ describe('AuthSheet', () => {
     expect(getByTestId('auth-sheet-signup')).toBeTruthy();
     expect(getByText('Welcome to the family.')).toBeTruthy();
     expect(
-      getByText(
-        'Beau, Remy, and the rest of the pack are excited to meet yours.',
-      ),
+      getByText('Just an email and a password to get started.'),
     ).toBeTruthy();
   });
 
