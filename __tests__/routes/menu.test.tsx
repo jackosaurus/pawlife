@@ -86,12 +86,54 @@ describe('MenuScreen', () => {
     const { getByTestId, getByText } = render(<MenuScreen />);
     expect(getByTestId('menu-row-settings')).toBeTruthy();
     expect(getByTestId('menu-row-pet-family')).toBeTruthy();
+    expect(getByTestId('menu-row-about')).toBeTruthy();
     expect(getByTestId('menu-row-feedback')).toBeTruthy();
     expect(getByTestId('menu-row-signout')).toBeTruthy();
     expect(getByText('Settings')).toBeTruthy();
     expect(getByText('Pet Family')).toBeTruthy();
+    expect(getByText('About')).toBeTruthy();
     expect(getByText('Send Feedback')).toBeTruthy();
     expect(getByText('Sign Out')).toBeTruthy();
+  });
+
+  it('places the About row directly above Send Feedback (and below Pet Family)', () => {
+    const { toJSON } = render(<MenuScreen />);
+
+    // Walk the rendered JSON tree and collect the order of menu-row testIDs.
+    // Asserting About sits between Pet Family and Send Feedback in render
+    // order is the regression guard the design spec calls for.
+    const collected: string[] = [];
+    const visit = (node: unknown) => {
+      if (!node || typeof node !== 'object') return;
+      if (Array.isArray(node)) {
+        node.forEach(visit);
+        return;
+      }
+      const n = node as {
+        props?: { testID?: string };
+        children?: unknown;
+      };
+      const id = n.props?.testID;
+      if (typeof id === 'string' && id.startsWith('menu-row-')) {
+        collected.push(id);
+      }
+      if (n.children) visit(n.children);
+    };
+    visit(toJSON());
+
+    const petFamilyIdx = collected.indexOf('menu-row-pet-family');
+    const aboutIdx = collected.indexOf('menu-row-about');
+    const feedbackIdx = collected.indexOf('menu-row-feedback');
+
+    expect(petFamilyIdx).toBeGreaterThanOrEqual(0);
+    expect(aboutIdx).toBeGreaterThan(petFamilyIdx);
+    expect(feedbackIdx).toBeGreaterThan(aboutIdx);
+  });
+
+  it('navigates to about when About row pressed', () => {
+    const { getByTestId } = render(<MenuScreen />);
+    fireEvent.press(getByTestId('menu-row-about'));
+    expect(mockPush).toHaveBeenCalledWith('/(main)/about');
   });
 
   it('navigates to settings when Settings row pressed', () => {

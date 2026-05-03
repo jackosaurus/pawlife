@@ -40,7 +40,13 @@ export default function MenuScreen() {
     };
   }, [userId]);
 
-  const handleNavigate = (path: '/(main)/settings' | '/(main)/pet-family' | '/(main)/feedback') => {
+  const handleNavigate = (
+    path:
+      | '/(main)/settings'
+      | '/(main)/pet-family'
+      | '/(main)/about'
+      | '/(main)/feedback',
+  ) => {
     router.push(path);
   };
 
@@ -114,6 +120,12 @@ export default function MenuScreen() {
             icon="people-outline"
             onPress={() => handleNavigate('/(main)/pet-family')}
             testID="menu-row-pet-family"
+          />
+          <MenuRow
+            label="About"
+            icon="paw-outline"
+            onPress={() => handleNavigate('/(main)/about')}
+            testID="menu-row-about"
           />
           <MenuRow
             label="Send Feedback"
