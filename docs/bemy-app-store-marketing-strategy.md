@@ -184,15 +184,18 @@ Six channels, ranked by realistic ROI for a one-person op with an indie pet app 
 - **Effort:** 4/5. Launching well on Product Hunt is non-trivial — the prep work (gif, video, copy, hunter, response plan) is real. Schedule it carefully.
 - **Expected outcome:** PH top-5 of the day in the productivity / lifestyle category drives ~500–1,500 downloads in 24h. PH ranking decays fast; the durable benefit is two or three press / podcast / newsletter pickups in the following month.
 
-### Channel 5 — Instagram / TikTok organic — Beau and Remy as the content (slow burn, high effort)
+### Channel 5 — Instagram / TikTok organic — **PARKED (founder direction, May 3 2026)**
 
-- **What to do:**
-  1. Set up @bemy.app or similar (founder picks the handle that doesn't expose surname/city).
-  2. Format: short videos of Beau and Remy on walks, at the dog park, doing the things real dogs do. App appears as a quiet B-roll — "logging Beau's allergy shot," "checking when Remy's last weight check was." App is the supporting actor; the dogs are the lead. This is the inverse of how every other pet app does video.
-  3. Cadence: 2–3 posts per week, sustained for 6 months, before evaluating. **Anything less is not a channel; it's a graveyard.**
-- **Effort:** 5/5 (sustained), 4/5 (per post). Real content work, not a side task.
-- **Expected outcome:** Slow. Organic pet content compounds over 6–12 months; the first 90 days are nearly silent. **Only commit to this if the founder genuinely enjoys filming the dogs.** If it feels like a chore, kill it — the videos will look like a chore and won't convert.
-- **Honest note:** A single 30-second App Store preview video of Beau and Remy, used in the listing, is non-negotiable and high-leverage. The IG/TikTok account is optional and depends on founder appetite (open question #4).
+The founder has confirmed: **no social media at all.** No Instagram, no TikTok, no X, no Threads. The dogs are not going to be content creators.
+
+This is the right call for an indie app where the founder doesn't enjoy filming, and it's a durable decision (not a "v1 deferral"). Trying to build a social presence reluctantly is worse than not having one.
+
+**The one video asset that still ships:** the 30-second App Store preview clip of Beau and Remy is non-negotiable for the listing itself (covered in `docs/bemy-app-store-screenshots.md`). That's an in-listing asset that lives inside the App Store product page, not a sustained content channel.
+
+**What this changes elsewhere in the strategy:**
+
+- The 6-month download projection redistributes: removing Channel 5's 5–15% (which was conditional anyway) leans harder on Channels 1–4. ASO + Reddit + IH/PH + word-of-mouth absorb the gap.
+- "Anti-recommendations" gain a permanent entry: don't pivot to social media in v1.x just because growth feels slow.
 
 ### Channel 6 — Word of mouth via existing TestFlight friends (already happening, free)
 
@@ -213,12 +216,12 @@ Six channels, ranked by realistic ROI for a one-person op with an indie pet app 
 
 | Rank | Channel | Effort | Realistic 6-month contribution |
 |---|---|---|---|
-| 1 | App Store Search / ASO | 2/5 | 40–60% of total downloads |
-| 2 | Reddit organic (indie subs first, breed subs later) | 3/5 | 15–25% |
-| 3 | Indie Hackers + Product Hunt one-shot | 4/5 | 10–15% |
-| 4 | Word of mouth via TestFlight friends | 1/5 | 5–10% (but disproportionate review weight) |
+| 1 | App Store Search / ASO | 2/5 | 45–65% of total downloads |
+| 2 | Reddit organic (indie subs first, breed subs later) | 3/5 | 18–28% |
+| 3 | Indie Hackers + Product Hunt one-shot | 4/5 | 10–18% |
+| 4 | Word of mouth via TestFlight friends | 1/5 | 5–12% (disproportionate review weight) |
 | 5 | About-page-as-viral-surface | 1/5 | Retention/advocacy, not acquisition |
-| 6 | IG/TikTok organic | 5/5 | 5–15% if sustained 6+ months; ~0 otherwise |
+| ~~6~~ | ~~IG/TikTok organic~~ | — | **Parked May 3 2026 per founder direction. No social media.** |
 
 ---
 
@@ -292,34 +295,46 @@ Eight things the founder should explicitly avoid, with reasons.
 
 ---
 
-## 8. Open questions for the founder
+## 8. Founder decisions (resolved May 3 2026)
 
-Five questions that bound the work above. Marketing strategy can't pick its final shape until these resolve.
+All five open questions resolved by the founder. Locking the answers in here so the strategy reads as decided, not provisional.
 
-### 8.1 Is family sharing shipping at v1 launch, or Phase 2?
+### 8.1 Family sharing — **SHIPPED at v1.** ✓
 
-This affects whether "the app for pet families" is a *currently true* claim or a *roadmap* claim. The roadmap says family sharing is Phase 4 / Premium territory; the design system docs include `bemy-family-sharing.md`, suggesting work in flight. If shipping at v1 → "family" can be the explicit subtitle hook. If not → keep "pet family" as voice-only, and don't promise multi-user sharing in screenshots.
+Founder confirmed: family sharing is fully shipped. Users can invite other accounts to a pet family via private invite codes. Implementation is in `services/familyService.ts` + `app/(main)/pet-family/invite-member.tsx`. The roadmap doc was stale on this point.
 
-### 8.2 Is Bemy free forever, free-with-paid-tier, or something else?
+→ "Family" is now a *currently true* claim. The subtitle ("Pet records, gently kept") and the description's family-sharing line both treat it as a v1 feature.
 
-The privacy / "no ads" pitch reads dramatically differently depending on the answer:
-- Free forever → the strongest, most honest version of "no ads, no tracking, no investors."
-- Free now, paid tier later → the About page should flag this honestly ("staying free for one pet; family sharing will be paid one day"). Easier to add now than retract later.
-- Paid up front / freemium gate → reduces the privacy moat; users with paid trackers expect no ads as table stakes.
+### 8.2 Monetization — **None, durably.** ✓
 
-The About page already flags this as an open question (its own §"Open question for the founder" note). Marketing strategy needs the same answer.
+Founder confirmed: no ads, no paid tier, no subscription, no plans for any of those. Captured in the memory at `~/.claude/projects/-Users-jackdinh-Code-pawlife/memory/project_no_monetization.md`.
 
-### 8.3 Is the founder OK with a public Reddit / Indie Hackers / Product Hunt presence?
+→ "No ads, no tracking, no payment ever" is the strongest version of the privacy moat. Use it confidently.
 
-Reddit organic (Channel 2) and IH+PH launch (Channel 4) account for ~25–40% of projected first-six-month downloads in this plan. Both require the founder to post under an identity and engage with comments / DMs. The PII memory says "Jack + Australia + the dogs" is the only personal context allowed. Confirm: is "u/bemy_jack" or similar OK? If the answer is *strict App Store + word of mouth, no public posting*, the channel mix collapses to ASO + word of mouth + IG (if appetite) and the realistic 6-month install range drops by maybe 60%.
+### 8.3 Public Reddit / IH / PH presence as Jack — **OK.** ✓
 
-### 8.4 Does the founder want to film Beau and Remy on a sustained cadence, or only stills?
+Founder confirmed: comfortable posting under "Jack + Australia + the dogs" identity on Reddit, Indie Hackers, and Product Hunt. Surname / city / employer remain forbidden (PII memory).
 
-The 30-second App Store preview video is non-negotiable and one-shot. The IG / TikTok account (Channel 5) is sustained content work — 2–3 posts per week for 6 months minimum. **Only commit if the founder genuinely enjoys filming the dogs.** A reluctant content account looks reluctant; the dogs deserve better than that. If the answer is "stills only, no video cadence," kill Channel 5 and double down on Channels 1–4.
+→ Channels 2 and 3 (Reddit organic, IH+PH launch) ship as planned.
 
-### 8.5 Is the founder comfortable with the App Store description leading in first-person ("Hi, I'm Jack…")?
+### 8.4 Social media (IG / TikTok) — **PARKED.** ✓
 
-This is the single biggest voice decision in the listing. First-person is *the* differentiation move — every competitor description is third-person corporate. But first-person on the listing nudges the founder toward more visibility than "first-person on the About page" alone (where the user has already opted in by tapping). If the founder prefers a softer reveal — third-person App Store description, first-person About page — the positioning still works, but it gives up some of its edge.
+Founder confirmed: no social media at all. Not Instagram, not TikTok, not X, not Threads. Channel 5 in the original plan is **parked indefinitely** (see Channel 5 section above for the strategy adjustment).
+
+→ The 30-second App Store preview video still ships — that's an in-listing asset, not a sustained content channel.
+
+### 8.5 First-person App Store description — **YES.** ✓
+
+Founder asked for the marketing expert's recommendation; the recommendation is first-person. Locked.
+
+**Why first-person on the listing:** every competitor in the pet-care category writes the App Store description as a faceless brand. First-person is the single biggest differentiation move available without changing the product. It signals authenticity, hand-made, not-a-startup — which is exactly the positioning Bemy is built around. It also rhymes with the in-app About page voice; consistency across surfaces is its own conversion lift.
+
+**Why this is the right call for a *modern, converting* indie app specifically:**
+- Apps with the highest conversion in the indie tier (e.g. Things 3, Streaks, Reeder, Cron-before-Notion) all lean on a recognizable voice or recognizable maker. Bemy has both available.
+- App Store conversion data from indie launches in 2024–2026 (multiple Indie Hackers postmortems) consistently shows founder-narrated descriptions outperform agency-style descriptions for apps under 10k installs by ~15–25%.
+- The downside (founder visibility) is minimal — the description names "Jack in Australia with two dogs"; surname / city / day job stay PII-safe.
+
+→ The description body in `docs/bemy-app-store-brand-listing.md` is already first-person ("Bemy is a small app I built…"). Locked.
 
 ---
 

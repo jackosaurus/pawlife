@@ -92,7 +92,7 @@ vet,vaccine,medication,reminder,allergy,weight,food,health,tracker,journal,puppy
 
 **Alternate (if marketing wants a launch-moment angle):**
 
-> Out today. A small, gentle home for your pet family's records — vaccinations, medications, weight, food, vet visits — all in one calm place. *(140 chars)*
+> Out today. A small, gentle home for your pet family's records — vaccinations, medications, weight, food, allergies — all in one calm place. *(140 chars)*
 
 **Why the first one:** promotional text sits above the description and is the first thing a curious-but-undecided user reads. The "built by one person in Australia for two dogs called Beau and Remy" half-sentence is the strongest single trust signal Bemy has. It's verifiable, specific, and hard to fake. The alternate is fine but trades that trust signal for a feature list — keep the alternate in reserve for a later refresh (e.g. when Phase 2 pushes shareable profiles, swap to a feature-led promo).
 
@@ -113,8 +113,9 @@ What it does
 - Keep a profile for each pet in your family — dog or cat — with photo, breed, birthday, microchip, and the rest.
 - Track vaccinations with next-due dates, and get a gentle reminder before they lapse.
 - Track medications with frequency, dosage, start and end dates, and a Log Dose button on every active med.
-- Record vet visits, weight check-ins, allergies, and food changes over time.
-- Hold it all in one calm, readable place you can hand to a vet or a pet sitter.
+- Log weight check-ins, allergies, and food changes over time.
+- Share a pet's records with the people who help take care of them — your partner, your kids, a regular pet sitter — through a private family invite.
+- Keep it all in one calm, readable place.
 
 What it doesn't do
 - No ads. No data sales. No AI miracle promises. No social feed.
@@ -130,20 +131,20 @@ I read every piece of feedback that comes in. If something's confusing or missin
 **Structure rationale:**
 
 - **Opening (2 paragraphs):** brand story, told via the dogs. Mirrors the About-page voice exactly. Dropping the etymology (`Beau + Remy = Bemy`) on line 1 makes the rest of the listing make sense.
-- **What it does (5 lines):** prose-style "bullets" using en-dashes; Apple's renderer makes hyphen-bullets look acceptable but not great, so the sentences are short on purpose. Each line names a specific feature from the v1 build (`bemy-roadmap.md` MVP scope) — vaccinations with next-due dates, medications with Log Dose button, vet visits, weight, food changes.
+- **What it does (6 lines):** prose-style "bullets" using en-dashes; Apple's renderer makes hyphen-bullets look acceptable but not great, so the sentences are short on purpose. Each line names a specific feature from the v1 build (`bemy-roadmap.md` MVP scope).
   - Pet Profiles ✓ (dog or cat, photo, breed, birthday, microchip)
   - Vaccinations CRUD with reminders ✓
   - Medications CRUD with Log Dose ✓
-  - Vet Visits ✓ (note: hidden in Unit 6 from UI but the description treats them as a feature; the in-app surface for vet visits is via the Health Records list — this is a known forthcoming surface; revisit if vet visits stay UI-hidden at launch)
-  - Weight ✓
-  - Food ✓
+  - Weight check-ins, allergies, food changes ✓
+  - Family sharing via private invite ✓ (`services/familyService.ts` + `app/(main)/pet-family/invite-member.tsx` — fully shipped at v1)
+  - **Vet visits removed** as a standalone claim — the founder confirmed (May 3 2026) that Bemy doesn't track vet visits as their own surface; vaccinations, medications, and weight check-ins ARE the touch points around vet visits. Original draft over-promised; corrected.
 - **What it doesn't do:** a deliberate counter-list. "No ads, no data sales, no AI promises, no social feed" is the same posture as the privacy policy ("plain English by intent") and the about page ("not a venture-backed startup, a vet on demand, or a substitute for actual medical advice"). This is on-brand and a competitive moat.
 - **Who it's for:** indirect, via failure modes (`lost a sticky note`, `stood at the vet's counter trying to remember`). Per the brief, never use "for pet owners."
 - **Closing:** Send Feedback invitation + the about-page-style sign-off ("Jack, in Australia, with two dogs called Beau and Remy"). Reinforces founder-voice.
 
 **First-person singular throughout.** No "we" or "the team."
 
-**One open question:** the description says "Track vet visits" but the in-app UI currently hides vet visits (Unit 6 complete, hidden). Either (a) un-hide vet visits in the UI before launch, (b) drop the "vet visits" mention from the description and roll it into "vet visit notes captured under Health Records," or (c) leave as-is on the assumption that vet-visit surfaces will be back before App Store review. Surface this to the founder; minimum-risk fix is to soften to "and a place to keep notes from vet visits" if the UI surface remains hidden.
+**Resolved (May 3 2026):** Earlier draft surfaced vet visits as a feature; founder confirmed Bemy doesn't track vet visits as a standalone surface. Description now leads with the actual record types (vaccinations, medications, weight, allergies, food, photos) plus family-sharing via private invite (which IS fully shipped at v1 — see `services/familyService.ts`). Voice stays first-person singular throughout per founder pick (May 3 2026 #3 — see Marketing strategy, Q5).
 
 ---
 

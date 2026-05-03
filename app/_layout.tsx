@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Text } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
 import {
   useFonts,
@@ -83,11 +84,18 @@ export default function RootLayout() {
   }
 
   return (
-    <ErrorBoundary>
-      <ToastProvider>
-        <StatusBar style="dark" />
-        <Slot />
-      </ToastProvider>
-    </ErrorBoundary>
+    // GestureHandlerRootView must wrap the whole app so any bottom sheet
+    // (AuthSheet on welcome, QuickAddSheet inside pet detail) finds it as
+    // an ancestor regardless of the auth state. Sign-out crash fix May 3
+    // 2026 — without this, the AuthSheet that mounts on welcome after
+    // sign-out would render before the gesture handler ancestor existed.
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ErrorBoundary>
+        <ToastProvider>
+          <StatusBar style="dark" />
+          <Slot />
+        </ToastProvider>
+      </ErrorBoundary>
+    </GestureHandlerRootView>
   );
 }
