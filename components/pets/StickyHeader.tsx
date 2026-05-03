@@ -45,6 +45,7 @@ export function StickyHeader({ pet, onBack, latestWeight }: StickyHeaderProps) {
           name={pet.name}
           size="lg"
           petType={pet.pet_type}
+          bordered
         />
         <View className="ml-4 flex-1">
           <Text className="text-largeTitle text-text-primary">
