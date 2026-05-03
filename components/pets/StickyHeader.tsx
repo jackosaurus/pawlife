@@ -31,6 +31,11 @@ export function StickyHeader({ pet, onBack, latestWeight }: StickyHeaderProps) {
     <ImageBackground
       source={headerBg}
       resizeMode="cover"
+      // Shift the visible band of the textured bg up by ~20% of header height
+      // (founder ask, May 3 2026): translateY positive moves the source image
+      // down within the container, exposing pixels HIGHER in the source at
+      // the visible center. ~30pt shift on a typical ~150pt header height.
+      imageStyle={{ transform: [{ translateY: 30 }] }}
       className="px-6 pt-4 pb-6"
     >
       <View className="flex-row items-center justify-between mb-4">
