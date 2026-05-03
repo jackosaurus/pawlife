@@ -24,12 +24,12 @@ export default function WelcomeScreen() {
         style={{
           height: HERO_HEIGHT,
           width: '100%',
-          // Locked by designer doc §3 / §TL;DR: `contain` with the cream
-          // background hides letterboxing because the source asset already
-          // sits on `#FFF8E7`.
-          backgroundColor: Colors.background,
         }}
-        resizeMode="contain"
+        // `contain` left visible left/right gaps on phones where screen width
+        // exceeds hero height. `cover` fills the whole hero area; the cat+dog
+        // are roughly centered vertically in the source so the small top/bottom
+        // crop keeps them fully visible. Founder ask May 3 2026.
+        resizeMode="cover"
       />
 
       <View className="flex-1 px-8 pt-10 items-center">

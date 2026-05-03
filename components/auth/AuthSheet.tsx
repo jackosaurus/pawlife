@@ -243,7 +243,7 @@ function SignUpForm() {
         Welcome to the family.
       </Text>
       <Text className="text-text-secondary mb-5" style={{ fontSize: 15, lineHeight: 22 }}>
-        Beau, Remy, and the rest of the pack are excited to meet yours.
+        Just an email and a password to get started.
       </Text>
 
       {error && (

@@ -135,12 +135,7 @@ export default function DashboardScreen() {
           </View>
         ) : pets.length === 0 ? (
           <View className="flex-1 items-center justify-center px-8">
-            <Image
-              source={emptyPets}
-              style={{ width: 180, height: 180 }}
-              resizeMode="contain"
-            />
-            <Text className="text-title font-semibold text-text-primary mb-2 mt-4">
+            <Text className="text-title font-semibold text-text-primary mb-2">
               Welcome to Bemy!
             </Text>
             <Text className="text-body text-text-secondary text-center mb-8">
