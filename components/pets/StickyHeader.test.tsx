@@ -7,6 +7,13 @@ jest.mock('expo-image', () => ({
   Image: 'Image',
 }));
 
+// StickyHeader uses useSafeAreaInsets to extend the textured bg under the
+// status bar. Stub the inset values for tests so we don't need to wrap
+// every test in a SafeAreaProvider.
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 47, bottom: 34, left: 0, right: 0 }),
+}));
+
 const mockPet: Pet = {
   id: '1',
   user_id: 'u1',
