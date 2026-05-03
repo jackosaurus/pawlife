@@ -1,7 +1,8 @@
 import { useEffect, useCallback, useMemo, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, Pressable, Image } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, Pressable, Image, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen } from '@/components/ui/Screen';
 import { Button } from '@/components/ui/Button';
@@ -17,10 +18,12 @@ import { ActionItem } from '@/types';
 
 const welcomeHero = require('@/assets/illustrations/welcome-hero.png');
 const emptyPets = require('@/assets/images/welcome-hero.png');
+const dashboardBg = require('@/assets/images/dashboard-bg.png');
 
 export default function DashboardScreen() {
   const router = useRouter();
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const { pets, loading, error, refresh } = usePets();
   const { actionItems, refresh: refreshActions } = useActionItems(pets);
   const [loggingDose, setLoggingDose] = useState<string | null>(null);
@@ -89,6 +92,20 @@ export default function DashboardScreen() {
 
   return (
     <Screen>
+      <View
+        pointerEvents="none"
+        style={[
+          StyleSheet.absoluteFillObject,
+          { top: -insets.top, bottom: -insets.bottom },
+        ]}
+      >
+        <Image
+          source={dashboardBg}
+          style={StyleSheet.absoluteFillObject}
+          resizeMode="cover"
+          accessibilityLabel=""
+        />
+      </View>
       <View className="flex-1 px-6 pt-4">
         <View className="flex-row items-center justify-between mb-6">
           <Text className="text-largeTitle text-text-primary">
@@ -140,6 +157,7 @@ export default function DashboardScreen() {
           <FlatList
             data={pets}
             keyExtractor={(item) => item.id}
+            style={{ backgroundColor: 'transparent' }}
             renderItem={({ item }) => {
               const petItems = itemsByPetId.get(item.id) ?? [];
               return (
