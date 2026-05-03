@@ -48,6 +48,98 @@ the revision above supersedes them where they conflict):
 - §3 Imagery scenarios — Scenario A was the v1 lock; Scenario B is now the v1 lock. The trade-off analysis in §3 is still useful context.
 - TL;DR table — "Imagery scenario" row reads as Scenario A; treat as Scenario B + A.
 
+### Meet Beau / Meet Remy card layout (locked, May 3 2026)
+
+Per the founder's product-designer brief: photo on the LEFT, text on the
+RIGHT, modern + readable. Specifics the engineer must hit:
+
+```
+              ↓ 24pt page padding
+┌─────────────────────────────────────────┐
+│  ╭────╮  Meet Beau                       │  ← Fraunces text-title (22/28),
+│  │ 🐶 │                                  │     plum, top-aligned with
+│  │    │  Cocker spaniel × poodle · 8y    │     avatar's top edge
+│  ╰────╯                                  │
+│   ↑       Beau is the older of the two,  │  ← system sans text-body (17/24),
+│   96pt    and probably one of the        │     text-text-primary, flows
+│   plum    sweetest dogs you'll ever      │     down past avatar bottom
+│   bordered meet. He's also — and yes,   │
+│   Avatar  this sounds invented —         │
+│           allergic to grass...           │
+│                                          │
+└─────────────────────────────────────────┘
+              ↓ 32pt section spacing
+┌─────────────────────────────────────────┐
+│  ╭────╮  Meet Remy                       │
+│  │ 🐶 │  Bordoodle × poodle · 6y         │
+│  ╰────╯                                  │
+│           Remy is the younger one...     │
+└─────────────────────────────────────────┘
+```
+
+**Per-card structure:**
+
+| Element | Token / value |
+|---|---|
+| Outer container | `flex-row` with `items-start` (top-aligned) |
+| Avatar | `<Avatar size="lg" bordered uri={beauPhoto} name="Beau" petType="dog" />` — 96pt circle, 3pt plum border, same component as pet detail StickyHeader |
+| Avatar → text gap | `ml-4` (16pt) on the text column |
+| Text column | `flex-1` so it consumes the remaining width |
+| Heading | Fraunces (`fontFamily: DisplayFontFamily.semibold`), `text-title` (22/28), `text-primary` (plum). Sits at the very top of the text column so it baseline-aligns with the avatar's top. |
+| Subhead (breed × breed · age) | System sans, `text-caption` (13/16) or `text-footnote`, `text-text-secondary`, `italic`, `mt-1` (4pt below heading) |
+| Body paragraph | System sans, `text-body` (17/24), `text-text-primary`, `mt-3` (12pt below subhead) |
+| Card → next card vertical spacing | `mt-8` (32pt) on the second card |
+| Cards' parent container | Reuses the page horizontal padding (`px-6` or whatever the rest of the page uses). **No card background, no border, no `Card` component wrapper, no hairline rule between cards.** Whitespace is the divider. |
+
+**Why no `<Card>` wrapper:**
+
+The page is a personal note, not a settings list. Wrapping each Meet
+section in a card surface (white bg, rounded corners, padding) would
+create a "list of dogs" feel instead of a "story about dogs" feel.
+Whitespace + the bordered avatar carry the visual rhythm.
+
+**Why top-alignment over center-alignment:**
+
+The body paragraph is multi-line (~5–7 lines on iPhone SE width) and
+extends well below the avatar. Center-alignment would only work for
+short text matching avatar height; with longer text, center looks
+visually broken. Top-alignment sits the heading flush with the avatar's
+top edge, the avatar's bottom hangs against the body paragraph, and
+the body wraps cleanly underneath. Standard product-card pattern (think
+iOS Contacts row scaled up).
+
+**Width math (iPhone SE, 375pt screen, worst case):**
+
+```
+375pt screen
+−  24pt page horizontal padding × 2 = 48pt
+−  96pt avatar
+−  16pt gap
+= 215pt text column width
+```
+
+215pt fits ~25–30 characters per line in 17pt body type, well within
+the 45–75-character ideal for readability.
+
+**Photo asset spec (when founder supplies):**
+
+- Source format: `.jpg` or `.png`, square aspect ratio preferred (the
+  Avatar component crops to circle either way, but a square source
+  avoids weird off-center cropping).
+- Source size: ≥512×512. Founder's photos at any modern phone-camera
+  resolution work fine; the engineer can downsample to 512 with `sips`
+  if file size is a concern.
+- Filenames: `assets/images/beau.jpg` and `assets/images/remy.jpg`.
+
+**Until founder supplies photos:**
+
+Pass `uri={undefined}` to the Avatar. The component's existing
+initials-fallback path renders a `Colors.dustyPlum` disc with the pet
+name's first letter ("B" or "R") in white, plum-bordered. The
+fallback is functionally complete and ships without any further work
+when photos arrive — change one prop on each card and the visuals
+swap.
+
 ---
 
 ## TL;DR — locked decisions
