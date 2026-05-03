@@ -3,15 +3,28 @@
 **Surface:** "About" entry in the bottom-sheet menu, alongside Settings, Pet Family, and Send Feedback.
 **Author:** Indie product marketing draft, May 2026.
 **Status:** Draft for founder + designer review. Engineer will paste Part 1 into a `<Text>` tree once approved.
-**Revised 2026-05-03:** dual "Meet Beau" / "Meet Remy" cards using the founder's real anecdotes, replacing the v1 fabricated incidents.
+
+---
+
+## Revision 2026-05-03 #2 (locked, post founder feedback)
+
+Founder feedback May 3 2026 #2 reshaped the page. The shipping copy now reflects:
+
+- **NEW** "Origins of Bemy" section sits immediately after "Hi, I'm Jack" and absorbs the namesake reveal that previously lived inline.
+- The "Bemy = Beau + Remy" pull-quote moves into the Origins section as that section's visual anchor (it no longer sits between the two Meet cards).
+- All hyphens and em-dashes in body copy scrubbed; sentences rewritten where dash deletion alone broke grammar.
+- The "Made with care in Australia · 2026" footer is **deleted**. Page now ends on the "Jack" sign-off (no leading em-dash).
+- Word count adjusted from ~480 → ~510 to absorb the new Origins paragraphs.
+
+The previous Revision 2026-05-03 (#1) moved from a single intro paragraph to dual Meet cards using the founder's real dog anecdotes. That revision still applies; this one builds on top.
 
 ---
 
 ## Part 1 — Page Copy (ships in app)
 
-> Draft for `app/(main)/about.tsx` (or wherever the engineer wires it). Each section heading uses the Fraunces display family (the same treatment as the welcome screen "Bemy" wordmark, scaled down to a section heading). Body is the standard body text style. The "Meet Beau" and "Meet Remy" sections each include a photo (or, until the founder supplies one, a same-style illustration placeholder).
+> Draft for `app/(main)/about.tsx`. Each section heading uses the Fraunces display family (the same treatment as the welcome screen "Bemy" wordmark, scaled down to a section heading). Body is the standard body text style. Beau and Remy each get a full-width photo above their name + breed + body.
 
-**Word count:** ~480.
+**Word count:** ~510.
 
 ---
 
@@ -19,29 +32,13 @@
 
 I'm an indie developer in Australia, and I built Bemy on nights and weekends because I wanted something better for my own two dogs.
 
-Their names are Beau and Remy. **Be**au + **Re**my — that's where the name came from.
-
 ---
 
-### Meet Beau
+### Origins of Bemy
 
-*Cocker spaniel × poodle · 8 years*
+Bemy is just Beau and Remy's names smooshed together. **Be** from Beau, **my** from Remy.
 
-Beau is the older of the two, and probably one of the sweetest dogs you'll ever meet.
-
-He's also — and yes, this sounds invented — allergic to grass. And lamb. He gets ear infections every couple of months that need ear drops on a regular cycle, and he goes in for allergy shots every few months too. Tracking what dose he's on, when the next ear-drop round is due, what dates he last had a shot — that's a recurring task in our house, and a lot of why Bemy exists.
-
----
-
-### Meet Remy
-
-*Bordoodle × poodle · 6 years*
-
-Remy is the younger one, and an absolute demon of energy.
-
-There's enough border collie in the bordoodle that he is *in love* with a ball — any ball, all balls, forever. People at the dog park love throwing for him because he'll never stop chasing it, which is also the problem: he doesn't know when to stop, so he sometimes hurts himself if we let it go too long. He's also completely inseparable from Beau. Where one goes, the other is about three seconds behind.
-
----
+I tried other names, but every sketch I made for the icon ended up looking like one of them, so I gave up and named it after both.
 
 > **Bemy** = **Be**au + **Re**my
 
@@ -49,19 +46,43 @@ There's enough border collie in the bordoodle that he is *in love* with a ball �
 
 ---
 
+### Beau
+
+*Cocker spaniel × poodle · 8 years*
+
+*[Full-width photo of Beau above this heading.]*
+
+Beau is the older of the two, and probably one of the sweetest dogs you'll ever meet.
+
+He's also (and yes, this sounds invented) allergic to grass. And lamb. He gets ear infections every couple of months that need ear drops on a regular cycle, and he goes in for allergy shots every few months too. Tracking what dose he's on, when the next round of ear drops is due, what dates he last had a shot, that's a recurring task in our house, and a lot of why Bemy exists.
+
+---
+
+### Remy
+
+*Bordoodle × poodle · 6 years*
+
+*[Full-width photo of Remy above this heading.]*
+
+Remy is the younger one, and an absolute demon of energy.
+
+There's enough border collie in the bordoodle that he is *in love* with a ball. Any ball, all balls, forever. People at the dog park love throwing for him because he'll never stop chasing it, which is also the problem: he doesn't know when to stop, so he sometimes hurts himself if we let it go too long. He's also completely inseparable from Beau. Where one goes, the other is about three seconds behind.
+
+---
+
 ### Why I built it
 
-Between Beau's medications and Remy's vet visits, I kept losing track of small things — when the next allergy shot was due, what dose Beau was last on, whether Remy's last weight check was three months ago or six.
+Between Beau's medications and Remy's vet visits, I kept losing track of small things. When the next allergy shot was due, what dose Beau was last on, whether Remy's last weight check was three months ago or six.
 
 I wanted one place that held all of it, looked nice enough that I'd actually open it, and didn't try to sell me anything. So I started building one for myself.
 
-A handful of friends with their own dogs and cats started using early versions, and a lot of what's in the app now exists because they asked for it. The vaccination reminders, the food change history, the gentler language around archiving a pet — those came from real people telling me what they actually needed.
+A handful of friends with their own dogs and cats started using early versions, and a lot of what's in the app now exists because they asked for it. The vaccination reminders, the food change history, the gentler language around archiving a pet, those came from real people telling me what they actually needed.
 
 ---
 
 ### What Bemy is, and isn't
 
-Bemy is a small, careful app for keeping your pet family's records in one place. It is not a venture-backed startup, a vet on demand, or a substitute for actual medical advice. If something feels wrong with your pet, please call your vet, not your phone.
+Bemy is a small, careful app for keeping your pet family's records in one place. It is not a venture backed startup, a vet on demand, or a substitute for actual medical advice. If something feels wrong with your pet, please call your vet, not your phone.
 
 What I can promise is that the app is built with care, the data is yours, and there's a real person on the other end of every bug report.
 
@@ -71,15 +92,17 @@ What I can promise is that the app is built with care, the data is yours, and th
 
 If you've used Bemy for more than a day or two, you probably already know one thing that would make it better. I'd love to hear it.
 
-Tap **Send Feedback** in the menu and tell me the smallest concrete thing you'd change — a confusing label, a missing field, a screen that feels slow. Every message gets read by me.
+Tap **Send Feedback** in the menu and tell me the smallest concrete thing you'd change. A confusing label, a missing field, a screen that feels slow. Every message gets read by me.
 
 ---
 
 ### Thanks for being here
 
-From one pet person to another — go give your own pet a scratch behind the ears from me.
+From one pet person to another, go give your own pet a scratch behind the ears from me.
 
-— Jack
+Jack
+
+*(Page ends here — no footer. The "Made with care in Australia · 2026" line was removed in revision #2 per founder feedback that it read as cheesy.)*
 
 ---
 

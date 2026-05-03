@@ -8,6 +8,117 @@
 
 ---
 
+## REVISION — 2026-05-03 #2 — Vertical-stack Meet cards, full-body photos, Origins of Bemy section, footer removed
+
+Founder feedback on May 3 2026 (round 2) overrode several locked
+decisions from revision #1 below. **The shipping treatment is the one
+described in this section.** Earlier revisions are preserved verbatim
+below for design rationale history, but where they conflict with the
+items here, **this revision wins**.
+
+### What changed
+
+1. **Full-body photos, not head crops.** Beau and Remy are now shown at
+   their natural 4:5 aspect ratio (1024×1280 source crop) showing the
+   whole dog including paws. The earlier 1024×1024 head-crop variant
+   was discarded.
+2. **Vertical stack, not side-by-side.** Photo on top at full content
+   width (~327pt on iPhone SE). Heading + breed-line + body stacked
+   below. The original "photo-left, text-right, top-aligned" card is
+   gone.
+3. **No circular crop.** No `borderColor`, no `borderWidth`, no
+   shadow, no elevation. The photo uses an 8pt rounded corner
+   (subtle). The Avatar component is no longer used on this page.
+4. **No "Meet" prefix.** Card heading is just `Beau` / `Remy` (the
+   "Meet" was redundant once the photo dominates the visual).
+5. **NEW "Origins of Bemy" section** sits between "Hi, I'm Jack" and
+   the Beau card. Two short paragraphs explain the namesake. The
+   `<PullQuote>Bemy = Beau + Remy</PullQuote>` lives inside this
+   section as its visual anchor (it no longer sits between the two
+   Meet cards).
+6. **All hyphens and em-dashes scrubbed** from body copy. Sentences
+   rewritten where deleting the dash alone broke grammar (Beau body,
+   Remy body, Why I built it).
+7. **Footer deleted.** "Made with care in Australia · 2026" is gone.
+   Page ends on the sign-off ("Jack", no leading em-dash).
+
+### New page structure (revision #2, top to bottom)
+
+1. Hero illustration (`welcome-hero.png`) + Fraunces "Bemy" wordmark + tagline
+2. **Hi, I'm Jack** — intro section (one short paragraph; the namesake line moved)
+3. **Origins of Bemy** *(NEW)* — two paragraphs + the `<PullQuote>` as visual anchor
+4. **Beau** — full-width photo, then heading + breed-line + body
+5. **Remy** — full-width photo, then heading + breed-line + body
+6. **Why I built it**
+7. **What Bemy is, and isn't**
+8. **A small ask** — Send Feedback CTA
+9. **Thanks for being here** — sign-off (no footer below)
+
+### Updated card layout (revision #2 — locked)
+
+```
+              ↓ 24pt page padding (px-6)
+┌─────────────────────────────────────────┐
+│                                         │
+│  ┌───────────────────────────────────┐  │
+│  │                                   │  │  ← full-width photo,
+│  │                                   │  │     4:5 aspect (~327×409pt
+│  │           [photo of Beau,         │  │     on iPhone SE).
+│  │            full body]             │  │     8pt rounded corners.
+│  │                                   │  │     No border, no shadow.
+│  │                                   │  │
+│  └───────────────────────────────────┘  │
+│                                         │
+│  Beau                                   │  ← Fraunces text-title
+│                                         │     plum, mt-4 (16pt) below photo
+│  Cocker spaniel × poodle · 8 years      │  ← system text-caption italic
+│                                         │     secondary, mt-1 (4pt)
+│  Beau is the older of the two, and      │  ← system text-body 17pt primary
+│  probably one of the sweetest dogs      │     mt-3 (12pt below subtitle)
+│  you'll ever meet.                      │
+│                                         │
+│  He's also (and yes, this sounds        │
+│  invented) allergic to grass...         │
+│                                         │
+└─────────────────────────────────────────┘
+              ↓ 40pt section spacing (mt-10) — bigger than v1's 32pt
+                because the cards are now bigger
+┌─────────────────────────────────────────┐
+│  [photo of Remy, full body]             │
+│                                         │
+│  Remy                                   │
+│  Bordoodle × poodle · 6 years           │
+│  Remy is the younger one...             │
+└─────────────────────────────────────────┘
+```
+
+### Updated card structure table (revision #2)
+
+| Element | Token / value |
+|---|---|
+| Photo container | Plain `<Image>` at `width: '100%'`, `aspectRatio: 4/5`, `borderRadius: 8`. **No** `Avatar` component, **no** border, **no** shadow, **no** elevation. |
+| Photo → heading gap | `mt-4` (16pt) on the heading |
+| Heading | Fraunces (`fontFamily: DisplayFontFamily.semibold`), `text-title` (22/28), `text-primary` (plum). Just the pet's name (no "Meet" prefix). |
+| Subhead (breed × breed · age) | System sans, `text-caption` (13/16), `text-text-secondary`, `italic`, `mt-1` (4pt below heading) |
+| Body paragraph | System sans, `text-body` (17/24), `text-text-primary`, `mt-3` (12pt below subhead) |
+| Card → next card vertical spacing | `mt-10` (40pt) on the second card. Larger than revision #1's `mt-8` because the cards are visually heavier. |
+| Photo fallback (no `photoUri`) | Same-dimensions plum block (`Colors.dustyPlum`) with the pet's first initial centered in white Fraunces. Reserved for the brief window before founder photos arrive — both photos are present in the v1 ship, so this path is defensive only. |
+
+### Updated photo asset spec (revision #2)
+
+- Source format: `.jpg`, **4:5 aspect** (1024×1280), generated by cropping the
+  founder's 1024×1536 portraits down to 4:5 by trimming 128px from
+  the top and 128px from the bottom (uniform vertical crop). The
+  cropped versions retain the full body including paws.
+- Asset paths: `assets/images/beau.jpg` and `assets/images/remy.jpg`.
+  These overwrite the previous 1024×1024 head crops; the head-crop
+  variant is no longer used.
+- The dark gradient background of the source photo is the photo's
+  natural visual frame against the cream About page background — no
+  border or chrome is added.
+
+---
+
 ## REVISION — 2026-05-03 — Meet Beau & Meet Remy cards
 
 **The PM has revised the page from 5 sections to 7**, replacing the

@@ -21,14 +21,14 @@ export default function AboutScreen() {
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch {
-      // Haptics unavailable on this device — proceed without.
+      // Haptics unavailable on this device, proceed without.
     }
     router.push('/(main)/feedback');
   };
 
   return (
     <Screen scroll>
-      {/* Back arrow — matches Settings/Feedback header pattern. */}
+      {/* Back arrow, matches Settings/Feedback header pattern. */}
       <View className="px-6 pt-2 pb-2">
         <Pressable
           onPress={() => router.back()}
@@ -39,7 +39,7 @@ export default function AboutScreen() {
         </Pressable>
       </View>
 
-      {/* 1. Hero — welcome-hero illustration + Fraunces "Bemy" wordmark. */}
+      {/* 1. Hero, welcome-hero illustration plus Fraunces "Bemy" wordmark. */}
       <View>
         <Image
           testID="about-hero"
@@ -84,17 +84,35 @@ export default function AboutScreen() {
           I&apos;m an indie developer in Australia, and I built Bemy on nights
           and weekends because I wanted something better for my own two dogs.
         </Text>
+
+        {/* 3. Origins of Bemy, namesake reveal with the pull-quote as the
+            visual anchor. */}
+        <Text
+          accessibilityRole="header"
+          className="text-title text-primary mt-8"
+          style={{
+            fontFamily: DisplayFontFamily.semibold,
+            color: Colors.primary,
+          }}
+        >
+          Origins of Bemy
+        </Text>
         <Text className="text-body text-text-primary mt-3">
-          Their names are Beau and Remy.{' '}
-          <Text style={{ fontWeight: '600' }}>Be</Text>au +{' '}
-          <Text style={{ fontWeight: '600' }}>Re</Text>my — that&apos;s where
-          the name came from.
+          Bemy is just Beau and Remy&apos;s names smooshed together.{' '}
+          <Text style={{ fontWeight: '600' }}>Be</Text> from Beau,{' '}
+          <Text style={{ fontWeight: '600' }}>my</Text> from Remy.
+        </Text>
+        <Text className="text-body text-text-primary mt-3">
+          I tried other names, but every sketch I made for the icon ended up
+          looking like one of them, so I gave up and named it after both.
         </Text>
 
-        {/* 3. Meet Beau — founder-supplied photo (commit 1f14cf9, pulled in
-            during rebase). Falls back to the bordered initials avatar
-            automatically if the asset is ever removed. */}
-        <View className="mt-8">
+        <PullQuote accessibilityLabel="Bemy equals Beau plus Remy">
+          Bemy = Beau + Remy
+        </PullQuote>
+
+        {/* 4. Meet Beau, founder-supplied full-body photo. */}
+        <View className="mt-10">
           <MeetCard
             name="Beau"
             subtitle="Cocker spaniel × poodle · 8 years"
@@ -108,21 +126,21 @@ export default function AboutScreen() {
                 </Text>
                 <View className="h-3" />
                 <Text className="text-body text-text-primary">
-                  He&apos;s also — and yes, this sounds invented — allergic to
+                  He&apos;s also (and yes, this sounds invented) allergic to
                   grass. And lamb. He gets ear infections every couple of
                   months that need ear drops on a regular cycle, and he goes
                   in for allergy shots every few months too. Tracking what
-                  dose he&apos;s on, when the next ear-drop round is due, what
-                  dates he last had a shot — that&apos;s a recurring task in
-                  our house, and a lot of why Bemy exists.
+                  dose he&apos;s on, when the next round of ear drops is due,
+                  what dates he last had a shot, that&apos;s a recurring task
+                  in our house, and a lot of why Bemy exists.
                 </Text>
               </>
             }
           />
         </View>
 
-        {/* 4. Meet Remy — founder-supplied photo. */}
-        <View className="mt-8">
+        {/* 5. Meet Remy, founder-supplied full-body photo. */}
+        <View className="mt-10">
           <MeetCard
             name="Remy"
             subtitle="Bordoodle × poodle · 6 years"
@@ -138,7 +156,7 @@ export default function AboutScreen() {
                   There&apos;s enough border collie in the bordoodle that he
                   is{' '}
                   <Text style={{ fontStyle: 'italic' }}>in love</Text> with a
-                  ball — any ball, all balls, forever. People at the dog park
+                  ball. Any ball, all balls, forever. People at the dog park
                   love throwing for him because he&apos;ll never stop chasing
                   it, which is also the problem: he doesn&apos;t know when to
                   stop, so he sometimes hurts himself if we let it go too
@@ -150,15 +168,10 @@ export default function AboutScreen() {
           />
         </View>
 
-        {/* 5. Pull-quote — namesake reveal. */}
-        <PullQuote accessibilityLabel="Bemy equals Beau plus Remy">
-          Bemy = Beau + Remy
-        </PullQuote>
-
         {/* 6. Why I built it */}
         <Text
           accessibilityRole="header"
-          className="text-title text-primary"
+          className="text-title text-primary mt-10"
           style={{
             fontFamily: DisplayFontFamily.semibold,
             color: Colors.primary,
@@ -168,7 +181,7 @@ export default function AboutScreen() {
         </Text>
         <Text className="text-body text-text-primary mt-3">
           Between Beau&apos;s medications and Remy&apos;s vet visits, I kept
-          losing track of small things — when the next allergy shot was due,
+          losing track of small things. When the next allergy shot was due,
           what dose Beau was last on, whether Remy&apos;s last weight check
           was three months ago or six.
         </Text>
@@ -181,7 +194,7 @@ export default function AboutScreen() {
           A handful of friends with their own dogs and cats started using
           early versions, and a lot of what&apos;s in the app now exists
           because they asked for it. The vaccination reminders, the food
-          change history, the gentler language around archiving a pet — those
+          change history, the gentler language around archiving a pet, those
           came from real people telling me what they actually needed.
         </Text>
 
@@ -198,7 +211,7 @@ export default function AboutScreen() {
         </Text>
         <Text className="text-body text-text-primary mt-3">
           Bemy is a small, careful app for keeping your pet family&apos;s
-          records in one place. It is not a venture-backed startup, a vet on
+          records in one place. It is not a venture backed startup, a vet on
           demand, or a substitute for actual medical advice. If something
           feels wrong with your pet, please call your vet, not your phone.
         </Text>
@@ -227,7 +240,7 @@ export default function AboutScreen() {
         <Text className="text-body text-text-primary mt-3">
           Tap{' '}
           <Text style={{ fontWeight: '600' }}>Send Feedback</Text> in the menu
-          and tell me the smallest concrete thing you&apos;d change — a
+          and tell me the smallest concrete thing you&apos;d change. A
           confusing label, a missing field, a screen that feels slow. Every
           message gets read by me.
         </Text>
@@ -249,18 +262,10 @@ export default function AboutScreen() {
           Thanks for being here
         </Text>
         <Text className="text-body text-text-primary mt-3">
-          From one pet person to another — go give your own pet a scratch
+          From one pet person to another, go give your own pet a scratch
           behind the ears from me.
         </Text>
-        <Text className="text-body text-text-primary mt-3">— Jack</Text>
-
-        {/* Footer */}
-        <Text
-          className="text-caption text-text-secondary text-center mt-10"
-          testID="about-footer"
-        >
-          Made with care in Australia · 2026
-        </Text>
+        <Text className="text-body text-text-primary mt-3">Jack</Text>
       </View>
     </Screen>
   );

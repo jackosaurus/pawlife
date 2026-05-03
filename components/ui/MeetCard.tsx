@@ -1,11 +1,10 @@
 import { ReactNode } from 'react';
 import { View, Text, Image } from 'react-native';
-import { Avatar } from '@/components/ui/Avatar';
 import { Colors } from '@/constants/colors';
 import { DisplayFontFamily } from '@/constants/typography';
 
 interface MeetCardProps {
-  /** Display name — used as the heading and as the initials-fallback letter. */
+  /** Display name — used as the heading and as the placeholder-fallback letter. */
   name: string;
   /** "Cocker spaniel × poodle · 8 years" — sits italic under the heading. */
   subtitle: string;
@@ -17,79 +16,91 @@ interface MeetCardProps {
   body: string | ReactNode;
   /**
    * Local image asset (`require('@/assets/images/...')` result). When
-   * undefined, the card falls back to the same plum-bordered initials avatar
-   * a pet would use on the detail screen. Typed as `number` because RN's
-   * `require()` returns an opaque image-source id at runtime.
+   * undefined, the card falls back to a plum placeholder block of the same
+   * dimensions with the pet's first initial centered. Typed as `number`
+   * because RN's `require()` returns an opaque image source id at runtime.
    */
   photoUri?: number;
+  /** Vestigial — retained for prop compatibility. The new layout has no Avatar fallback. */
   petType?: 'dog' | 'cat';
 }
 
-// Avatar size="lg" → 96pt circle, 3pt plum border. Hard-coded here so the
-// local-image branch matches the Avatar fallback branch pixel-for-pixel
-// (we render the photo directly because Avatar's `uri` prop expects a
-// remote string, not a `require()`'d local asset).
-const AVATAR_SIZE = 96;
-const BORDER_WIDTH = 3;
+// Photo aspect ratio matches the underlying 4:5 source crop (1024×1280).
+// Rendered at full content width by the parent (page horizontal padding only),
+// so the image consumes the full column width and the height tracks via
+// aspectRatio. This is the dominant visual element of each card.
+const PHOTO_ASPECT_RATIO = 4 / 5;
+// Subtle 8pt rounded corner — keeps the photo feeling like an editorial
+// image rather than a hard-cropped tile, but well under the circular
+// treatment we removed.
+const PHOTO_BORDER_RADIUS = 8;
 
 /**
- * "Meet Beau" / "Meet Remy" card layout — photo-left, text-right, no surface,
- * top-aligned. See `docs/bemy-about-page-design.md` §"Meet Beau / Meet Remy
- * card layout (locked, May 3 2026)" for the locked layout decisions.
+ * "Beau" / "Remy" Meet card layout — full-width photo on top, text stacked
+ * below. No circle, no border, no shadow. See the May 3 2026 (#2) revision
+ * in `docs/bemy-about-page-design.md` for the locked layout decisions.
  */
-export function MeetCard({
-  name,
-  subtitle,
-  body,
-  photoUri,
-  petType,
-}: MeetCardProps) {
+export function MeetCard({ name, subtitle, body, photoUri }: MeetCardProps) {
   return (
-    <View
-      className="flex-row items-start"
-      testID={`meet-card-${name.toLowerCase()}`}
-    >
+    <View testID={`meet-card-${name.toLowerCase()}`}>
       {photoUri !== undefined ? (
         <Image
           source={photoUri}
           accessibilityLabel={`Photo of ${name}`}
           style={{
-            width: AVATAR_SIZE,
-            height: AVATAR_SIZE,
-            borderRadius: AVATAR_SIZE / 2,
-            borderWidth: BORDER_WIDTH,
-            borderColor: Colors.primary,
+            width: '100%',
+            aspectRatio: PHOTO_ASPECT_RATIO,
+            borderRadius: PHOTO_BORDER_RADIUS,
           }}
           resizeMode="cover"
           testID={`meet-card-photo-${name.toLowerCase()}`}
         />
       ) : (
-        <Avatar name={name} size="lg" bordered petType={petType} />
+        <View
+          accessibilityLabel={`Placeholder photo of ${name}`}
+          style={{
+            width: '100%',
+            aspectRatio: PHOTO_ASPECT_RATIO,
+            borderRadius: PHOTO_BORDER_RADIUS,
+            backgroundColor: Colors.dustyPlum,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          testID={`meet-card-photo-fallback-${name.toLowerCase()}`}
+        >
+          <Text
+            style={{
+              fontFamily: DisplayFontFamily.bold,
+              fontSize: 96,
+              lineHeight: 104,
+              color: '#FFFFFF',
+            }}
+          >
+            {name.charAt(0).toUpperCase()}
+          </Text>
+        </View>
       )}
 
-      {/* 16pt gap between avatar and text column; flex-1 lets text consume
-          the remaining width and wrap underneath the avatar's bottom edge. */}
-      <View className="flex-1 ml-4">
-        <Text
-          accessibilityRole="header"
-          className="text-title text-primary"
-          style={{
-            fontFamily: DisplayFontFamily.semibold,
-            color: Colors.primary,
-          }}
-        >
-          Meet {name}
-        </Text>
-        <Text className="text-caption text-text-secondary italic mt-1">
-          {subtitle}
-        </Text>
-        <View className="mt-3">
-          {typeof body === 'string' ? (
-            <Text className="text-body text-text-primary">{body}</Text>
-          ) : (
-            body
-          )}
-        </View>
+      {/* Heading sits 16pt below the photo's bottom edge. */}
+      <Text
+        accessibilityRole="header"
+        className="text-title text-primary mt-4"
+        style={{
+          fontFamily: DisplayFontFamily.semibold,
+          color: Colors.primary,
+        }}
+      >
+        {name}
+      </Text>
+      <Text className="text-caption text-text-secondary italic mt-1">
+        {subtitle}
+      </Text>
+      <View className="mt-3">
+        {typeof body === 'string' ? (
+          <Text className="text-body text-text-primary">{body}</Text>
+        ) : (
+          body
+        )}
       </View>
     </View>
   );

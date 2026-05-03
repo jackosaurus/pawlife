@@ -47,17 +47,19 @@ describe('AboutScreen', () => {
     expect(getByText('A digital home for your pet family.')).toBeTruthy();
   });
 
-  it('renders all 9 page sections', () => {
+  it('renders all page sections including Origins of Bemy', () => {
     const { getByText } = render(<AboutScreen />);
     // §2 Hi, I'm Jack
     expect(getByText("Hi, I'm Jack")).toBeTruthy();
-    // §3 Meet Beau
-    expect(getByText('Meet Beau')).toBeTruthy();
+    // §3 Origins of Bemy (NEW)
+    expect(getByText('Origins of Bemy')).toBeTruthy();
+    // §4 Beau (heading is just the name now, no "Meet" prefix)
+    expect(getByText('Beau')).toBeTruthy();
     expect(getByText('Cocker spaniel × poodle · 8 years')).toBeTruthy();
-    // §4 Meet Remy
-    expect(getByText('Meet Remy')).toBeTruthy();
+    // §5 Remy
+    expect(getByText('Remy')).toBeTruthy();
     expect(getByText('Bordoodle × poodle · 6 years')).toBeTruthy();
-    // §5 Pull-quote
+    // Pull-quote (now lives inside Origins of Bemy)
     expect(getByText('Bemy = Beau + Remy')).toBeTruthy();
     // §6 Why I built it
     expect(getByText('Why I built it')).toBeTruthy();
@@ -67,27 +69,47 @@ describe('AboutScreen', () => {
     expect(getByText('A small ask')).toBeTruthy();
     // §9 Thanks for being here
     expect(getByText('Thanks for being here')).toBeTruthy();
-    // Sign-off
-    expect(getByText('— Jack')).toBeTruthy();
-    // Footer
-    expect(getByText('Made with care in Australia · 2026')).toBeTruthy();
+    // Sign-off (em-dash scrubbed, now just "Jack")
+    expect(getByText('Jack')).toBeTruthy();
   });
 
-  it('renders the Meet Beau card with the founder-supplied photo', () => {
+  it('Origins of Bemy section explains the namesake', () => {
+    const { getByText } = render(<AboutScreen />);
+    // Key copy beat from the new section.
+    expect(
+      getByText(/Bemy is just Beau and Remy.+names smooshed together/),
+    ).toBeTruthy();
+  });
+
+  it('renders the Beau card with the founder-supplied photo', () => {
     const { getByTestId } = render(<AboutScreen />);
     expect(getByTestId('meet-card-beau')).toBeTruthy();
     expect(getByTestId('meet-card-photo-beau')).toBeTruthy();
   });
 
-  it('renders the Meet Remy card with the founder-supplied photo', () => {
+  it('renders the Remy card with the founder-supplied photo', () => {
     const { getByTestId } = render(<AboutScreen />);
     expect(getByTestId('meet-card-remy')).toBeTruthy();
     expect(getByTestId('meet-card-photo-remy')).toBeTruthy();
   });
 
-  it('renders the pull-quote primitive', () => {
-    const { getByTestId } = render(<AboutScreen />);
+  it('renders the pull-quote primitive inside the Origins section', () => {
+    const { getByTestId, getByText } = render(<AboutScreen />);
     expect(getByTestId('pull-quote')).toBeTruthy();
+    expect(getByText('Bemy = Beau + Remy')).toBeTruthy();
+  });
+
+  it('does not render the cheesy footer line', () => {
+    const { queryByText, queryByTestId } = render(<AboutScreen />);
+    expect(queryByText(/Made with care in Australia/)).toBeNull();
+    expect(queryByTestId('about-footer')).toBeNull();
+  });
+
+  it('does not contain any em-dashes in rendered text', () => {
+    const { queryAllByText } = render(<AboutScreen />);
+    // Paranoid hyphen / em-dash scrub check. Founder feedback May 3 2026
+    // explicitly removed all em-dashes from the page copy.
+    expect(queryAllByText(/—/)).toHaveLength(0);
   });
 
   it('Send Feedback CTA fires a light haptic and routes to /(main)/feedback', async () => {

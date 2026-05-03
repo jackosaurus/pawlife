@@ -23,7 +23,7 @@ const flattenStyle = (style: unknown): Record<string, unknown> => {
 };
 
 describe('MeetCard', () => {
-  it('renders heading, subtitle, and body string', () => {
+  it('renders heading (just the name), subtitle, and body string', () => {
     const { getByText } = render(
       <MeetCard
         name="Beau"
@@ -31,7 +31,9 @@ describe('MeetCard', () => {
         body="Beau is the older of the two."
       />,
     );
-    expect(getByText('Meet Beau')).toBeTruthy();
+    // Heading is just the pet's name now; "Meet" prefix dropped per the
+    // May 3 2026 #2 vertical-stack revision.
+    expect(getByText('Beau')).toBeTruthy();
     expect(getByText('Cocker spaniel × poodle · 8 years')).toBeTruthy();
     expect(getByText('Beau is the older of the two.')).toBeTruthy();
   });
@@ -54,7 +56,7 @@ describe('MeetCard', () => {
     expect(getByText('Second paragraph.')).toBeTruthy();
   });
 
-  it('falls back to the bordered initials Avatar when photoUri is undefined', () => {
+  it('falls back to a plum placeholder block with the first initial when photoUri is undefined', () => {
     const { getByTestId, queryByTestId, getByText } = render(
       <MeetCard
         name="Beau"
@@ -62,21 +64,23 @@ describe('MeetCard', () => {
         body="..."
       />,
     );
-    // Avatar fallback path renders the dustyPlum disc with the first letter
-    // when bordered + no URI.
-    expect(getByTestId('avatar-fallback')).toBeTruthy();
+    // The new fallback path is a same-dimensions plum block with the
+    // pet's first initial centered (no Avatar component).
+    expect(getByTestId('meet-card-photo-fallback-beau')).toBeTruthy();
     expect(getByText('B')).toBeTruthy();
     expect(queryByTestId('meet-card-photo-beau')).toBeNull();
 
     const fallbackStyle = flattenStyle(
-      getByTestId('avatar-fallback').props.style,
+      getByTestId('meet-card-photo-fallback-beau').props.style,
     );
     expect(fallbackStyle.backgroundColor).toBe(Colors.dustyPlum);
-    expect(fallbackStyle.borderWidth).toBe(3);
-    expect(fallbackStyle.borderColor).toBe(Colors.primary);
+    expect(fallbackStyle.aspectRatio).toBe(4 / 5);
+    expect(fallbackStyle.width).toBe('100%');
+    // Subtle 8pt rounded corner — no circle.
+    expect(fallbackStyle.borderRadius).toBe(8);
   });
 
-  it('renders the local image when photoUri is provided', () => {
+  it('renders the local image at full content width with no border or shadow', () => {
     // require() at runtime resolves to a numeric asset id; mocked with a sentinel.
     const fakeAsset = 42 as unknown as number;
     const { getByTestId, queryByTestId } = render(
@@ -88,18 +92,25 @@ describe('MeetCard', () => {
       />,
     );
     expect(getByTestId('meet-card-photo-remy')).toBeTruthy();
-    // No fallback Avatar when a photo is present.
-    expect(queryByTestId('avatar-fallback')).toBeNull();
+    // No fallback placeholder when a photo is present.
+    expect(queryByTestId('meet-card-photo-fallback-remy')).toBeNull();
 
     const photoStyle = flattenStyle(
       getByTestId('meet-card-photo-remy').props.style,
     );
-    // Matches Avatar size="lg" — 96pt circle, 3pt plum border.
-    expect(photoStyle.width).toBe(96);
-    expect(photoStyle.height).toBe(96);
-    expect(photoStyle.borderRadius).toBe(48);
-    expect(photoStyle.borderWidth).toBe(3);
-    expect(photoStyle.borderColor).toBe(Colors.primary);
+    // Full content width, 4:5 aspect (matches the underlying 1024×1280 crop).
+    expect(photoStyle.width).toBe('100%');
+    expect(photoStyle.aspectRatio).toBe(4 / 5);
+    // Subtle 8pt rounded corner — no circular crop.
+    expect(photoStyle.borderRadius).toBe(8);
+    // Critically: no border, no shadow, no elevation. Founder feedback locks
+    // the photo to a clean editorial treatment.
+    expect(photoStyle.borderWidth).toBeUndefined();
+    expect(photoStyle.borderColor).toBeUndefined();
+    expect(photoStyle.shadowColor).toBeUndefined();
+    expect(photoStyle.shadowOpacity).toBeUndefined();
+    expect(photoStyle.shadowRadius).toBeUndefined();
+    expect(photoStyle.elevation).toBeUndefined();
   });
 
   it('exposes a photo accessibilityLabel including the pet name', () => {
@@ -115,5 +126,22 @@ describe('MeetCard', () => {
     expect(
       getByTestId('meet-card-photo-remy').props.accessibilityLabel,
     ).toBe('Photo of Remy');
+  });
+
+  it('uses a vertical layout (no flex-row) — heading + subtitle + body stacked below the photo', () => {
+    const fakeAsset = 99 as unknown as number;
+    const { getByTestId } = render(
+      <MeetCard
+        name="Beau"
+        subtitle="Cocker spaniel × poodle · 8 years"
+        body="Beau is sweet."
+        photoUri={fakeAsset}
+      />,
+    );
+    // The card root wraps a stacked View — the photo is the first child,
+    // the heading + subtitle + body follow as siblings, not as a flex-row sibling.
+    const card = getByTestId('meet-card-beau');
+    // No flex-row class on the root.
+    expect(card.props.className ?? '').not.toContain('flex-row');
   });
 });
