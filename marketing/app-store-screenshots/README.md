@@ -18,10 +18,10 @@ Then open `http://localhost:3000`. You'll see the six frames stacked. Frames 2�
 
 Save the four real-app captures into `public/screenshots/en/` with these exact filenames:
 
-- `02-meet.png` — About page, Meet Beau + Meet Remy cards visible
+- `02-meet.png` — About page top: cat+dog illustration, Bemy wordmark, tagline, "Hi, I'm Jack" intro visible
 - `03-dashboard.png` — Dashboard with Beau + Remy + 1 "needs attention" item
-- `04-pet-detail.png` — Beau's pet detail screen
-- `05-medications.png` — Beau's medications list, mixed states
+- `04-pet-detail.png` — Beau's pet detail Profile tab (about + allergies + insurance)
+- `05-medications.png` — Remy's medications list with Heartworm "Due today" + Log Dose pill
 
 Capture at the iOS simulator's iPhone 16 Pro Max device target (1290×2796 native resolution). They must be flattened RGB PNGs (Apple rejects RGBA). If a capture has transparency, run it through Preview → Export → PNG (uncheck "Alpha"), or:
 

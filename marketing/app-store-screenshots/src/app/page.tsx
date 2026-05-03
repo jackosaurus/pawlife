@@ -107,8 +107,8 @@ const FRAMES: FrameCopy[] = [
   },
   {
     id: "meet",
-    headline: "Made for two dogs.",
-    subhead: "Built around Beau and Remy. Made for yours.",
+    headline: "Hi, I'm Jack.",
+    subhead: "Built on nights and weekends, for pets like yours.",
     capturePath: "/screenshots/en/02-meet.png",
     captureFilename: "02-meet.png",
   },
@@ -130,7 +130,7 @@ const FRAMES: FrameCopy[] = [
   {
     id: "medications",
     headline: "Knows what's due.",
-    subhead: "Daily, weekly, monthly, or as needed.",
+    subhead: "A gentle nudge when it matters.",
     capturePath: "/screenshots/en/05-medications.png",
     captureFilename: "05-medications.png",
   },
