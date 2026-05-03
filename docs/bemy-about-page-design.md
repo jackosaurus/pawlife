@@ -2,21 +2,51 @@
 
 > Visual / interaction spec for the new About page reachable from the menu
 > (Settings · Pet Family · Send Feedback). Copy is owned by the PM agent in
-> `docs/bemy-about-page-copy.md` (Part 1 ships in app, 312 words across
-> 5 sections: "Hi, I'm Jack" / "Why I built it" / "What Bemy is, and isn't" /
-> "A small ask" / "Thanks for being here", signed "— Jack"). Tokens,
-> components, and patterns referenced below are canonical in
-> `docs/bemy-design-system.md`; this doc only spells out the page-specific
-> decisions.
->
-> **Section-count alignment:** the PM lands on 5 sections, all short.
-> The layout below uses the PM's actual 5 section headings; the
-> word-mockup in § 2 was authored generically and should be read with
-> "Why Bemy exists" / "Where the name comes from" / etc. substituted
-> by the PM headings 1:1. The pull-quote ("Bemy = Beau + Remy") sits
-> inside the first section ("Hi, I'm Jack") immediately after the
-> sentence that names the dogs — see § 2 *Pull-quote placement update*
-> below.
+> `docs/bemy-about-page-copy.md`. Tokens, components, and patterns
+> referenced below are canonical in `docs/bemy-design-system.md`; this
+> doc only spells out the page-specific decisions.
+
+---
+
+## REVISION — 2026-05-03 — Meet Beau & Meet Remy cards
+
+**The PM has revised the page from 5 sections to 7**, replacing the
+original fabricated "Why I built it" anecdotes (autumn booster, sticky
+note, etc.) with the founder's real stories about his actual dogs. Each
+dog now gets a dedicated card with a photo and a short personality +
+medical-context paragraph. The "Bemy = Beau + Remy" pull-quote moves to
+sit immediately after both cards, where the namesake reveal lands hardest.
+
+**The page structure (revised, top to bottom):**
+
+1. Hero illustration (`welcome-hero.png`) + Fraunces "Bemy" wordmark + tagline
+2. **Hi, I'm Jack** — intro section
+3. **Meet Beau** — *NEW* — photo card + personality + medical context (cocker spaniel × poodle, 8 yrs, allergies, ear drops, allergy shots)
+4. **Meet Remy** — *NEW* — photo card + personality (bordoodle × poodle, 6 yrs, ball-obsessed, inseparable from Beau)
+5. **`<PullQuote>Bemy = Beau + Remy</PullQuote>`** — promoted pull-quote (was previously inside §1)
+6. **Why I built it** — re-anchored on the dogs' real medical needs, not invented anecdotes
+7. **What Bemy is, and isn't**
+8. **A small ask** — Send Feedback CTA
+9. **Thanks for being here** — sign-off
+
+**Imagery scenario lock changes:** Scenario B (real founder-supplied
+photos of Beau and Remy) is now the v1 recommended path, replacing
+Scenario A. See § 3 below for the updated reasoning. Scenario A
+(welcome-hero only) survives as the page hero at the top — both
+illustrations and photos coexist on the page, in different roles.
+
+**Asset paths the engineer should expect:**
+
+- `assets/images/beau.jpg` (or `.png`) — square, ≥512×512, founder-supplied. Until supplied, fall back to a placeholder square at `assets/images/beau-placeholder.png` OR an empty `<View>` block colored `Colors.dustyPlum` with the initial "B" centered (the same initials-fallback pattern the `Avatar` component already uses when `uri` is missing).
+- `assets/images/remy.jpg` — same.
+- The plum-bordered `Avatar` treatment (`bordered` prop, shipped in commit `9268050`) is the visual chassis for both photos. Use `size="lg"` (96pt circle, 3pt plum border) so the About-page dogs look identical to how a user's own pets appear on the pet-detail screen — that's the brand-cohesion win.
+
+**Out-of-date sections in this doc** (kept for design rationale, but
+the revision above supersedes them where they conflict):
+
+- §2 word-mockup — uses the original 5-section flow. Read the revision's 9-step structure for the actual ship target.
+- §3 Imagery scenarios — Scenario A was the v1 lock; Scenario B is now the v1 lock. The trade-off analysis in §3 is still useful context.
+- TL;DR table — "Imagery scenario" row reads as Scenario A; treat as Scenario B + A.
 
 ---
 
