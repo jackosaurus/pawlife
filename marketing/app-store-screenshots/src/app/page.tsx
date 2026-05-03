@@ -167,16 +167,16 @@ function Phone({ children, style }: PhoneProps) {
           width: "100%",
           height: "100%",
           position: "relative",
-          zIndex: 5,
+          zIndex: 1,
           pointerEvents: "none",
         }}
         draggable={false}
       />
-      {/* Screen content sits behind the bezel image with the bezel mask cut by the inner clip */}
+      {/* Screen content sits on top of the bezel, clipped to the screen window */}
       <div
         style={{
           position: "absolute",
-          zIndex: 1,
+          zIndex: 10,
           overflow: "hidden",
           left: `${SC_L}%`,
           top: `${SC_T}%`,
@@ -254,7 +254,6 @@ function HeroComposite() {
         flexDirection: "column",
       }}
     >
-      <ScreenBlanks />
       {/* Top 50% — illustration */}
       <div
         style={{
@@ -336,7 +335,6 @@ function QuietlyYoursComposite() {
         boxSizing: "border-box",
       }}
     >
-      <ScreenBlanks />
       <div
         style={{
           fontFamily: "var(--font-fraunces), serif",
