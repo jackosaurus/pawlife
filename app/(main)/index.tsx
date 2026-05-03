@@ -102,7 +102,15 @@ export default function DashboardScreen() {
         <Image
           source={dashboardBg}
           style={StyleSheet.absoluteFillObject}
-          resizeMode="cover"
+          // `contain` shows the whole textured composition. The image's own
+          // cream-yellow base color matches the page bg `#FFF8E7`, so any
+          // letterbox margin (top/bottom on most phones, left/right on the
+          // shorter SE form factor) blends invisibly into the page —
+          // effectively no visible gaps on any device. Switched from `cover`
+          // on May 3 2026: cover was scaling the image up enough to crop
+          // the wave shapes that are concentrated near the corners, leaving
+          // only the calmer center visible.
+          resizeMode="contain"
           accessibilityLabel=""
         />
       </View>
