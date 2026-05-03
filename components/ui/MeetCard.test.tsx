@@ -98,13 +98,14 @@ describe('MeetCard', () => {
     const photoStyle = flattenStyle(
       getByTestId('meet-card-photo-remy').props.style,
     );
-    // Full content width, 4:5 aspect (matches the underlying 1024×1280 crop).
-    expect(photoStyle.width).toBe('100%');
+    // 75% of content width, centered (alignSelf), 4:5 aspect.
+    expect(photoStyle.width).toBe('75%');
     expect(photoStyle.aspectRatio).toBe(4 / 5);
-    // Subtle 8pt rounded corner — no circular crop.
-    expect(photoStyle.borderRadius).toBe(8);
+    expect(photoStyle.alignSelf).toBe('center');
+    // 16pt rounded corners — founder ask May 3 2026.
+    expect(photoStyle.borderRadius).toBe(16);
     // Critically: no border, no shadow, no elevation. Founder feedback locks
-    // the photo to a clean editorial treatment.
+    // the illustration to a clean editorial treatment.
     expect(photoStyle.borderWidth).toBeUndefined();
     expect(photoStyle.borderColor).toBeUndefined();
     expect(photoStyle.shadowColor).toBeUndefined();
@@ -113,7 +114,7 @@ describe('MeetCard', () => {
     expect(photoStyle.elevation).toBeUndefined();
   });
 
-  it('exposes a photo accessibilityLabel including the pet name', () => {
+  it('exposes an illustration accessibilityLabel including the pet name', () => {
     const fakeAsset = 7 as unknown as number;
     const { getByTestId } = render(
       <MeetCard
@@ -125,10 +126,10 @@ describe('MeetCard', () => {
     );
     expect(
       getByTestId('meet-card-photo-remy').props.accessibilityLabel,
-    ).toBe('Photo of Remy');
+    ).toBe('Illustration of Remy');
   });
 
-  it('uses a vertical layout (no flex-row) — heading + subtitle + body stacked below the photo', () => {
+  it('uses a vertical layout (no flex-row) — heading + subtitle stacked above the illustration, body below', () => {
     const fakeAsset = 99 as unknown as number;
     const { getByTestId } = render(
       <MeetCard
@@ -138,10 +139,9 @@ describe('MeetCard', () => {
         photoUri={fakeAsset}
       />,
     );
-    // The card root wraps a stacked View — the photo is the first child,
-    // the heading + subtitle + body follow as siblings, not as a flex-row sibling.
+    // The card root wraps a stacked View — heading first, then subtitle,
+    // then the illustration, then the body. No flex-row.
     const card = getByTestId('meet-card-beau');
-    // No flex-row class on the root.
     expect(card.props.className ?? '').not.toContain('flex-row');
   });
 });

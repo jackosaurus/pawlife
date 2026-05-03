@@ -25,43 +25,65 @@ interface MeetCardProps {
   petType?: 'dog' | 'cat';
 }
 
-// Photo aspect ratio matches the underlying 4:5 source crop (1024×1280).
-// Rendered at full content width by the parent (page horizontal padding only),
-// so the image consumes the full column width and the height tracks via
-// aspectRatio. This is the dominant visual element of each card.
+// Illustrations are 4:5 portrait (1122×1402 source). Rendered at 75% of
+// content width centered (so an iPhone SE renders ~245×306pt) — small
+// enough that the body text below the heading still fits on screen
+// without scrolling, large enough to read the dog clearly. Rounded
+// corners (16pt) per founder ask.
 const PHOTO_ASPECT_RATIO = 4 / 5;
-// Subtle 8pt rounded corner — keeps the photo feeling like an editorial
-// image rather than a hard-cropped tile, but well under the circular
-// treatment we removed.
-const PHOTO_BORDER_RADIUS = 8;
+const PHOTO_BORDER_RADIUS = 16;
+const PHOTO_WIDTH_FRACTION = '75%' as const;
 
 /**
- * "Beau" / "Remy" Meet card layout — full-width photo on top, text stacked
- * below. No circle, no border, no shadow. See the May 3 2026 (#2) revision
- * in `docs/bemy-about-page-design.md` for the locked layout decisions.
+ * "Beau" / "Remy" Meet card layout — heading first, then subtitle, then a
+ * centered illustration with rounded corners, then the body copy. See the
+ * May 3 2026 (#3) revision: founder swapped to illustrated portraits with
+ * a soft watercolor living-room scene + asked the photo to sit UNDER the
+ * heading (not above), at a smaller size that doesn't dominate the screen.
  */
 export function MeetCard({ name, subtitle, body, photoUri }: MeetCardProps) {
   return (
     <View testID={`meet-card-${name.toLowerCase()}`}>
+      {/* Heading + subtitle come first now. */}
+      <Text
+        accessibilityRole="header"
+        className="text-title text-primary"
+        style={{
+          fontFamily: DisplayFontFamily.semibold,
+          color: Colors.primary,
+        }}
+      >
+        {name}
+      </Text>
+      <Text className="text-caption text-text-secondary italic mt-1">
+        {subtitle}
+      </Text>
+
+      {/* Illustration sits below the heading, centered, sized to fit on
+          screen alongside the body copy. */}
       {photoUri !== undefined ? (
         <Image
           source={photoUri}
-          accessibilityLabel={`Photo of ${name}`}
+          accessibilityLabel={`Illustration of ${name}`}
           style={{
-            width: '100%',
+            width: PHOTO_WIDTH_FRACTION,
             aspectRatio: PHOTO_ASPECT_RATIO,
             borderRadius: PHOTO_BORDER_RADIUS,
+            alignSelf: 'center',
+            marginTop: 16,
           }}
           resizeMode="cover"
           testID={`meet-card-photo-${name.toLowerCase()}`}
         />
       ) : (
         <View
-          accessibilityLabel={`Placeholder photo of ${name}`}
+          accessibilityLabel={`Placeholder illustration of ${name}`}
           style={{
-            width: '100%',
+            width: PHOTO_WIDTH_FRACTION,
             aspectRatio: PHOTO_ASPECT_RATIO,
             borderRadius: PHOTO_BORDER_RADIUS,
+            alignSelf: 'center',
+            marginTop: 16,
             backgroundColor: Colors.dustyPlum,
             alignItems: 'center',
             justifyContent: 'center',
@@ -81,21 +103,7 @@ export function MeetCard({ name, subtitle, body, photoUri }: MeetCardProps) {
         </View>
       )}
 
-      {/* Heading sits 16pt below the photo's bottom edge. */}
-      <Text
-        accessibilityRole="header"
-        className="text-title text-primary mt-4"
-        style={{
-          fontFamily: DisplayFontFamily.semibold,
-          color: Colors.primary,
-        }}
-      >
-        {name}
-      </Text>
-      <Text className="text-caption text-text-secondary italic mt-1">
-        {subtitle}
-      </Text>
-      <View className="mt-3">
+      <View className="mt-4">
         {typeof body === 'string' ? (
           <Text className="text-body text-text-primary">{body}</Text>
         ) : (
