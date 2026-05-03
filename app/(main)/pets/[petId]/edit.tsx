@@ -514,10 +514,12 @@ export default function EditPetScreen() {
             )}
           />
 
-          {/* Age Toggle */}
-          <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-text-secondary text-body">
-              I don't know the exact date of birth
+          {/* Age Toggle — gap-3 + flex-1 prevents the label from butting into
+              the 51pt switch slot at larger Fraunces body sizes (designer spec
+              docs/bemy-edit-pet-dob-toggle-spec.md, May 3 2026). */}
+          <View className="flex-row items-center gap-3 mb-4">
+            <Text className="text-text-secondary text-body flex-1 leading-snug">
+              I don't know their exact birthday
             </Text>
             <Switch
               value={useApproxAge}

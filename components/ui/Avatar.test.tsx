@@ -61,7 +61,12 @@ describe('Avatar', () => {
       expect(style.backgroundColor).toBe(Colors.primary);
     });
 
-    it('applies a 3pt Colors.primary border at size="lg" when bordered', () => {
+    // Post May-3-2026 yellow-band iteration: the bordered variant wraps
+    // the inner Image/fallback in a View carrying the plum border +
+    // brandYellow background. The yellow band shows in the gap between
+    // the plum border and the inner element. Tests assert the wrapper.
+
+    it('renders a wrapping bordered View at size="lg" with 3pt plum border + yellow band', () => {
       render(
         <Avatar
           uri="https://example.com/photo.jpg"
@@ -70,12 +75,16 @@ describe('Avatar', () => {
           bordered
         />,
       );
-      const style = flattenStyle(screen.getByTestId('avatar-image').props.style);
-      expect(style.borderWidth).toBe(3);
-      expect(style.borderColor).toBe(Colors.primary);
+      const wrapper = flattenStyle(screen.getByTestId('avatar-bordered').props.style);
+      expect(wrapper.borderWidth).toBe(3);
+      expect(wrapper.borderColor).toBe(Colors.primary);
+      expect(wrapper.backgroundColor).toBe(Colors.brandYellow);
+      // Inner image no longer carries a border — the wrapper does.
+      const inner = flattenStyle(screen.getByTestId('avatar-image').props.style);
+      expect(inner.borderWidth).toBeUndefined();
     });
 
-    it('applies a 2pt border at size="md" when bordered', () => {
+    it('renders a 2pt plum border + yellow band at size="md" when bordered', () => {
       render(
         <Avatar
           uri="https://example.com/photo.jpg"
@@ -84,12 +93,13 @@ describe('Avatar', () => {
           bordered
         />,
       );
-      const style = flattenStyle(screen.getByTestId('avatar-image').props.style);
-      expect(style.borderWidth).toBe(2);
-      expect(style.borderColor).toBe(Colors.primary);
+      const wrapper = flattenStyle(screen.getByTestId('avatar-bordered').props.style);
+      expect(wrapper.borderWidth).toBe(2);
+      expect(wrapper.borderColor).toBe(Colors.primary);
+      expect(wrapper.backgroundColor).toBe(Colors.brandYellow);
     });
 
-    it('applies a 1.5pt border at size="sm" when bordered', () => {
+    it('renders a 1.5pt plum border + yellow band at size="sm" when bordered', () => {
       render(
         <Avatar
           uri="https://example.com/photo.jpg"
@@ -98,17 +108,23 @@ describe('Avatar', () => {
           bordered
         />,
       );
-      const style = flattenStyle(screen.getByTestId('avatar-image').props.style);
-      expect(style.borderWidth).toBe(1.5);
-      expect(style.borderColor).toBe(Colors.primary);
+      const wrapper = flattenStyle(screen.getByTestId('avatar-bordered').props.style);
+      expect(wrapper.borderWidth).toBe(1.5);
+      expect(wrapper.borderColor).toBe(Colors.primary);
+      expect(wrapper.backgroundColor).toBe(Colors.brandYellow);
     });
 
-    it('swaps the fallback fill to dustyPlum when bordered and no URI', () => {
+    it('swaps the inner fallback fill to dustyPlum when bordered and no URI; rings live on the wrapper', () => {
       render(<Avatar name="Buddy" size="lg" bordered />);
-      const style = flattenStyle(screen.getByTestId('avatar-fallback').props.style);
-      expect(style.backgroundColor).toBe(Colors.dustyPlum);
-      expect(style.borderWidth).toBe(3);
-      expect(style.borderColor).toBe(Colors.primary);
+      // Inner fallback disc: dustyPlum background, no border
+      const fallback = flattenStyle(screen.getByTestId('avatar-fallback').props.style);
+      expect(fallback.backgroundColor).toBe(Colors.dustyPlum);
+      expect(fallback.borderWidth).toBeUndefined();
+      // Outer wrapper: 3pt plum border + brandYellow band
+      const wrapper = flattenStyle(screen.getByTestId('avatar-bordered').props.style);
+      expect(wrapper.borderWidth).toBe(3);
+      expect(wrapper.borderColor).toBe(Colors.primary);
+      expect(wrapper.backgroundColor).toBe(Colors.brandYellow);
     });
 
     it('keeps the fallback fill at Colors.primary when not bordered (no URI)', () => {
